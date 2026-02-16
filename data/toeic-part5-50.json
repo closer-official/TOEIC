@@ -1,0 +1,380 @@
+[
+  {
+    "question": "The new policy will ____ affect all employees starting next month.",
+    "options": ["direct", "directly", "direction", "directive"],
+    "answer": "B",
+    "explanation": "副詞で動詞を修飾",
+    "category": "品詞"
+  },
+  {
+    "question": "We need to ____ the report before the deadline.",
+    "options": ["completion", "complete", "completely", "completing"],
+    "answer": "B",
+    "explanation": "need toの後は動詞原形",
+    "category": "品詞"
+  },
+  {
+    "question": "The manager made a ____ decision to expand the branch.",
+    "options": ["quick", "quickly", "quicken", "quickness"],
+    "answer": "A",
+    "explanation": "名詞decisionを修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "Sales have ____ increased since we launched the campaign.",
+    "options": ["significant", "significantly", "significance", "signify"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "Please submit your ____ by Friday.",
+    "options": ["propose", "proposal", "proposed", "proposedly"],
+    "answer": "B",
+    "explanation": "yourの後は名詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The board will ____ the merger next week.",
+    "options": ["discussion", "discuss", "discussible", "discussively"],
+    "answer": "B",
+    "explanation": "willの後は動詞原形",
+    "category": "品詞"
+  },
+  {
+    "question": "Her ____ presentation impressed the clients.",
+    "options": ["confidence", "confident", "confidently", "confide"],
+    "answer": "B",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The contract has been ____ signed by both parties.",
+    "options": ["official", "officially", "office", "officiate"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We received ____ feedback from the survey.",
+    "options": ["value", "valuable", "valuably", "valuation"],
+    "answer": "B",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The company ____ announced its quarterly results.",
+    "options": ["recent", "recently", "recentness", "recented"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "All applicants must ____ the form online.",
+    "options": ["completion", "complete", "completing", "completely"],
+    "answer": "B",
+    "explanation": "mustの後は動詞原形",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ of the project is scheduled for March.",
+    "options": ["complete", "completion", "completing", "completely"],
+    "answer": "B",
+    "explanation": "theの後は名詞",
+    "category": "品詞"
+  },
+  {
+    "question": "She spoke ____ at the conference.",
+    "options": ["persuade", "persuasive", "persuasively", "persuasion"],
+    "answer": "C",
+    "explanation": "動詞spokeを修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ report is on your desk.",
+    "options": ["finance", "financial", "financially", "financing"],
+    "answer": "B",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We ____ recommend booking in advance.",
+    "options": ["strong", "strongly", "strength", "strengthen"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The meeting has been ____ until next Monday.",
+    "options": ["postpone", "postponement", "postponed", "postponing"],
+    "answer": "C",
+    "explanation": "受動態なので過去分詞",
+    "category": "品詞"
+  },
+  {
+    "question": "Employees are ____ to use the new system.",
+    "options": ["require", "requirement", "required", "requiring"],
+    "answer": "C",
+    "explanation": "be動詞の後は過去分詞（受動態）",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ department will handle your request.",
+    "options": ["person", "personal", "personnel", "personally"],
+    "answer": "C",
+    "explanation": "人事部門はpersonnel",
+    "category": "品詞"
+  },
+  {
+    "question": "The product was ____ developed in our lab.",
+    "options": ["origin", "original", "originally", "originate"],
+    "answer": "C",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We need ____ evidence before proceeding.",
+    "options": ["add", "addition", "additional", "additionally"],
+    "answer": "C",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The shipment will arrive ____ next week.",
+    "options": ["probable", "probably", "probability", "probate"],
+    "answer": "B",
+    "explanation": "文全体を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "Please ensure ____ delivery of the package.",
+    "options": ["prompt", "promptly", "promptness", "prompting"],
+    "answer": "A",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The committee ____ approved the budget.",
+    "options": ["unanimous", "unanimously", "unanimity", "unanimousness"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We are ____ for your continued support.",
+    "options": ["grateful", "gratefully", "gratitude", "gratify"],
+    "answer": "A",
+    "explanation": "be動詞の後は形容詞（C補語）",
+    "category": "品詞"
+  },
+  {
+    "question": "The office will be closed ____ the holiday.",
+    "options": ["during", "while", "through", "since"],
+    "answer": "A",
+    "explanation": "名詞の前はduring",
+    "category": "前置詞"
+  },
+  {
+    "question": "The report is due ____ the end of the month.",
+    "options": ["by", "until", "at", "in"],
+    "answer": "A",
+    "explanation": "期限はby",
+    "category": "前置詞"
+  },
+  {
+    "question": "She has been working here ____ 2020.",
+    "options": ["for", "since", "from", "during"],
+    "answer": "B",
+    "explanation": "過去の一点はsince",
+    "category": "時制"
+  },
+  {
+    "question": "The conference ____ when we arrived.",
+    "options": ["already started", "had already started", "has started", "starts"],
+    "answer": "B",
+    "explanation": "到着より前の完了は過去完了",
+    "category": "時制"
+  },
+  {
+    "question": "By next year, we ____ the new branch.",
+    "options": ["open", "will open", "will have opened", "opened"],
+    "answer": "C",
+    "explanation": "by＋未来は未来完了",
+    "category": "時制"
+  },
+  {
+    "question": "The manager ____ to Tokyo tomorrow.",
+    "options": ["travel", "travels", "is traveling", "traveled"],
+    "answer": "C",
+    "explanation": "予定は現在進行形",
+    "category": "時制"
+  },
+  {
+    "question": "All expenses must be ____ in advance.",
+    "options": ["approve", "approved", "approval", "approving"],
+    "answer": "B",
+    "explanation": "受動態で過去分詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ updated manual is on the server.",
+    "options": ["recent", "recently", "recentness", "recented"],
+    "answer": "A",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We were ____ informed of the change.",
+    "options": ["formal", "formally", "formality", "formulate"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ of the meeting is to discuss the budget.",
+    "options": ["purpose", "purposely", "purposeful", "purposeless"],
+    "answer": "A",
+    "explanation": "theの後は名詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The software was ____ installed yesterday.",
+    "options": ["success", "successful", "successfully", "succeed"],
+    "answer": "C",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We need to ____ the issue immediately.",
+    "options": ["resolution", "resolve", "resolved", "resolvable"],
+    "answer": "B",
+    "explanation": "need toの後は動詞原形",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ agreement will take effect in April.",
+    "options": ["negotiate", "negotiation", "negotiated", "negotiable"],
+    "answer": "C",
+    "explanation": "名詞を修飾する過去分詞（締結された）",
+    "category": "品詞"
+  },
+  {
+    "question": "He ____ submitted the application last week.",
+    "options": ["final", "finally", "finalize", "finality"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ in sales was unexpected.",
+    "options": ["decline", "declined", "declining", "declination"],
+    "answer": "A",
+    "explanation": "theの後は名詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The training session will be ____ next month.",
+    "options": ["conduct", "conducted", "conducting", "conduction"],
+    "answer": "B",
+    "explanation": "受動態で過去分詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We are ____ considering your proposal.",
+    "options": ["serious", "seriously", "seriousness", "serial"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ results were announced yesterday.",
+    "options": ["quarter", "quarterly", "quarterly", "quartering"],
+    "answer": "B",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "Applicants must have ____ experience in sales.",
+    "options": ["consider", "considerable", "considerably", "consideration"],
+    "answer": "B",
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The document has been ____ reviewed.",
+    "options": ["thorough", "thoroughly", "thoroughness", "through"],
+    "answer": "B",
+    "explanation": "過去分詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We ____ received your payment.",
+    "options": ["thank", "thankful", "thankfully", "thanks"],
+    "answer": "C",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ deadline is next Friday.",
+    "options": ["submit", "submission", "submitted", "submissive"],
+    "answer": "B",
+    "explanation": "名詞を修飾する名詞（提出の）",
+    "category": "品詞"
+  },
+  {
+    "question": "She ____ accepted the new position.",
+    "options": ["eager", "eagerly", "eagerness", "eagle"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ schedule will be sent by email.",
+    "options": ["revise", "revision", "revised", "revisable"],
+    "answer": "C",
+    "explanation": "名詞を修飾する過去分詞",
+    "category": "品詞"
+  },
+  {
+    "question": "All staff are ____ to attend the workshop.",
+    "options": ["expect", "expectation", "expected", "expecting"],
+    "answer": "C",
+    "explanation": "受動態で過去分詞",
+    "category": "品詞"
+  },
+  {
+    "question": "The project was ____ completed on time.",
+    "options": ["succeed", "success", "successful", "successfully"],
+    "answer": "D",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  },
+  {
+    "question": "We have ____ received your order.",
+    "options": ["duly", "due", "duty", "dual"],
+    "answer": "A",
+    "explanation": "動詞を修飾する副詞（正式に）",
+    "category": "品詞"
+  },
+  {
+    "question": "The ____ policy takes effect in January.",
+    "options": ["revise", "revision", "revised", "revisory"],
+    "answer": "C",
+    "explanation": "改訂された＝過去分詞が名詞を修飾",
+    "category": "品詞"
+  },
+  {
+    "question": "Payments are ____ on the 25th of each month.",
+    "options": ["due", "duely", "dueness", "durability"],
+    "answer": "A",
+    "explanation": "be dueで「支払期日である」",
+    "category": "品詞"
+  },
+  {
+    "question": "The company ____ operates in over 30 countries.",
+    "options": ["current", "currently", "currency", "currentness"],
+    "answer": "B",
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞"
+  }
+]

@@ -1,0 +1,30 @@
+# 毎週月曜 4:00 (JST) に50問を生成・検証し Supabase にマージ
+name: Weekly Question Generation
+
+on:
+  schedule:
+    - cron: '0 19 * * 0'   # 月曜 19:00 UTC = 月曜 4:00 JST (翌日)
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run Gen & Validate pipeline
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run pipeline
