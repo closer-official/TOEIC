@@ -10,4 +10,4 @@ export interface GameQuestion {
   vocab_map?: Record<string, string[]>;
 }
 
-export type GameMode = 'national' | 'forYou' | 'vocab';
+export type GameMode = 'part5-national' | 'part5-forYou' | 'vocab-national' | 'vocab-forYou';

@@ -9,7 +9,6 @@ import { seedIfEmpty } from '@/lib/seed';
 import { incrementTodayPlay, canPlayFreeToday } from '@/lib/dailyLimit';
 import { createClient } from '@/lib/supabase/client';
 import { PaywallModal } from '@/components/PaywallModal';
-import { ExplanationWithVocab } from '@/components/ExplanationWithVocab';
 import type { GameQuestion, GameMode } from '@/types/game';
 
 const VOCAB_TIMEOUT_MS = 5000;
@@ -31,6 +30,31 @@ function toGameQuestion(w: Word): GameQuestion {
     correctIndex: w.correctIndex,
     type: w.type,
   };
+}
+
+function vocabListToQuestions(
+  list: { word: string; meanings?: string[] }[],
+  shuffle: <T>(arr: T[]) => T[]
+): GameQuestion[] {
+  return list.map((v, i) => {
+    const ms = Array.isArray(v.meanings) ? v.meanings : [v.word];
+    const opts: [string, string, string, string] = [
+      ms[0] ?? '',
+      ms[1] ?? ms[0] ?? '',
+      ms[2] ?? ms[0] ?? '',
+      ms[0] ?? '',
+    ];
+    const correct = opts[0];
+    const shuffled = shuffle([...opts]) as [string, string, string, string];
+    const correctIndex = shuffled.indexOf(correct);
+    return {
+      id: `vocab-${v.word}-${i}`,
+      question: v.word,
+      options: shuffled,
+      correctIndex: correctIndex >= 0 ? correctIndex : 0,
+      type: 'vocabulary' as const,
+    };
+  });
 }
 
 function supabaseToGameQuestion(q: {
@@ -65,7 +89,7 @@ function supabaseToGameQuestion(q: {
 function GameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mode: GameMode = (searchParams.get('mode') as GameMode) ?? 'national';
+  const mode: GameMode = (searchParams.get('mode') as GameMode) ?? 'part5-national';
 
   const [queue, setQueue] = useState<GameQuestion[]>([]);
   const [isSupabaseQueue, setIsSupabaseQueue] = useState(false);
@@ -75,7 +99,8 @@ function GameContent() {
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showExplanation, setShowExplanation] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [results, setResults] = useState<{ question: GameQuestion; userChoiceIndex: number; correct: boolean }[]>([]);
   const [registeredWords, setRegisteredWords] = useState<Set<string>>(new Set());
   const questionStartMsRef = useRef(Date.now());
   const totalTimeMsRef = useRef(0);
@@ -88,33 +113,43 @@ function GameContent() {
   const current = queue[currentIndex];
 
   const loadQueue = useCallback(async () => {
-    if (mode === 'vocab') {
+    const isVocab = mode.startsWith('vocab');
+    const isForYou = mode.endsWith('forYou');
+
+    if (mode === 'vocab-national') {
       try {
-        const res = await fetch('/api/vocabulary?userId=anon');
+        const res = await fetch('/api/vocab-default');
         if (res.ok) {
           const list = await res.json();
           if (list.length > 0) {
             const shuffle = <T,>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5);
-            const asQuestions: GameQuestion[] = list.map((v: { word: string; meanings: string[] }, i: number) => {
-              const opts = [
-                v.meanings[0] ?? '',
-                v.meanings[1] ?? v.meanings[0] ?? '',
-                v.meanings[2] ?? v.meanings[0] ?? '',
-                v.meanings[0] ?? '',
-              ].filter(Boolean).slice(0, 4) as [string, string, string, string];
-              const correct = opts[0];
-              const shuffled = shuffle(opts);
-              const correctIndex = shuffled.indexOf(correct);
-              return {
-                id: `vocab-${v.word}-${i}`,
-                question: v.word,
-                options: shuffled.length === 4 ? shuffled : (opts as [string, string, string, string]),
-                correctIndex: correctIndex >= 0 ? correctIndex : 0,
-                type: 'vocabulary',
-              };
-            });
+            const asQuestions = vocabListToQuestions(list, shuffle);
             setQueue(asQuestions);
             setLoading(false);
+            if (asQuestions.length > 0) incrementTodayPlay();
+            return;
+          }
+        }
+      } catch {
+        // fallback
+      }
+      setQueue([]);
+      setLoading(false);
+      return;
+    }
+
+    if (mode === 'vocab-forYou') {
+      try {
+        const uid = userIdRef.current ?? 'anon';
+        const res = await fetch(`/api/vocabulary?userId=${uid}`);
+        if (res.ok) {
+          const list = await res.json();
+          if (list.length > 0) {
+            const shuffle = <T,>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5);
+            const asQuestions = vocabListToQuestions(list, shuffle);
+            setQueue(asQuestions);
+            setLoading(false);
+            if (asQuestions.length > 0) incrementTodayPlay();
             return;
           }
         }
@@ -127,7 +162,7 @@ function GameContent() {
     }
 
     try {
-      const params = new URLSearchParams({ mode: mode === 'forYou' ? 'forYou' : 'national', limit: '20' });
+      const params = new URLSearchParams({ mode: isForYou ? 'forYou' : 'national', limit: '20' });
       if (userIdRef.current) params.set('userId', userIdRef.current);
       const res = await fetch(`/api/questions?${params}`);
       if (res.ok) {
@@ -235,7 +270,7 @@ function GameContent() {
         }
       }
 
-      if (userIdRef.current && mode !== 'vocab') {
+      if (userIdRef.current && mode.startsWith('part5')) {
         try {
           await fetch('/api/log', {
             method: 'POST',
@@ -256,9 +291,18 @@ function GameContent() {
       totalTimeMsRef.current += responseTime;
       if (correct) setCombo((c) => c + 1);
       else setCombo(0);
-      setShowExplanation(true);
+      setResults((r) => [...r, { question: word, userChoiceIndex: choiceIndex, correct }]);
+      if (currentIndex + 1 >= queue.length) {
+        setTimeout(() => setShowSummary(true), 600);
+      } else {
+        setTimeout(() => {
+          setCurrentIndex((i) => i + 1);
+          setAnswered(false);
+          setResult(null);
+        }, 600);
+      }
     },
-    [answered, queue, mode, recordAnswerLocal]
+    [answered, currentIndex, queue.length, mode, recordAnswerLocal]
   );
 
   const handleTimeout = useCallback(
@@ -267,7 +311,7 @@ function GameContent() {
       setAnswered(true);
       setResult('wrong');
       const responseTime = Date.now() - questionStartMsRef.current;
-      if (userIdRef.current && mode !== 'vocab') {
+      if (userIdRef.current && mode.startsWith('part5')) {
         try {
           await fetch('/api/log', {
             method: 'POST',
@@ -286,33 +330,35 @@ function GameContent() {
       }
       totalTimeMsRef.current += responseTime;
       setCombo(0);
-      setShowExplanation(true);
+      setResults((r) => [...r, { question: word, userChoiceIndex: -1, correct: false }]);
+      if (currentIndex + 1 >= queue.length) {
+        setTimeout(() => setShowSummary(true), 600);
+      } else {
+        setTimeout(() => {
+          setCurrentIndex((i) => i + 1);
+          setAnswered(false);
+          setResult(null);
+        }, 600);
+      }
     },
-    [answered, mode]
+    [answered, currentIndex, queue.length, mode]
   );
 
-  const goNext = useCallback(() => {
-    setShowExplanation(false);
-    setResult(null);
-    if (currentIndex + 1 >= queue.length) {
-      if (userIdRef.current && mode === 'national') {
-        const score = queue.filter((_, i) => i <= currentIndex).length;
-        fetch('/api/runs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: userIdRef.current,
-            score,
-            totalTimeMs: totalTimeMsRef.current,
-          }),
-        }).catch(() => {});
-      }
-      router.push(mode === 'national' ? '/ranking' : '/dashboard');
-    } else {
-      setCurrentIndex((i) => i + 1);
-      setAnswered(false);
+  const goToResult = useCallback(() => {
+    const score = results.filter((r) => r.correct).length;
+    if (userIdRef.current && (mode === 'part5-national' || mode === 'vocab-national')) {
+      fetch('/api/runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userIdRef.current,
+          score,
+          totalTimeMs: totalTimeMsRef.current,
+        }),
+      }).catch(() => {});
     }
-  }, [currentIndex, queue.length, mode, router]);
+    router.push(mode === 'part5-national' || mode === 'vocab-national' ? '/ranking' : '/dashboard');
+  }, [results, mode, router]);
 
   const handleRegisterWord = useCallback(
     async (word: string, meanings: string[]) => {
@@ -354,11 +400,22 @@ function GameContent() {
     );
   }
 
+  if (showSummary && results.length > 0) {
+    return (
+      <SummaryScreen
+        results={results}
+        onRegisterWord={handleRegisterWord}
+        registeredWords={registeredWords}
+        onFinish={goToResult}
+      />
+    );
+  }
+
   if (!current) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-zinc-950">
         <p className="text-white">
-          {mode === 'vocab' ? '登録単語がありません。問題で単語をタップして追加しましょう。' : '出題する問題がありません'}
+          {mode.startsWith('vocab') ? '登録単語がありません。Part 5の問題で単語をタップして追加しましょう。' : '出題する問題がありません'}
         </p>
         <button
           onClick={() => router.push('/')}
@@ -410,29 +467,7 @@ function GameContent() {
           answered={answered}
         />
 
-        <AnimatePresence>
-          {showExplanation && (
-            <>
-              <ExplanationWithVocab
-                explanation={current.explanation ?? null}
-                vocabMap={current.vocab_map ?? {}}
-                correctOption={current.options[current.correctIndex]}
-                onRegisterWord={handleRegisterWord}
-                registeredWords={registeredWords}
-              />
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={goNext}
-                className="w-full max-w-lg rounded-xl bg-amber-500 py-3 font-bold text-black"
-              >
-                {currentIndex + 1 >= queue.length ? '結果へ' : '次へ'}
-              </motion.button>
-            </>
-          )}
-        </AnimatePresence>
-
-        {!showExplanation && (
+        {!answered && (
           <div className="grid w-full max-w-lg grid-cols-2 gap-3">
             {current.options.map((opt, i) => (
               <motion.button
@@ -455,6 +490,114 @@ function GameContent() {
             ))}
           </div>
         )}
+        {answered && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-sm text-zinc-500"
+          >
+            {result === 'correct' ? '正解！' : '不正解'}
+          </motion.p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SummaryScreen({
+  results,
+  onRegisterWord,
+  registeredWords,
+  onFinish,
+}: {
+  results: { question: GameQuestion; userChoiceIndex: number; correct: boolean }[];
+  onRegisterWord: (word: string, meanings: string[]) => void;
+  registeredWords: Set<string>;
+  onFinish: () => void;
+}) {
+  const correctCount = results.filter((r) => r.correct).length;
+
+  return (
+    <div className="flex min-h-screen flex-col bg-zinc-950 px-4 py-8">
+      <div className="mx-auto w-full max-w-2xl">
+        <h2 className="text-xl font-bold text-white">解説</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          {correctCount} / {results.length} 正解
+        </p>
+        <p className="mt-2 text-xs text-zinc-500">
+          わからない単語をタップすると単語リストに追加されます
+        </p>
+
+        <div className="mt-6 space-y-6">
+          {results.map((r, i) => (
+            <motion.div
+              key={r.question.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="rounded-xl border border-zinc-700 bg-zinc-900/80 p-4"
+            >
+              <p className="text-sm text-zinc-500">Q{i + 1}</p>
+              <p className="mt-1 font-medium text-white">{r.question.question}</p>
+              <p className={`mt-1 text-sm ${r.correct ? 'text-green-400' : 'text-red-400'}`}>
+                正解: {r.question.options[r.question.correctIndex]}
+                {!r.correct && r.userChoiceIndex >= 0 && (
+                  <span className="ml-2">あなた: {r.question.options[r.userChoiceIndex]}</span>
+                )}
+              </p>
+              {r.question.explanation && (
+                <p className="mt-2 text-sm text-zinc-400">{r.question.explanation}</p>
+              )}
+              {/* Part 5: vocab_map の単語をタップで登録 */}
+              {r.question.vocab_map && Object.keys(r.question.vocab_map).length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {Object.entries(r.question.vocab_map).map(([word, meanings]) => (
+                    <button
+                      key={word}
+                      type="button"
+                      onClick={() => onRegisterWord(word, meanings)}
+                      className={`rounded-lg border px-2 py-1 text-sm ${
+                        registeredWords.has(word.toLowerCase())
+                          ? 'border-amber-500/50 bg-amber-500/20 text-amber-400'
+                          : 'border-zinc-600 bg-zinc-800 text-zinc-300 hover:border-amber-500/50'
+                      }`}
+                    >
+                      {word} → {meanings[0]}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* 単語モード: 問題の単語自体をタップで登録 */}
+              {r.question.type === 'vocabulary' && (
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onRegisterWord(r.question.question, r.question.options as unknown as string[])
+                    }
+                    className={`rounded-lg border px-2 py-1 text-sm ${
+                      registeredWords.has(r.question.question.toLowerCase())
+                        ? 'border-amber-500/50 bg-amber-500/20 text-amber-400'
+                        : 'border-zinc-600 bg-zinc-800 text-zinc-300 hover:border-amber-500/50'
+                    }`}
+                  >
+                    {r.question.question} → {r.question.options[r.question.correctIndex]}（単語リストに追加）
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={onFinish}
+          className="mt-8 w-full rounded-xl bg-amber-500 py-4 font-bold text-black"
+        >
+          終了
+        </motion.button>
       </div>
     </div>
   );

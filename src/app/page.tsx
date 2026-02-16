@@ -60,27 +60,37 @@ export default function HomePage() {
         transition={{ delay: 0.2 }}
         className="mt-12 flex w-full max-w-sm flex-col gap-4"
       >
+        <p className="text-center text-sm text-zinc-500">Part 5（文法・品詞）</p>
         <Link
-          href="/game?mode=national"
+          href="/game?mode=part5-national"
           className="flex items-center justify-center rounded-2xl bg-amber-500 py-5 text-lg font-bold text-black transition hover:bg-amber-400"
         >
-          全国モード（ランキング）
+          Part 5 全国モード
         </Link>
         <Link
-          href="/game?mode=forYou"
+          href="/game?mode=part5-forYou"
           className="flex items-center justify-center rounded-2xl border-2 border-amber-500/60 bg-amber-500/10 py-5 text-lg font-bold text-amber-400 transition hover:border-amber-500/20"
         >
-          For You（弱点強化）
+          Part 5 For You
+        </Link>
+
+        <p className="mt-4 text-center text-sm text-zinc-500">単語</p>
+        <Link
+          href="/game?mode=vocab-national"
+          className="flex items-center justify-center rounded-2xl bg-amber-500/80 py-5 text-lg font-bold text-black transition hover:bg-amber-500/90"
+        >
+          単語 全国モード
         </Link>
         <Link
-          href="/game?mode=vocab"
-          className="flex items-center justify-center rounded-2xl border border-zinc-600 py-5 text-lg font-medium text-white transition hover:border-amber-500/50 hover:bg-zinc-800"
+          href="/game?mode=vocab-forYou"
+          className="flex items-center justify-center rounded-2xl border-2 border-amber-500/60 bg-amber-500/10 py-5 text-lg font-bold text-amber-400 transition hover:border-amber-500/20"
         >
-          単語寿司打（登録単語）
+          単語 For You
         </Link>
+
         <Link
           href="/dashboard"
-          className="flex items-center justify-center rounded-xl border border-zinc-700 py-3 text-sm text-zinc-400 transition hover:text-white"
+          className="mt-4 flex items-center justify-center rounded-xl border border-zinc-700 py-3 text-sm text-zinc-400 transition hover:text-white"
         >
           記憶の分布図
         </Link>
