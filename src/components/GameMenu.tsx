@@ -116,8 +116,14 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.2 }}
-              className="fixed left-0 top-0 z-[101] flex h-full w-[min(300px,85vw)] max-w-[300px] flex-col overflow-hidden bg-zinc-900 shadow-2xl"
-              style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+              className="fixed left-0 top-0 z-[101] flex h-full w-[min(300px,85vw)] max-w-[300px] flex-col overflow-hidden shadow-2xl"
+              style={{
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingLeft: 'env(safe-area-inset-left)',
+                paddingBottom: 'env(safe-area-inset-bottom)',
+                backgroundColor: '#18181b',
+              }}
+              data-menu-drawer="nav-list"
             >
               {showNavList ? (
                 <>
@@ -133,19 +139,24 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
                     </button>
                   </div>
                   <nav
-                    className="flex-1 overflow-y-auto bg-zinc-900 px-2 py-4"
+                    className="flex-1 overflow-y-auto px-2 py-4"
                     aria-label="メインメニュー"
-                    style={{ minHeight: '280px' }}
+                    style={{
+                      minHeight: '320px',
+                      backgroundColor: '#18181b',
+                    }}
                   >
-                    <ul className="space-y-0.5" role="list">
+                    <ul role="list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                       {MAIN_MENU_ITEMS.map(({ label, href }) => (
-                        <li key={href}>
+                        <li key={href} style={{ marginBottom: '4px' }}>
                           <Link
                             href={href}
                             onClick={close}
-                            className={`block rounded-lg px-4 py-3.5 text-[15px] font-medium text-white transition hover:bg-zinc-800 ${
-                              pathname === href ? 'bg-amber-500/20 text-amber-400' : ''
-                            }`}
+                            className={pathname === href ? 'block rounded-lg px-4 py-3.5 text-[15px] font-medium bg-amber-500/20 text-amber-400' : 'block rounded-lg px-4 py-3.5 text-[15px] font-medium text-white hover:bg-zinc-800'}
+                            style={{
+                              color: pathname === href ? undefined : '#fff',
+                              textDecoration: 'none',
+                            }}
                           >
                             {label}
                           </Link>
