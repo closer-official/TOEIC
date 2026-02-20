@@ -83,7 +83,7 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
   const modeLabel = (m: string) => (m === 'part5' ? 'Part5' : '単語');
   const rankLabel = (r: string) => r;
 
-  const showNavList = variant === 'home';
+  const showPlayHistory = variant === 'game' && typeof onQuit === 'function';
 
   return (
     <>
@@ -114,63 +114,21 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.2 }}
-              className="fixed left-0 top-0 z-[101] flex h-full w-[min(300px,85vw)] max-w-[300px] flex-col overflow-hidden shadow-2xl"
+              className="fixed left-0 top-0 z-[101] overflow-hidden shadow-2xl"
               style={{
                 paddingTop: 'env(safe-area-inset-top)',
                 paddingLeft: 'env(safe-area-inset-left)',
                 paddingBottom: 'env(safe-area-inset-bottom)',
+                width: 'min(300px, 85vw)',
+                maxWidth: '300px',
+                height: '100%',
                 backgroundColor: '#18181b',
+                display: 'flex',
+                flexDirection: 'column',
               }}
               data-menu-drawer="nav-list"
             >
-              {showNavList ? (
-                <>
-                  <div className="flex shrink-0 items-center justify-between border-b border-zinc-700 px-4 py-4">
-                    <h2 className="text-lg font-bold text-white">メニュー</h2>
-                    <button
-                      type="button"
-                      onClick={close}
-                      className="touch-target min-h-[44px] min-w-[44px] text-zinc-400 active:opacity-80 hover:text-white"
-                      aria-label="閉じる"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <nav
-                    className="flex-1 overflow-y-auto px-2 py-4"
-                    aria-label="メインメニュー"
-                    style={{
-                      minHeight: '320px',
-                      backgroundColor: '#18181b',
-                    }}
-                  >
-                    <p style={{ margin: '0 0 8px 16px', fontSize: '12px', color: '#71717a' }}>メニュー一覧</p>
-                    <ul role="list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                      {MAIN_MENU_ITEMS.map(({ label, href }) => (
-                        <li key={href} style={{ marginBottom: '4px' }}>
-                          <a
-                            href={href}
-                            onClick={(e) => {
-                              close();
-                            }}
-                            style={{
-                              display: 'block',
-                              padding: '14px 16px',
-                              fontSize: '15px',
-                              fontWeight: 500,
-                              color: '#ffffff',
-                              textDecoration: 'none',
-                              borderRadius: '8px',
-                            }}
-                          >
-                            {label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
-                </>
-              ) : isGameMenu ? (
+              {showPlayHistory ? (
                 <>
                   <div className="flex shrink-0 items-center justify-between border-b border-zinc-700 px-4 py-4">
                     <h2 className="text-lg font-bold text-white">プレイ履歴</h2>
@@ -305,7 +263,25 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
                     )}
                   </div>
                 </>
-              ) : null}
+              ) : (
+                <>
+                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46', padding: '16px' }}>
+                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>メニュー</h2>
+                    <button type="button" onClick={close} aria-label="閉じる" style={{ background: 'none', border: 'none', color: '#a1a1aa', fontSize: '18px', cursor: 'pointer', padding: '8px' }}>✕</button>
+                  </div>
+                  <nav style={{ flex: '1 1 0', minHeight: '320px', overflowY: 'auto', padding: '16px 8px', backgroundColor: '#18181b' }} aria-label="メインメニュー">
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                      <li style={{ marginBottom: '4px' }}><a href="/" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>ホーム</a></li>
+                      <li style={{ marginBottom: '4px' }}><a href="/history" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>学習履歴</a></li>
+                      <li style={{ marginBottom: '4px' }}><a href="/ranking" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>ランキング</a></li>
+                      <li style={{ marginBottom: '4px' }}><a href="/about" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>会社概要</a></li>
+                      <li style={{ marginBottom: '4px' }}><a href="/faq" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>よくある質問</a></li>
+                      <li style={{ marginBottom: '4px' }}><a href="/terms" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>利用規約</a></li>
+                      <li style={{ marginBottom: '4px' }}><a href="/settings" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>設定</a></li>
+                    </ul>
+                  </nav>
+                </>
+              )}
             </motion.aside>
           </>
         )}
