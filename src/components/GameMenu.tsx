@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
 interface MyStats {
   baseScore: number;
@@ -43,7 +42,6 @@ const MAIN_MENU_ITEMS: { label: string; href: string }[] = [
 ];
 
 export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [stats, setStats] = useState<MyStats | null>(null);
   const [loading, setLoading] = useState(false);
@@ -146,20 +144,27 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
                       backgroundColor: '#18181b',
                     }}
                   >
+                    <p style={{ margin: '0 0 8px 16px', fontSize: '12px', color: '#71717a' }}>メニュー一覧</p>
                     <ul role="list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                       {MAIN_MENU_ITEMS.map(({ label, href }) => (
                         <li key={href} style={{ marginBottom: '4px' }}>
-                          <Link
+                          <a
                             href={href}
-                            onClick={close}
-                            className={pathname === href ? 'block rounded-lg px-4 py-3.5 text-[15px] font-medium bg-amber-500/20 text-amber-400' : 'block rounded-lg px-4 py-3.5 text-[15px] font-medium text-white hover:bg-zinc-800'}
+                            onClick={(e) => {
+                              close();
+                            }}
                             style={{
-                              color: pathname === href ? undefined : '#fff',
+                              display: 'block',
+                              padding: '14px 16px',
+                              fontSize: '15px',
+                              fontWeight: 500,
+                              color: '#ffffff',
                               textDecoration: 'none',
+                              borderRadius: '8px',
                             }}
                           >
                             {label}
-                          </Link>
+                          </a>
                         </li>
                       ))}
                     </ul>
