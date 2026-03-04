@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return [{ id: '0' }];
