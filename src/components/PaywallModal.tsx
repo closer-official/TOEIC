@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PaywallModalProps {
@@ -30,26 +31,26 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
             本日1回の無料プレイが終了しました
           </h2>
           <p className="mt-4 text-center text-zinc-400">
-            続けてプレイするには100円パスまたはサブスクをご利用ください。
+            サブスクリプションまたはショップでチップを購入すると、スタミナやプレイ回数を増やして続けてプレイできます。
           </p>
           <div className="mt-8 flex flex-col gap-3">
             <a
-              href="https://billing.stripe.com/pay/placeholder"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center rounded-xl bg-amber-500 py-4 font-bold text-black transition hover:bg-amber-400"
+              href="/shop"
+              className="flex w-full items-center justify-center rounded-xl border border-amber-500/50 py-4 font-bold text-amber-500 hover:bg-amber-500/10"
+              aria-label="ショップでチップを購入"
             >
-              100円パスを購入
+              ショップでチップを購入
             </a>
-            <a
-              href="https://billing.stripe.com/pay/placeholder"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center rounded-xl border border-amber-500/50 py-4 font-bold text-amber-500 transition hover:bg-amber-500/10"
+            <Link
+              href="/shop#subscription"
+              className="flex w-full items-center justify-center rounded-xl border border-amber-500/50 py-4 font-bold text-amber-500 hover:bg-amber-500/10"
+              aria-label="サブスクで加入"
+              onClick={onClose}
             >
-              サブスクを確認
-            </a>
+              サブスクで加入
+            </Link>
             <button
+              type="button"
               onClick={onClose}
               className="mt-2 py-2 text-sm text-zinc-500 hover:text-white"
             >

@@ -1,0 +1,2492 @@
+[
+  {
+    "id": "static-1",
+    "question": "The new policy will ____ affect all employees starting next month.",
+    "options": [
+      "direct",
+      "directly",
+      "direction",
+      "directive"
+    ],
+    "correct_index": 1,
+    "explanation": "副詞で動詞を修飾",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-2",
+    "question": "We need to ____ the report before the deadline.",
+    "options": [
+      "completion",
+      "complete",
+      "completely",
+      "completing"
+    ],
+    "correct_index": 1,
+    "explanation": "need toの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-3",
+    "question": "The manager made a ____ decision to expand the branch.",
+    "options": [
+      "quick",
+      "quickly",
+      "quicken",
+      "quickness"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞decisionを修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-4",
+    "question": "Sales have ____ increased since we launched the campaign.",
+    "options": [
+      "significant",
+      "significantly",
+      "significance",
+      "signify"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-5",
+    "question": "Please submit your ____ by Friday.",
+    "options": [
+      "propose",
+      "proposal",
+      "proposed",
+      "proposedly"
+    ],
+    "correct_index": 1,
+    "explanation": "yourの後は名詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-6",
+    "question": "The board will ____ the merger next week.",
+    "options": [
+      "discussion",
+      "discuss",
+      "discussible",
+      "discussively"
+    ],
+    "correct_index": 1,
+    "explanation": "willの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-7",
+    "question": "Her ____ presentation impressed the clients.",
+    "options": [
+      "confidence",
+      "confident",
+      "confidently",
+      "confide"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-8",
+    "question": "The contract has been ____ signed by both parties.",
+    "options": [
+      "official",
+      "officially",
+      "office",
+      "officiate"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-9",
+    "question": "We received ____ feedback from the survey.",
+    "options": [
+      "value",
+      "valuable",
+      "valuably",
+      "valuation"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-10",
+    "question": "The company ____ announced its quarterly results.",
+    "options": [
+      "recent",
+      "recently",
+      "recentness",
+      "recented"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-11",
+    "question": "All applicants must ____ the form online.",
+    "options": [
+      "completion",
+      "complete",
+      "completing",
+      "completely"
+    ],
+    "correct_index": 1,
+    "explanation": "mustの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-12",
+    "question": "The ____ of the project is scheduled for March.",
+    "options": [
+      "complete",
+      "completion",
+      "completing",
+      "completely"
+    ],
+    "correct_index": 1,
+    "explanation": "theの後は名詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-13",
+    "question": "She spoke ____ at the conference.",
+    "options": [
+      "persuade",
+      "persuasive",
+      "persuasively",
+      "persuasion"
+    ],
+    "correct_index": 2,
+    "explanation": "動詞spokeを修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-14",
+    "question": "The ____ report is on your desk.",
+    "options": [
+      "finance",
+      "financial",
+      "financially",
+      "financing"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-15",
+    "question": "We ____ recommend booking in advance.",
+    "options": [
+      "strong",
+      "strongly",
+      "strength",
+      "strengthen"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-16",
+    "question": "The meeting has been ____ until next Monday.",
+    "options": [
+      "postpone",
+      "postponement",
+      "postponed",
+      "postponing"
+    ],
+    "correct_index": 2,
+    "explanation": "受動態なので過去分詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-17",
+    "question": "Employees are ____ to use the new system.",
+    "options": [
+      "require",
+      "requirement",
+      "required",
+      "requiring"
+    ],
+    "correct_index": 2,
+    "explanation": "be動詞の後は過去分詞（受動態）",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-18",
+    "question": "The ____ department will handle your request.",
+    "options": [
+      "person",
+      "personal",
+      "personnel",
+      "personally"
+    ],
+    "correct_index": 2,
+    "explanation": "人事部門はpersonnel",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-19",
+    "question": "The product was ____ developed in our lab.",
+    "options": [
+      "origin",
+      "original",
+      "originally",
+      "originate"
+    ],
+    "correct_index": 2,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-20",
+    "question": "We need ____ evidence before proceeding.",
+    "options": [
+      "add",
+      "addition",
+      "additional",
+      "additionally"
+    ],
+    "correct_index": 2,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-21",
+    "question": "The shipment will arrive ____ next week.",
+    "options": [
+      "probable",
+      "probably",
+      "probability",
+      "probate"
+    ],
+    "correct_index": 1,
+    "explanation": "文全体を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-22",
+    "question": "Please ensure ____ delivery of the package.",
+    "options": [
+      "prompt",
+      "promptly",
+      "promptness",
+      "prompting"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-23",
+    "question": "The committee ____ approved the budget.",
+    "options": [
+      "unanimous",
+      "unanimously",
+      "unanimity",
+      "unanimousness"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-24",
+    "question": "We are ____ for your continued support.",
+    "options": [
+      "grateful",
+      "gratefully",
+      "gratitude",
+      "gratify"
+    ],
+    "correct_index": 0,
+    "explanation": "be動詞の後は形容詞（C補語）",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-25",
+    "question": "The office will be closed ____ the holiday.",
+    "options": [
+      "during",
+      "while",
+      "through",
+      "since"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞の前はduring",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-26",
+    "question": "The report is due ____ the end of the month.",
+    "options": [
+      "by",
+      "until",
+      "at",
+      "in"
+    ],
+    "correct_index": 0,
+    "explanation": "期限はby",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-27",
+    "question": "She has been working here ____ 2020.",
+    "options": [
+      "for",
+      "since",
+      "from",
+      "during"
+    ],
+    "correct_index": 1,
+    "explanation": "過去の一点はsince",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-28",
+    "question": "The conference ____ when we arrived.",
+    "options": [
+      "already started",
+      "had already started",
+      "has started",
+      "starts"
+    ],
+    "correct_index": 1,
+    "explanation": "到着より前の完了は過去完了",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-29",
+    "question": "By next year, we ____ the new branch.",
+    "options": [
+      "open",
+      "will open",
+      "will have opened",
+      "opened"
+    ],
+    "correct_index": 2,
+    "explanation": "by＋未来は未来完了",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-30",
+    "question": "The manager ____ to Tokyo tomorrow.",
+    "options": [
+      "travel",
+      "travels",
+      "is traveling",
+      "traveled"
+    ],
+    "correct_index": 2,
+    "explanation": "予定は現在進行形",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-31",
+    "question": "All expenses must be ____ in advance.",
+    "options": [
+      "approve",
+      "approved",
+      "approval",
+      "approving"
+    ],
+    "correct_index": 1,
+    "explanation": "受動態で過去分詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-32",
+    "question": "The ____ updated manual is on the server.",
+    "options": [
+      "recent",
+      "recently",
+      "recentness",
+      "recented"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-33",
+    "question": "We were ____ informed of the change.",
+    "options": [
+      "formal",
+      "formally",
+      "formality",
+      "formulate"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-34",
+    "question": "The ____ of the meeting is to discuss the budget.",
+    "options": [
+      "purpose",
+      "purposely",
+      "purposeful",
+      "purposeless"
+    ],
+    "correct_index": 0,
+    "explanation": "theの後は名詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-35",
+    "question": "The software was ____ installed yesterday.",
+    "options": [
+      "success",
+      "successful",
+      "successfully",
+      "succeed"
+    ],
+    "correct_index": 2,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-36",
+    "question": "We need to ____ the issue immediately.",
+    "options": [
+      "resolution",
+      "resolve",
+      "resolved",
+      "resolvable"
+    ],
+    "correct_index": 1,
+    "explanation": "need toの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-37",
+    "question": "The ____ agreement will take effect in April.",
+    "options": [
+      "negotiate",
+      "negotiation",
+      "negotiated",
+      "negotiable"
+    ],
+    "correct_index": 2,
+    "explanation": "名詞を修飾する過去分詞（締結された）",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-38",
+    "question": "He ____ submitted the application last week.",
+    "options": [
+      "final",
+      "finally",
+      "finalize",
+      "finality"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-39",
+    "question": "The ____ in sales was unexpected.",
+    "options": [
+      "decline",
+      "declined",
+      "declining",
+      "declination"
+    ],
+    "correct_index": 0,
+    "explanation": "theの後は名詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-40",
+    "question": "The training session will be ____ next month.",
+    "options": [
+      "conduct",
+      "conducted",
+      "conducting",
+      "conduction"
+    ],
+    "correct_index": 1,
+    "explanation": "受動態で過去分詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-41",
+    "question": "We are ____ considering your proposal.",
+    "options": [
+      "serious",
+      "seriously",
+      "seriousness",
+      "serial"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-42",
+    "question": "The ____ results were announced yesterday.",
+    "options": [
+      "quarter",
+      "quarterly",
+      "quarterly",
+      "quartering"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-43",
+    "question": "Applicants must have ____ experience in sales.",
+    "options": [
+      "consider",
+      "considerable",
+      "considerably",
+      "consideration"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞を修飾する形容詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-44",
+    "question": "The document has been ____ reviewed.",
+    "options": [
+      "thorough",
+      "thoroughly",
+      "thoroughness",
+      "through"
+    ],
+    "correct_index": 1,
+    "explanation": "過去分詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-45",
+    "question": "We ____ received your payment.",
+    "options": [
+      "thank",
+      "thankful",
+      "thankfully",
+      "thanks"
+    ],
+    "correct_index": 2,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-46",
+    "question": "The ____ deadline is next Friday.",
+    "options": [
+      "submit",
+      "submission",
+      "submitted",
+      "submissive"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞を修飾する名詞（提出の）",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-47",
+    "question": "She ____ accepted the new position.",
+    "options": [
+      "eager",
+      "eagerly",
+      "eagerness",
+      "eagle"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-48",
+    "question": "The ____ schedule will be sent by email.",
+    "options": [
+      "revise",
+      "revision",
+      "revised",
+      "revisable"
+    ],
+    "correct_index": 2,
+    "explanation": "名詞を修飾する過去分詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-49",
+    "question": "All staff are ____ to attend the workshop.",
+    "options": [
+      "expect",
+      "expectation",
+      "expected",
+      "expecting"
+    ],
+    "correct_index": 2,
+    "explanation": "受動態で過去分詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-50",
+    "question": "The project was ____ completed on time.",
+    "options": [
+      "succeed",
+      "success",
+      "successful",
+      "successfully"
+    ],
+    "correct_index": 3,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-51",
+    "question": "We have ____ received your order.",
+    "options": [
+      "duly",
+      "due",
+      "duty",
+      "dual"
+    ],
+    "correct_index": 0,
+    "explanation": "動詞を修飾する副詞（正式に）",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-52",
+    "question": "The ____ policy takes effect in January.",
+    "options": [
+      "revise",
+      "revision",
+      "revised",
+      "revisory"
+    ],
+    "correct_index": 2,
+    "explanation": "改訂された＝過去分詞が名詞を修飾",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-53",
+    "question": "Payments are ____ on the 25th of each month.",
+    "options": [
+      "due",
+      "duely",
+      "dueness",
+      "durability"
+    ],
+    "correct_index": 0,
+    "explanation": "be dueで「支払期日である」",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-54",
+    "question": "The company ____ operates in over 30 countries.",
+    "options": [
+      "current",
+      "currently",
+      "currency",
+      "currentness"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞を修飾する副詞",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-55",
+    "question": "The new hire will ____ for the marketing team.",
+    "options": [
+      "responsible",
+      "be responsible",
+      "responsibility",
+      "respond"
+    ],
+    "correct_index": 1,
+    "explanation": "willの後は動詞句",
+    "category": "語彙",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-56",
+    "question": "We need to ____ the contract before signing.",
+    "options": [
+      "review",
+      "revision",
+      "reviewer",
+      "reviewed"
+    ],
+    "correct_index": 0,
+    "explanation": "need toの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-57",
+    "question": "The meeting was postponed ____ the director was unavailable.",
+    "options": [
+      "because",
+      "despite",
+      "although",
+      "however"
+    ],
+    "correct_index": 0,
+    "explanation": "理由はbecause",
+    "category": "接続詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-58",
+    "question": "All employees must submit ____ timesheets by Monday.",
+    "options": [
+      "they",
+      "their",
+      "them",
+      "themselves"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞の前は所有格",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-59",
+    "question": "The report ____ by the end of this week.",
+    "options": [
+      "will complete",
+      "will be completed",
+      "will have completed",
+      "completes"
+    ],
+    "correct_index": 1,
+    "explanation": "期限＋受動態は未来の受動態",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-60",
+    "question": "We are pleased to ____ you that your application has been approved.",
+    "options": [
+      "inform",
+      "information",
+      "informative",
+      "informed"
+    ],
+    "correct_index": 0,
+    "explanation": "toの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-61",
+    "question": "The company is committed ____ sustainable practices.",
+    "options": [
+      "to",
+      "with",
+      "for",
+      "on"
+    ],
+    "correct_index": 0,
+    "explanation": "committed toで「〜に取り組む」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-62",
+    "question": "____ the delay, the product launch was successful.",
+    "options": [
+      "Despite",
+      "Because",
+      "Although",
+      "Since"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞の前はDespite",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-63",
+    "question": "The manager asked ____ to finish the report by Friday.",
+    "options": [
+      "we",
+      "our",
+      "us",
+      "ours"
+    ],
+    "correct_index": 2,
+    "explanation": "ask 人 toで目的格",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-64",
+    "question": "Sales have ____ since we introduced the new line.",
+    "options": [
+      "improved",
+      "improvement",
+      "improving",
+      "improve"
+    ],
+    "correct_index": 0,
+    "explanation": "haveの後は過去分詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-65",
+    "question": "The client requested that the proposal ____ by noon.",
+    "options": [
+      "is submitted",
+      "be submitted",
+      "submits",
+      "submitted"
+    ],
+    "correct_index": 1,
+    "explanation": "request that 主語 (should) 動詞原形",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-66",
+    "question": "The office will remain closed ____ further notice.",
+    "options": [
+      "until",
+      "for",
+      "until to",
+      "by"
+    ],
+    "correct_index": 0,
+    "explanation": "until further noticeで「追加の通知まで」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-67",
+    "question": "The budget has been ____ for the next quarter.",
+    "options": [
+      "allocation",
+      "allocated",
+      "allocate",
+      "allocating"
+    ],
+    "correct_index": 1,
+    "explanation": "受動態で過去分詞",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-68",
+    "question": "We depend ____ our suppliers for timely delivery.",
+    "options": [
+      "to",
+      "on",
+      "with",
+      "for"
+    ],
+    "correct_index": 1,
+    "explanation": "depend onで「〜に頼る」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-69",
+    "question": "The board discussed ____ to expand into Asian markets.",
+    "options": [
+      "whether",
+      "weather",
+      "either",
+      "rather"
+    ],
+    "correct_index": 0,
+    "explanation": "whether toで「〜するかどうか」",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-70",
+    "question": "Each department must submit ____ own budget proposal.",
+    "options": [
+      "their",
+      "its",
+      "it",
+      "they"
+    ],
+    "correct_index": 1,
+    "explanation": "each＋単数なのでits",
+    "category": "代名詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-71",
+    "question": "The shipment ____ when we contacted the warehouse.",
+    "options": [
+      "already left",
+      "had already left",
+      "has left",
+      "was leaving"
+    ],
+    "correct_index": 1,
+    "explanation": "連絡より前の完了は過去完了",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-72",
+    "question": "The position requires a candidate ____ has experience in logistics.",
+    "options": [
+      "which",
+      "who",
+      "whom",
+      "whose"
+    ],
+    "correct_index": 1,
+    "explanation": "人を修飾する主格はwho",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-73",
+    "question": "The invoice should be paid ____ 30 days of receipt.",
+    "options": [
+      "within",
+      "during",
+      "while",
+      "since"
+    ],
+    "correct_index": 0,
+    "explanation": "withinで「〜以内に」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-74",
+    "question": "We will proceed with the plan ____ we get approval from headquarters.",
+    "options": [
+      "although",
+      "provided that",
+      "despite",
+      "whereas"
+    ],
+    "correct_index": 1,
+    "explanation": "provided thatで「〜という条件で」",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-75",
+    "question": "The committee ____ its decision by the end of the month.",
+    "options": [
+      "announce",
+      "will announce",
+      "has announced",
+      "announcing"
+    ],
+    "correct_index": 1,
+    "explanation": "未来の予定はwill",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-76",
+    "question": "Please direct any inquiries ____ the customer service desk.",
+    "options": [
+      "at",
+      "to",
+      "for",
+      "with"
+    ],
+    "correct_index": 1,
+    "explanation": "direct 人 toで「〜に問い合わせる」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-77",
+    "question": "The contract ____ next month.",
+    "options": [
+      "expires",
+      "will expire",
+      "has expired",
+      "expiring"
+    ],
+    "correct_index": 1,
+    "explanation": "未来の期限はwill",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-78",
+    "question": "The software is ____ to use than the previous version.",
+    "options": [
+      "easy",
+      "easier",
+      "easiest",
+      "easily"
+    ],
+    "correct_index": 1,
+    "explanation": "thanの前は比較級",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-79",
+    "question": "The report was written by a consultant ____ we hired last year.",
+    "options": [
+      "which",
+      "whom",
+      "who",
+      "whose"
+    ],
+    "correct_index": 2,
+    "explanation": "人を修飾する主格はwho",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-80",
+    "question": "____ the budget constraints, we managed to complete the project.",
+    "options": [
+      "Despite",
+      "Because",
+      "So that",
+      "Unless"
+    ],
+    "correct_index": 0,
+    "explanation": "逆接はDespite",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-81",
+    "question": "The warehouse is responsible ____ distributing all orders.",
+    "options": [
+      "for",
+      "to",
+      "with",
+      "at"
+    ],
+    "correct_index": 0,
+    "explanation": "responsible forで「〜の責任がある」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-82",
+    "question": "The CEO ____ to the staff about the merger yesterday.",
+    "options": [
+      "speak",
+      "spoke",
+      "spoken",
+      "speaking"
+    ],
+    "correct_index": 1,
+    "explanation": "yesterdayで過去形",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-83",
+    "question": "We are looking for a candidate ____ can start immediately.",
+    "options": [
+      "which",
+      "who",
+      "whom",
+      "whose"
+    ],
+    "correct_index": 1,
+    "explanation": "主格の関係代名詞はwho",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-84",
+    "question": "The training session will be held ____ the main conference room.",
+    "options": [
+      "at",
+      "in",
+      "on",
+      "to"
+    ],
+    "correct_index": 1,
+    "explanation": "部屋はin",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-85",
+    "question": "The proposal seems ____, but we need to review the details.",
+    "options": [
+      "promise",
+      "promising",
+      "promised",
+      "promisingly"
+    ],
+    "correct_index": 1,
+    "explanation": "seemの後は形容詞（C）",
+    "category": "品詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-86",
+    "question": "No one ____ the building without a valid ID.",
+    "options": [
+      "enter",
+      "enters",
+      "entering",
+      "entered"
+    ],
+    "correct_index": 1,
+    "explanation": "no oneは単数、三単現",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-87",
+    "question": "The company is known ____ its innovative products.",
+    "options": [
+      "for",
+      "as",
+      "to",
+      "with"
+    ],
+    "correct_index": 0,
+    "explanation": "known forで「〜で知られている」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-88",
+    "question": "We must ensure ____ all safety guidelines are followed.",
+    "options": [
+      "that",
+      "which",
+      "what",
+      "if"
+    ],
+    "correct_index": 0,
+    "explanation": "ensure thatで「〜であることを確保する」",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-89",
+    "question": "The document ____ to the wrong department by mistake.",
+    "options": [
+      "send",
+      "sent",
+      "was sent",
+      "sending"
+    ],
+    "correct_index": 2,
+    "explanation": "by mistakeで受動態",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-90",
+    "question": "The director asked ____ to prepare the slides for the presentation.",
+    "options": [
+      "I",
+      "me",
+      "my",
+      "myself"
+    ],
+    "correct_index": 1,
+    "explanation": "askの目的語は目的格",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-91",
+    "question": "The new policy will take ____ in January.",
+    "options": [
+      "place",
+      "effect",
+      "part",
+      "action"
+    ],
+    "correct_index": 1,
+    "explanation": "take effectで「効力を発する」",
+    "category": "語彙",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-92",
+    "question": "We have been ____ with the supplier for over five years.",
+    "options": [
+      "deal",
+      "dealing",
+      "dealt",
+      "deals"
+    ],
+    "correct_index": 1,
+    "explanation": "have beenの後は現在分詞",
+    "category": "時制",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-93",
+    "question": "The refund will be processed ____ 5 to 7 business days.",
+    "options": [
+      "within",
+      "for",
+      "since",
+      "during"
+    ],
+    "correct_index": 0,
+    "explanation": "期間内はwithin",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-94",
+    "question": "The memo was sent to all staff ____ the schedule change.",
+    "options": [
+      "regarding",
+      "because",
+      "although",
+      "whereas"
+    ],
+    "correct_index": 0,
+    "explanation": "regardingで「〜について」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-95",
+    "question": "The applicant ____ excellent references from previous employers.",
+    "options": [
+      "submitted",
+      "submission",
+      "submitting",
+      "submit"
+    ],
+    "correct_index": 0,
+    "explanation": "過去の事実は過去形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-96",
+    "question": "The committee will consider ____ proposal at the next meeting.",
+    "options": [
+      "you",
+      "your",
+      "yours",
+      "yourself"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞の前は所有格",
+    "category": "代名詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-97",
+    "question": "We cannot proceed ____ we receive confirmation.",
+    "options": [
+      "until",
+      "when",
+      "while",
+      "as"
+    ],
+    "correct_index": 0,
+    "explanation": "not ... untilで「〜まで〜しない」",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-98",
+    "question": "The contract is ____ for renewal next month.",
+    "options": [
+      "due",
+      "duely",
+      "dues",
+      "durable"
+    ],
+    "correct_index": 0,
+    "explanation": "be due forで「〜の時期である」",
+    "category": "語彙",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-99",
+    "question": "The shipment has ____ arrived at the distribution center.",
+    "options": [
+      "already",
+      "yet",
+      "still",
+      "since"
+    ],
+    "correct_index": 0,
+    "explanation": "肯定文の完了はalready",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-100",
+    "question": "All expenses must be approved ____ advance.",
+    "options": [
+      "on",
+      "at",
+      "in",
+      "for"
+    ],
+    "correct_index": 2,
+    "explanation": "in advanceで「事前に」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-101",
+    "question": "The report ____ several important recommendations.",
+    "options": [
+      "includes",
+      "including",
+      "included",
+      "include"
+    ],
+    "correct_index": 0,
+    "explanation": "現在の内容は三単現",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-102",
+    "question": "The manager suggested ____ we postpone the meeting.",
+    "options": [
+      "that",
+      "which",
+      "what",
+      "if"
+    ],
+    "correct_index": 0,
+    "explanation": "suggest thatで「〜を提案する」",
+    "category": "接続詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-103",
+    "question": "The company ____ its sales target last quarter.",
+    "options": [
+      "exceed",
+      "exceeded",
+      "exceeding",
+      "exceeds"
+    ],
+    "correct_index": 1,
+    "explanation": "last quarterで過去形",
+    "category": "時制",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-104",
+    "question": "Please refer ____ the attached document for details.",
+    "options": [
+      "at",
+      "on",
+      "to",
+      "for"
+    ],
+    "correct_index": 2,
+    "explanation": "refer toで「〜を参照する」",
+    "category": "前置詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-105",
+    "question": "The new system will ____ efficiency across all departments.",
+    "options": [
+      "improvement",
+      "improve",
+      "improving",
+      "improved"
+    ],
+    "correct_index": 1,
+    "explanation": "willの後は動詞原形",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {}
+  },
+  {
+    "id": "static-106",
+    "question": "The candidate ____ we interviewed yesterday was very impressive.",
+    "options": [
+      "which",
+      "whom",
+      "who",
+      "whose"
+    ],
+    "correct_index": 2,
+    "explanation": "we interviewedの主語が人なのでwho",
+    "category": "代名詞",
+    "difficulty": "700",
+    "vocab_map": {}
+  },
+  {
+    "question": "The marketing team is known for its ( ) strategies.",
+    "options": [
+      "innovate",
+      "innovation",
+      "innovative",
+      "innovatively"
+    ],
+    "correct_index": 2,
+    "explanation": "所有格itsと名詞strategiesの間には、名詞を修飾する形容詞が入ります。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-107"
+  },
+  {
+    "question": "Sales have increased ( ) since the new product launch.",
+    "options": [
+      "substance",
+      "substantial",
+      "substantially",
+      "substantiate"
+    ],
+    "correct_index": 2,
+    "explanation": "動詞句have increasedを修飾するのは副詞が正解です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-108"
+  },
+  {
+    "question": "The ( ) of the new policy will begin next Monday.",
+    "options": [
+      "implement",
+      "implementation",
+      "implemented",
+      "implementer"
+    ],
+    "correct_index": 1,
+    "explanation": "定冠詞Theの後ろで主語になるのは名詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-109"
+  },
+  {
+    "question": "We need to ( ) our resources to improve efficiency.",
+    "options": [
+      "consolidate",
+      "consolidation",
+      "consolidated",
+      "consolidating"
+    ],
+    "correct_index": 0,
+    "explanation": "不定詞toの後ろには動詞の原形が入ります。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-110"
+  },
+  {
+    "question": "The consultant ( ) analyzed the market trends.",
+    "options": [
+      "thorough",
+      "thoroughly",
+      "thoroughness",
+      "thoro"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞analyzedを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-111"
+  },
+  {
+    "question": "All employees must submit their ( ) for the workshop.",
+    "options": [
+      "register",
+      "registered",
+      "registration",
+      "registry"
+    ],
+    "correct_index": 2,
+    "explanation": "所有格theirの後ろには名詞が入ります。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-112"
+  },
+  {
+    "question": "The customer service team is very ( ) to inquiries.",
+    "options": [
+      "respond",
+      "response",
+      "responsive",
+      "responsively"
+    ],
+    "correct_index": 2,
+    "explanation": "be動詞の後ろで主語の状態を表す形容詞が適切です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-113"
+  },
+  {
+    "question": "Please direct your ( ) to the service desk.",
+    "options": [
+      "inquire",
+      "inquisitive",
+      "inquiringly",
+      "inquiries"
+    ],
+    "correct_index": 3,
+    "explanation": "所有格yourの後ろには名詞がきます。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-114"
+  },
+  {
+    "question": "The new software is ( ) more efficient than the old one.",
+    "options": [
+      "mark",
+      "marked",
+      "markedly",
+      "marker"
+    ],
+    "correct_index": 2,
+    "explanation": "形容詞比較級more efficientを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-115"
+  },
+  {
+    "question": "The manager gave a ( ) explanation of the project.",
+    "options": [
+      "brief",
+      "briefly",
+      "brevity",
+      "briefing"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞explanationを修飾するのは形容詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-116"
+  },
+  {
+    "question": "The ( ) of the meeting was to discuss the budget.",
+    "options": [
+      "object",
+      "objective",
+      "objectively",
+      "objectify"
+    ],
+    "correct_index": 1,
+    "explanation": "文の主語となる名詞が必要です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-117"
+  },
+  {
+    "question": "The candidate's references were ( ) impressive.",
+    "options": [
+      "tremendous",
+      "tremendously",
+      "tremor",
+      "tremendouslyness"
+    ],
+    "correct_index": 1,
+    "explanation": "形容詞impressiveを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-118"
+  },
+  {
+    "question": "The company is seeking a ( ) assistant for the CEO.",
+    "options": [
+      "rely",
+      "reliable",
+      "reliability",
+      "reliably"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞assistantを修飾するのは形容詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-119"
+  },
+  {
+    "question": "The ( ) cost of the project was higher than expected.",
+    "options": [
+      "initial",
+      "initially",
+      "initiate",
+      "initiation"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞costを修飾するのは形容詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-120"
+  },
+  {
+    "question": "You must ( ) follow the safety protocols.",
+    "options": [
+      "strict",
+      "strictly",
+      "strictness",
+      "stricter"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞followを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-121"
+  },
+  {
+    "question": "The ( ) of the building will take six months.",
+    "options": [
+      "renovate",
+      "renovation",
+      "renovated",
+      "renovating"
+    ],
+    "correct_index": 1,
+    "explanation": "文の主語となる名詞が必要です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-122"
+  },
+  {
+    "question": "The ( ) results will be announced tomorrow.",
+    "options": [
+      "final",
+      "finally",
+      "finalize",
+      "finality"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞resultsを修飾するのは形容詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-123"
+  },
+  {
+    "question": "The report was ( ) researched.",
+    "options": [
+      "thorough",
+      "thoroughly",
+      "thoroughness",
+      "thoro"
+    ],
+    "correct_index": 1,
+    "explanation": "過去分詞researchedを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-124"
+  },
+  {
+    "question": "We are ( ) evaluating the current market situation.",
+    "options": [
+      "current",
+      "currently",
+      "currency",
+      "currencies"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞句are evaluatingを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-125"
+  },
+  {
+    "question": "The CEO ( ) the staff on the successful merger.",
+    "options": [
+      "congratulation",
+      "congratulate",
+      "congratulated",
+      "congratulatory"
+    ],
+    "correct_index": 2,
+    "explanation": "文の述語となる動詞の過去形が必要です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-126"
+  },
+  {
+    "question": "Each department must work ( ) to achieve the goal.",
+    "options": [
+      "independent",
+      "independently",
+      "independence",
+      "independency"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞workを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-127"
+  },
+  {
+    "question": "The ( ) of the new technology was a success.",
+    "options": [
+      "introduce",
+      "introduction",
+      "introductory",
+      "introduced"
+    ],
+    "correct_index": 1,
+    "explanation": "定冠詞Theの後ろは名詞が正解です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-128"
+  },
+  {
+    "question": "We are looking for a ( ) solution to the problem.",
+    "options": [
+      "practice",
+      "practical",
+      "practically",
+      "practiced"
+    ],
+    "correct_index": 1,
+    "explanation": "名詞solutionを修飾するのは形容詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-129"
+  },
+  {
+    "question": "The manager asked for ( ) on the proposal.",
+    "options": [
+      "clarify",
+      "clarification",
+      "clear",
+      "clearly"
+    ],
+    "correct_index": 1,
+    "explanation": "前置詞forの後ろには名詞がきます。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-130"
+  },
+  {
+    "question": "The company will ( ) into new markets.",
+    "options": [
+      "expand",
+      "expansion",
+      "expansive",
+      "expansively"
+    ],
+    "correct_index": 0,
+    "explanation": "助動詞willの後ろは動詞の原形が必要です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-131"
+  },
+  {
+    "question": "The ( ) of the project depends on teamwork.",
+    "options": [
+      "succeed",
+      "success",
+      "successful",
+      "successfully"
+    ],
+    "correct_index": 1,
+    "explanation": "文の主語となる名詞が必要です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-132"
+  },
+  {
+    "question": "Please handle the equipment ( ).",
+    "options": [
+      "cautious",
+      "cautiously",
+      "caution",
+      "cautiousness"
+    ],
+    "correct_index": 1,
+    "explanation": "動詞handleを修飾するのは副詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-133"
+  },
+  {
+    "question": "All employees are ( ) for the bonus.",
+    "options": [
+      "eligible",
+      "eligibility",
+      "eligibly",
+      "eligibleness"
+    ],
+    "correct_index": 0,
+    "explanation": "be動詞の補語として形容詞が入ります。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-134"
+  },
+  {
+    "question": "The ( ) budget was approved by the board.",
+    "options": [
+      "annual",
+      "annually",
+      "annuality",
+      "annualize"
+    ],
+    "correct_index": 0,
+    "explanation": "名詞budgetを修飾するのは形容詞です。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-135"
+  },
+  {
+    "question": "We must ( ) the security system.",
+    "options": [
+      "strength",
+      "strengthen",
+      "strong",
+      "strongly"
+    ],
+    "correct_index": 1,
+    "explanation": "助動詞mustの後ろには動詞の原形がきます。",
+    "category": "品詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-136"
+  },
+  {
+    "question": "Please ( ) the application form and submit it by Friday.",
+    "options": [
+      "fill out",
+      "fill in for",
+      "fill with",
+      "fill to"
+    ],
+    "correct_index": 0,
+    "explanation": "fill out で「（書類などに）記入する」という最頻出の句動詞です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-137"
+  },
+  {
+    "question": "The meeting has been ( ) due to an unexpected schedule conflict.",
+    "options": [
+      "called off",
+      "called for",
+      "called in",
+      "called on"
+    ],
+    "correct_index": 0,
+    "explanation": "call off は「中止する」を意味し、TOEICの予定変更シナリオでよく出ます。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-138"
+  },
+  {
+    "question": "All staff members must ( ) with the new safety regulations.",
+    "options": [
+      "comply",
+      "adhere",
+      "observe",
+      "follow"
+    ],
+    "correct_index": 0,
+    "explanation": "「規則に従う」という際、前置詞 with とセットになるのは comply です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-139"
+  },
+  {
+    "question": "The board decided to ( ) the merger until the next fiscal year.",
+    "options": [
+      "put off",
+      "put on",
+      "put through",
+      "put away"
+    ],
+    "correct_index": 0,
+    "explanation": "put off で「延期する」という意味になります。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-140"
+  },
+  {
+    "question": "We are looking ( ) to meeting the new director next week.",
+    "options": [
+      "forward",
+      "for",
+      "after",
+      "through"
+    ],
+    "correct_index": 0,
+    "explanation": "look forward to ～ing で「～するのを楽しみに待つ」という定番表現です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-141"
+  },
+  {
+    "question": "The marketing campaign was ( ) at young professionals.",
+    "options": [
+      "aimed",
+      "focused",
+      "intended",
+      "directed"
+    ],
+    "correct_index": 0,
+    "explanation": "be aimed at で「～を対象としている、狙っている」という意味です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-142"
+  },
+  {
+    "question": "Ms. Sato will ( ) for the manager while he is on vacation.",
+    "options": [
+      "fill in",
+      "stand by",
+      "take over",
+      "look after"
+    ],
+    "correct_index": 0,
+    "explanation": "fill in for 人 で「人の代理を務める」という便利な熟語です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-143"
+  },
+  {
+    "question": "The success of the project ( ) on the cooperation of all departments.",
+    "options": [
+      "depends",
+      "relies",
+      "counts",
+      "trusts"
+    ],
+    "correct_index": 0,
+    "explanation": "depend on で「～に依存する、～次第である」となります。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-144"
+  },
+  {
+    "question": "Please ( ) the attached report before the meeting starts.",
+    "options": [
+      "look over",
+      "look up",
+      "look into",
+      "look for"
+    ],
+    "correct_index": 0,
+    "explanation": "look over は「～にざっと目を通す」という意味で、ビジネスで多用されます。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-145"
+  },
+  {
+    "question": "The company had to ( ) some employees due to the recession.",
+    "options": [
+      "lay off",
+      "set off",
+      "take off",
+      "show off"
+    ],
+    "correct_index": 0,
+    "explanation": "lay off で「（一時的に）解雇する」という人事関連の重要語です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-146"
+  },
+  {
+    "question": "Applicants must ( ) to the guidelines stated in the handbook.",
+    "options": [
+      "adhere",
+      "comply",
+      "follow",
+      "agree"
+    ],
+    "correct_index": 0,
+    "explanation": "adhere to で「（規則などを）固守する、守る」という意味になります。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-147"
+  },
+  {
+    "question": "We need to ( ) up a meeting to discuss the budget.",
+    "options": [
+      "set",
+      "hold",
+      "take",
+      "make"
+    ],
+    "correct_index": 0,
+    "explanation": "set up は「準備する、手配する」という意味で非常によく使われます。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-148"
+  },
+  {
+    "question": "The manager ( ) out that the sales figures were incorrect.",
+    "options": [
+      "pointed",
+      "showed",
+      "marked",
+      "indicated"
+    ],
+    "correct_index": 0,
+    "explanation": "point out で「指摘する」という論理展開に欠かせない言葉です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-149"
+  },
+  {
+    "question": "Our team managed to ( ) up with a creative solution.",
+    "options": [
+      "come",
+      "catch",
+      "keep",
+      "bring"
+    ],
+    "correct_index": 0,
+    "explanation": "come up with で「（アイデアなどを）思いつく、提案する」です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-150"
+  },
+  {
+    "question": "The office will ( ) with the plan regardless of the cost.",
+    "options": [
+      "proceed",
+      "progress",
+      "process",
+      "prevent"
+    ],
+    "correct_index": 0,
+    "explanation": "proceed with で「～を続行する、進める」という意味です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-151"
+  },
+  {
+    "question": "You should ( ) in your expenses by the end of the month.",
+    "options": [
+      "hand",
+      "give",
+      "take",
+      "turn"
+    ],
+    "correct_index": 0,
+    "explanation": "hand in で「提出する」。submit の言い換えとして頻出です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-152"
+  },
+  {
+    "question": "The new assistant is ( ) with our software system.",
+    "options": [
+      "familiar",
+      "aware",
+      "known",
+      "conscious"
+    ],
+    "correct_index": 0,
+    "explanation": "be familiar with で「～に精通している、詳しい」となります。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-153"
+  },
+  {
+    "question": "( ) to the weather forecast, it will rain tomorrow.",
+    "options": [
+      "According",
+      "Depending",
+      "Relating",
+      "Subject"
+    ],
+    "correct_index": 0,
+    "explanation": "According to ～ で「～によれば」という情報源を示す表現です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-154"
+  },
+  {
+    "question": "The company is committed ( ) providing excellent service.",
+    "options": [
+      "to",
+      "for",
+      "with",
+      "on"
+    ],
+    "correct_index": 0,
+    "explanation": "be committed to ～ing で「～することに専念している」という重要熟語です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-155"
+  },
+  {
+    "question": "We will ( ) into the cause of the system failure immediately.",
+    "options": [
+      "look",
+      "see",
+      "search",
+      "watch"
+    ],
+    "correct_index": 0,
+    "explanation": "look into で「調査する」。investigate の言い換えです。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-156"
+  },
+  {
+    "question": "The technician ( ) out the repairs as instructed.",
+    "options": [
+      "carried",
+      "made",
+      "took",
+      "ran"
+    ],
+    "correct_index": 0,
+    "explanation": "carry out は「実行する、遂行する」という硬いビジネス語です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-157"
+  },
+  {
+    "question": "Please ( ) from using mobile phones during the presentation.",
+    "options": [
+      "refrain",
+      "prevent",
+      "stop",
+      "avoid"
+    ],
+    "correct_index": 0,
+    "explanation": "refrain from で「～を控える」という丁寧な禁止表現です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-158"
+  },
+  {
+    "question": "The hotel ( ) to the needs of business travelers.",
+    "options": [
+      "caters",
+      "serves",
+      "provides",
+      "assists"
+    ],
+    "correct_index": 0,
+    "explanation": "cater to で「～の要望に応える、～を対象とする」です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-159"
+  },
+  {
+    "question": "Employees are ( ) for the bonus after one year of service.",
+    "options": [
+      "eligible",
+      "entitled",
+      "qualified",
+      "suitable"
+    ],
+    "correct_index": 0,
+    "explanation": "be eligible for で「～の資格がある」という人事の定番。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-160"
+  },
+  {
+    "question": "The plan was canceled ( ) of the lack of funding.",
+    "options": [
+      "because",
+      "since",
+      "despite",
+      "although"
+    ],
+    "correct_index": 0,
+    "explanation": "because of 名詞 で「～の理由で」となります。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-161"
+  },
+  {
+    "question": "Mr. Kim will ( ) over the department next month.",
+    "options": [
+      "take",
+      "get",
+      "turn",
+      "go"
+    ],
+    "correct_index": 0,
+    "explanation": "take over で「（職務などを）引き継ぐ」という頻出句動詞です。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-162"
+  },
+  {
+    "question": "The budget was revised ( ) light of the recent audit.",
+    "options": [
+      "in",
+      "by",
+      "at",
+      "on"
+    ],
+    "correct_index": 0,
+    "explanation": "in light of で「～を考慮して、～に照らして」という高度な表現です。",
+    "category": "前置詞",
+    "difficulty": "600",
+    "vocab_map": {},
+    "id": "static-163"
+  },
+  {
+    "question": "The products must be ( ) of properly according to the law.",
+    "options": [
+      "disposed",
+      "discarded",
+      "removed",
+      "cleared"
+    ],
+    "correct_index": 0,
+    "explanation": "dispose of で「～を処分する」という意味になります。",
+    "category": "句動詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-164"
+  },
+  {
+    "question": "Our prices are ( ) with those of our competitors.",
+    "options": [
+      "consistent",
+      "comparable",
+      "equal",
+      "same"
+    ],
+    "correct_index": 1,
+    "explanation": "be comparable with/to で「～に匹敵する」という意味です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-165"
+  },
+  {
+    "question": "( ) behalf of the company, I would like to thank you all.",
+    "options": [
+      "On",
+      "In",
+      "At",
+      "By"
+    ],
+    "correct_index": 0,
+    "explanation": "On behalf of で「～を代表して」という挨拶の定型句です。",
+    "category": "前置詞",
+    "difficulty": "500",
+    "vocab_map": {},
+    "id": "static-166"
+  }
+]

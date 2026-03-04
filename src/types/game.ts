@@ -8,6 +8,8 @@ export interface GameQuestion {
   explanation?: string | null;
   category?: string;
   vocab_map?: Record<string, string[]>;
+  /** 難易度（500/700/900）。SHUNスコアのレアリティ導出に使用 */
+  difficulty?: string;
 }
 
-export type GameMode = 'part5-national' | 'part5-forYou' | 'vocab-national' | 'vocab-forYou';
+export type GameMode = 'part5-national' | 'part5-forYou' | 'part5-tournament' | 'vocab-national' | 'vocab-forYou' | 'vocab-tournament';

@@ -22,9 +22,13 @@ export function rarityFromDifficulty(difficulty: string | undefined): ShunRarity
   return 'COMMON'; // 500 or 未設定
 }
 
-/** コンボ倍率: 1 + Combo/10（10コンボで2倍、50で6倍、100で11倍） */
+/** コンボ倍率: 10で1.5、20で2.0、40で3.0、100で4.0（段階） */
 export function comboMultiplier(combo: number): number {
-  return 1 + combo / 10;
+  if (combo >= 100) return 4.0;
+  if (combo >= 40) return 3.0;
+  if (combo >= 20) return 2.0;
+  if (combo >= 10) return 1.5;
+  return 1;
 }
 
 /** スピードボーナス: 1 + (RemainingRate × 0.5)。即答1.5倍、残り半分1.25倍、ギリギリ1.0倍 */

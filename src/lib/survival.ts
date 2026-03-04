@@ -4,14 +4,14 @@
 
 export type SurvivalRank = 'ROOKIE' | 'ACE' | 'LEGEND';
 
-/** 画面端までの到達時間（秒）— 各モードの1問あたりの制限時間 */
+/** 画面端までの到達時間（秒）。60秒モードのみ運用のため ACE のみ使用 */
 export const RANK_TIME_TO_EDGE_SEC: Record<SurvivalRank, number> = {
-  ROOKIE: 30,
+  ROOKIE: 60,
   ACE: 60,
-  LEGEND: 120,
+  LEGEND: 60,
 };
 
-export const INITIAL_SURVIVAL_SEC = 30;
+export const INITIAL_SURVIVAL_SEC = 60;
 export const MAX_SURVIVAL_SEC = 60;
 export const CORRECT_ADD_SEC = 2;
 export const COMBO_BONUS_SEC = 3;

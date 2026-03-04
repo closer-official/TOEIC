@@ -1,34 +1,60 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { OnboardingModal, type OnboardingForm } from '@/components/OnboardingModal';
-import { GameMenu } from '@/components/GameMenu';
+import { AppHeader } from '@/components/AppHeader';
+import { HomeSideButtons, HomeNavInline, hasSideNavItems } from '@/components/HomeSideButtons';
+import { BottomNav } from '@/components/BottomNav';
+import { IconPart5, IconVocab, IconEvent, IconTournament } from '@/components/ModeIcons';
+import { LoadingWithPercent } from '@/components/LoadingWithPercent';
+
+const SWIPE_THRESHOLD = 50;
+const TOTAL_PAGES = 3;
+
+type SessionUser = { id: string; avatarUrl: string | null };
 
 export default function HomePage() {
   const router = useRouter();
-  const [session, setSession] = useState<{ id: string } | null | 'loading'>('loading');
+  const [session, setSession] = useState<SessionUser | null | 'loading'>('loading');
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editInitialForm, setEditInitialForm] = useState<Parameters<typeof OnboardingModal>[0]['initialForm']>(null);
   const [onboardingLoading, setOnboardingLoading] = useState(false);
   const [profileSaveError, setProfileSaveError] = useState<string | null>(null);
-  const [myStats, setMyStats] = useState<{
-    estimatedScore: number;
-    baseScore: number;
-    scoreHistory: Array<{ score: number; gameMode: string; survivalRank: string; createdAt: string }>;
-  } | null>(null);
+  const [rankingPreview, setRankingPreview] = useState<{ rank: number; score: number; username: string | null; avatar_url: string | null }[]>([]);
+  const [announcements, setAnnouncements] = useState<{ id: string; title: string; body: string; createdAt: string }[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [mouseDown, setMouseDown] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+  const mouseStartY = useRef<number | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session?.user ? { id: data.session.user.id } : null);
+      const u = data.session?.user;
+      if (!u) {
+        setSession(null);
+        return;
+      }
+      const avatarUrl =
+        (u.user_metadata?.avatar_url as string) ??
+        (u.user_metadata?.picture as string) ??
+        null;
+      setSession({ id: u.id, avatarUrl });
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s?.user ? { id: s.user.id } : null);
+      const u = s?.user;
+      if (!u) {
+        setSession(null);
+        return;
+      }
+      const avatarUrl =
+        (u.user_metadata?.avatar_url as string) ??
+        (u.user_metadata?.picture as string) ??
+        null;
+      setSession({ id: u.id, avatarUrl });
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -41,29 +67,24 @@ export default function HomePage() {
   }, [session, router]);
 
   useEffect(() => {
-    if (session === 'loading' || session === null || typeof session !== 'object') return;
-    fetch('/api/my-stats')
+    fetch('/api/ranking/preview', { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : { runs: [] }))
+      .then((data) => setRankingPreview(data.runs ?? []))
+      .catch(() => setRankingPreview([]));
+    fetch('/api/announcements', { credentials: 'include' })
       .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) {
-          setMyStats({
-            estimatedScore: data.estimatedScore,
-            baseScore: data.baseScore,
-            scoreHistory: data.scoreHistory ?? [],
-          });
-        }
-      })
-      .catch(() => {});
-  }, [session]);
+      .then((json) => setAnnouncements(json?.items ?? []))
+      .catch(() => setAnnouncements([]));
+  }, []);
 
-  // ログイン済みでプロフィールがなければオンボーディング表示
+  // ログイン済みでプロフィールがなければオンボーディング表示 & ヘッダー用ユーザー名
   useEffect(() => {
     if (session === 'loading' || session === null || typeof session !== 'object') return;
     const load = async () => {
       try {
         const { data } = await createClient()
           .from('profiles')
-          .select('user_id')
+          .select('user_id, username')
           .eq('user_id', session.id)
           .maybeSingle();
         setShowOnboarding(!data);
@@ -113,188 +134,213 @@ export default function HomePage() {
       return;
     }
     setShowOnboarding(false);
-    setShowEditModal(false);
   };
+
+  const goToPage = useCallback((next: number) => {
+    if (next < 0 || next >= TOTAL_PAGES) return;
+    setPageIndex(next);
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0]?.clientY ?? null;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const endY = e.changedTouches[0]?.clientY;
+    const start = touchStartY.current;
+    touchStartY.current = null;
+    if (start == null || endY == null) return;
+    const delta = start - endY;
+    if (delta > SWIPE_THRESHOLD) {
+      goToPage(pageIndex + 1);
+    } else if (delta < -SWIPE_THRESHOLD) {
+      goToPage(pageIndex - 1);
+    }
+  }, [pageIndex, goToPage]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    mouseStartY.current = e.clientY;
+    setMouseDown(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mouseDown) return;
+    const onMouseUp = (e: MouseEvent) => {
+      const start = mouseStartY.current;
+      mouseStartY.current = null;
+      setMouseDown(false);
+      if (start == null) return;
+      const delta = start - e.clientY;
+      if (delta > SWIPE_THRESHOLD) {
+        setPageIndex((i) => (i + 1 < TOTAL_PAGES ? i + 1 : i));
+      } else if (delta < -SWIPE_THRESHOLD) {
+        setPageIndex((i) => (i - 1 >= 0 ? i - 1 : i));
+      }
+    };
+    window.addEventListener('mouseup', onMouseUp);
+    return () => window.removeEventListener('mouseup', onMouseUp);
+  }, [mouseDown]);
 
   if (session === 'loading' || session === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
-        <p className="text-white">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center home-bg">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--gold)]/70 border-t-transparent" aria-hidden />
+          <LoadingWithPercent className="text-zinc-300" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen min-h-[100dvh] flex-col items-center justify-start overflow-y-auto bg-zinc-950 px-4 py-6 safe-area-pad sm:px-6">
-      <header className="fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between border-b border-zinc-800/50 bg-zinc-950/90 px-4 py-3 backdrop-blur sm:px-6">
-        <GameMenu />
-        <button
-          type="button"
-          onClick={() => router.refresh()}
-          className="touch-target text-lg font-bold text-white active:opacity-80 hover:text-amber-400"
-        >
-          瞬
-        </button>
-        <div className="w-11" />
-      </header>
-      <div className="mt-16" />
+    <div className="relative flex h-[100dvh] min-h-screen flex-col items-center justify-start overflow-hidden">
+      {/* 全面に質感背景（スワイプでバー下に白が出ないように） */}
+      <div className="fixed inset-0 z-0 home-bg" aria-hidden />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mt-8 flex w-full max-w-sm flex-col gap-3 sm:mt-12 sm:gap-4"
-      >
-        <p className="text-center text-sm text-zinc-500">Part 5（文法・品詞）</p>
-        <Link
-          href="/game?mode=part5-national"
-          className="touch-target flex items-center justify-center rounded-2xl bg-amber-500 py-4 text-base font-bold text-black transition active:opacity-90 hover:bg-amber-400 sm:py-5 sm:text-lg"
-        >
-          Part 5 全国モード
-        </Link>
-        <Link
-          href="/game?mode=part5-forYou"
-          className="touch-target flex items-center justify-center rounded-2xl border-2 border-amber-500/60 bg-amber-500/10 py-4 text-base font-bold text-amber-400 transition active:opacity-90 hover:border-amber-500/20 sm:py-5 sm:text-lg"
-        >
-          Part 5 For You
-        </Link>
+      <AppHeader />
+      <div className="relative z-10 mt-16 flex min-h-0 flex-1 flex-col w-full px-4 pb-24 safe-area-pad sm:px-6">
+        <HomeSideButtons />
 
-        <p className="mt-2 text-center text-sm text-zinc-500 sm:mt-4">単語</p>
-        <Link
-          href="/game?mode=vocab-national"
-          className="touch-target flex items-center justify-center rounded-2xl bg-amber-500/80 py-4 text-base font-bold text-black transition active:opacity-90 hover:bg-amber-500/90 sm:py-5 sm:text-lg"
-        >
-          単語 全国モード
-        </Link>
-        <Link
-          href="/game?mode=vocab-forYou"
-          className="touch-target flex items-center justify-center rounded-2xl border-2 border-amber-500/60 bg-amber-500/10 py-4 text-base font-bold text-amber-400 transition active:opacity-90 hover:border-amber-500/20 sm:py-5 sm:text-lg"
-        >
-          単語 For You
-        </Link>
-
-      </motion.div>
-
-      {myStats && (
-        <motion.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mt-6 w-full max-w-sm sm:mt-8"
-        >
-          <h3 className="mb-3 text-center text-sm font-medium text-zinc-400">
-            成長の軌跡
-          </h3>
-          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/50 p-4">
-            <div className="mb-4 flex items-baseline justify-center gap-2">
-              <span className="text-2xl font-bold text-amber-400">
-                {myStats.estimatedScore}
-              </span>
-              <span className="text-zinc-500">点（予想）</span>
-              <span className="text-xs text-zinc-600">
-                入力: {myStats.baseScore}点
-              </span>
-            </div>
-            <p className="mb-3 text-xs text-zinc-500">
-              スコア遍歴（直近10件）
-            </p>
-            {myStats.scoreHistory.length === 0 ? (
-              <p className="py-4 text-center text-sm text-zinc-500">
-                まだプレイ履歴がありません
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {[...myStats.scoreHistory]
-                  .reverse()
-                  .slice(0, 10)
-                  .map((r, i) => (
-                    <li
-                      key={`${r.createdAt}-${i}`}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-zinc-400">
-                        {r.gameMode === 'part5' ? 'Part5' : '単語'}{' '}
-                        {r.survivalRank}
-                      </span>
-                      <span className="font-bold text-white">{r.score}</span>
-                      <span className="text-xs text-zinc-600">
-                        {new Date(r.createdAt).toLocaleDateString('ja-JP', {
-                          month: 'numeric',
-                          day: 'numeric',
-                        })}
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            )}
+        {hasSideNavItems && (
+          <div className="w-full shrink-0 border-b border-gold-subtle bg-[#0a1612]/90 py-3 md:hidden">
+            <HomeNavInline />
           </div>
-        </motion.section>
-      )}
+        )}
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6 flex flex-col items-center gap-3 text-center sm:mt-8 sm:gap-2"
-      >
-        <button
-          type="button"
-          onClick={async () => {
-            const uid = typeof session === 'object' && session && 'id' in session ? session.id : null;
-            if (!uid) return;
-            const { data } = await createClient()
-              .from('profiles')
-              .select('username, current_toeic_score, target_toeic_score, next_exam_date, closer_id, referrer_id')
-              .eq('user_id', uid)
-              .maybeSingle();
-            setEditInitialForm(
-              data
-                ? {
-                    username: data.username ?? '',
-                    current_toeic_score: data.current_toeic_score != null ? String(data.current_toeic_score) : '',
-                    target_toeic_score: data.target_toeic_score != null ? String(data.target_toeic_score) : '',
-                    next_exam_date: data.next_exam_date ?? '',
-                    closer_id: data.closer_id ?? '',
-                    referrer_id: data.referrer_id ?? '',
-                  }
-                : {}
-            );
-            setProfileSaveError(null);
-            setShowEditModal(true);
-          }}
-          className="touch-target min-h-[44px] px-4 text-sm text-amber-500/80 active:opacity-80 hover:text-amber-400"
+        {/* 3パネルを縦に並べて translate でスライド（全ページ常にDOMにあり確実に表示） */}
+        <div
+          className="relative flex-1 min-h-[50vh] w-full overflow-hidden overscroll-none touch-pan-y"
+          style={{ overscrollBehavior: 'none' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
         >
-          プロフィール編集
-        </button>
-        <Link
-          href="/ranking"
-          className="touch-target min-h-[44px] flex items-center justify-center px-4 text-sm text-amber-500/80 active:opacity-80 hover:text-amber-400"
-        >
-          全国ランキング →
-        </Link>
-        <button
-          type="button"
-          onClick={async () => {
-            await createClient().auth.signOut();
-            router.replace('/login');
-          }}
-          className="touch-target min-h-[44px] px-4 text-xs text-zinc-500 active:opacity-80 hover:text-zinc-400"
-        >
-          ログアウト
-        </button>
-      </motion.div>
+          <motion.div
+            className="flex flex-col w-full"
+            style={{ height: '300%' }}
+            animate={{ translateY: `-${pageIndex * (100 / 3)}%` }}
+            transition={{ type: 'tween', duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            {/* ページ0: プレイカード（Glassmorphism・真鍮ボーダー・セリフ体） */}
+            <div className="h-[33.333%] min-h-0 w-full shrink-0 overflow-y-auto flex flex-col items-center pt-4 pb-16 px-4 md:pl-24 md:pr-10" style={{ overscrollBehavior: 'none' }}>
+              <div className="flex w-full max-w-sm flex-col gap-5">
+                <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-[#D4AF37]/90">プレイ</p>
+                <div className="flex flex-col gap-5">
+                  <Link href="/game?mode=part5-national" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="Part 5 全国モード">
+                    <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconPart5 className="w-10 h-10" /></span>
+                    <div className="min-w-0 flex-1">
+                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>Part 5 全国モード</span>
+                      <span className="mt-1 block border-b border-white/30 pb-1.5" style={{ borderColor: 'rgba(255,255,255,0.3)' }} />
+                      <span className="text-xs text-zinc-400">全国共通の問題でタイムアタック</span>
+                    </div>
+                  </Link>
+                  <Link href="/game?mode=vocab-national" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="単語全国モード">
+                    <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconVocab className="w-10 h-10" /></span>
+                    <div className="min-w-0 flex-1">
+                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>単語 全国モード</span>
+                      <span className="mt-1 block border-b border-white/30 pb-1.5" style={{ borderColor: 'rgba(255,255,255,0.3)' }} />
+                      <span className="text-xs text-zinc-400">数千語からランダム出題</span>
+                    </div>
+                  </Link>
+                  <Link href="/event" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="イベント">
+                    <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconEvent className="w-10 h-10" /></span>
+                    <div className="min-w-0 flex-1">
+                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>イベント</span>
+                      <span className="mt-1 block border-b border-white/30 pb-1.5" style={{ borderColor: 'rgba(255,255,255,0.3)' }} />
+                      <span className="text-xs text-zinc-400">週替わりイベントで特別報酬</span>
+                    </div>
+                  </Link>
+                  <Link href="/tournament" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="大会">
+                    <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconTournament className="w-10 h-10" /></span>
+                    <div className="min-w-0 flex-1">
+                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>大会</span>
+                      <span className="mt-1 block border-b border-white/30 pb-1.5" style={{ borderColor: 'rgba(255,255,255,0.3)' }} />
+                      <span className="text-xs text-zinc-400">ランキングで競おう</span>
+                    </div>
+                  </Link>
+                </div>
+                <p className="mt-4 text-center text-xs text-zinc-500 flex items-center justify-center gap-1.5" aria-hidden>
+                  <span className="inline-block translate-y-0.5">↓</span>
+                  <span>下にスワイプでランキング・掲示板</span>
+                </p>
+              </div>
+            </div>
 
+            {/* ページ1: ランキング */}
+            <div className="h-[33.333%] min-h-0 w-full shrink-0 overflow-y-auto flex flex-col items-center pt-4 pb-16 px-4 md:pl-24 md:pr-10" style={{ overscrollBehavior: 'none' }}>
+              <div className="w-full max-w-sm">
+                <h2 className="text-base font-semibold text-white">ランキング</h2>
+                <p className="mt-0.5 text-xs text-zinc-500">単語＋Part 5 合計得点 上位</p>
+                {rankingPreview.length === 0 ? (
+                  <p className="mt-4 rounded-xl border border-gold-subtle bg-zinc-900/80 px-4 py-6 text-center text-sm text-zinc-500">まだ記録がありません</p>
+                ) : (
+                  <ul className="mt-4 space-y-2">
+                    {rankingPreview.slice(0, 10).map((r) => (
+                      <li key={r.rank} className="flex items-center gap-3 rounded-xl border border-gold-subtle bg-zinc-900/80 px-4 py-3">
+                        <span className="shrink-0 text-lg font-bold text-gold">#{r.rank}</span>
+                        <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-700">
+                          {r.avatar_url?.trim() ? <img src={r.avatar_url} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" /> : <span className="flex h-full w-full items-center justify-center text-xs font-medium text-zinc-400">{(r.username?.trim() || '?').slice(0, 1).toUpperCase()}</span>}
+                        </div>
+                        <span className="min-w-0 flex-1 truncate text-white text-sm">{r.username?.trim() || '匿名'}</span>
+                        <span className="shrink-0 font-medium text-white text-sm">{r.score} pt</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-3 text-center"><Link href="/ranking" className="text-sm text-gold hover:text-gold-bright">ランキング・掲示板を見る →</Link></p>
+              </div>
+            </div>
+
+            {/* ページ2: 掲示板 */}
+            <div className="h-[33.333%] min-h-0 w-full shrink-0 overflow-y-auto flex flex-col items-center pt-4 pb-16 px-4 md:pl-24 md:pr-10" style={{ overscrollBehavior: 'none' }}>
+              <div className="w-full max-w-sm">
+                <h2 className="text-base font-semibold text-white">掲示板</h2>
+                <p className="mt-0.5 text-xs text-zinc-500">運営からのお知らせ</p>
+                {announcements.length === 0 ? (
+                  <p className="mt-4 rounded-xl border border-gold-subtle bg-zinc-900/80 px-4 py-6 text-center text-sm text-zinc-500">お知らせはありません</p>
+                ) : (
+                  <ul className="mt-4 space-y-3">
+                    {announcements.slice(0, 5).map((a) => (
+                      <li key={a.id} className="rounded-xl border border-gold-subtle bg-zinc-900/80 px-4 py-3">
+                        <p className="font-medium text-white">{a.title}</p>
+                        <p className="mt-1 line-clamp-2 break-words text-sm text-zinc-400">{a.body}</p>
+                        <p className="mt-2 text-xs text-zinc-500">{new Date(a.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-3 text-center"><Link href="/ranking" className="text-sm text-gold hover:text-gold-bright">掲示板をすべて見る →</Link></p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* ページインジケーター（スワイプ先が分かるようラベル付き） */}
+          <div className="absolute bottom-3 left-0 right-0 flex flex-col items-center gap-2 z-10">
+            <div className="flex justify-center gap-2">
+              {[0, 1, 2].map((i) => (
+                <button key={i} type="button" onClick={() => goToPage(i)} className="p-1.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-gold" aria-label={i === 0 ? 'メイン' : i === 1 ? 'ランキング' : '掲示板'} aria-current={pageIndex === i ? 'true' : undefined}>
+                  <span className={`block h-2 rounded-full transition-all duration-200 ${pageIndex === i ? 'w-5 bg-[var(--gold)]' : 'w-2 bg-zinc-500/80'}`} />
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-zinc-500 tabular-nums">
+              {pageIndex === 0 && 'メイン'}
+              {pageIndex === 1 && 'ランキング'}
+              {pageIndex === 2 && '掲示板'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
       <OnboardingModal
-        open={showOnboarding || showEditModal}
-        onSkip={() => {
-          if (showEditModal) setShowEditModal(false);
-          else handleOnboardingSkip();
-        }}
+        open={showOnboarding}
+        onSkip={handleOnboardingSkip}
         onSubmit={handleOnboardingSubmit}
         loading={onboardingLoading}
         saveError={profileSaveError}
         onDismissError={() => setProfileSaveError(null)}
-        initialForm={showEditModal ? editInitialForm : null}
+        initialForm={null}
       />
     </div>
   );

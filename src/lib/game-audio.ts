@@ -9,6 +9,7 @@ const SOUNDS = {
   bgmNormal: '/sounds/bgm-normal.mp3',
   bgmUrgent: '/sounds/bgm-urgent.mp3',
   bgmFever: '/sounds/bgm-fever.mp3',
+  bgmMenu: '/sounds/bgm-menu.mp3',
   perfectBonus: '/sounds/perfect-bonus.mp3',
   bossWarning: '/sounds/boss-warning.mp3',
   timeStop: '/sounds/time-stop.mp3',
@@ -16,6 +17,9 @@ const SOUNDS = {
 
 let bgmInstance: HTMLAudioElement | null = null;
 let lastBgmPath: string | null = null;
+
+let menuBgmInstance: HTMLAudioElement | null = null;
+let menuBgmVolume = 0.35;
 
 function tryPlay(path: string, volume = 0.7): void {
   if (typeof window === 'undefined') return;
@@ -59,6 +63,56 @@ export function stopBgm(): void {
     bgmInstance = null;
   }
   lastBgmPath = null;
+}
+
+/** メニュー用BGM（ホーム・ダッシュボード等）。ループ再生。ファイルが無ければ再生しない */
+export function playMenuBgmIfExists(volume?: number): void {
+  const vol = typeof volume === 'number' ? volume : menuBgmVolume;
+  menuBgmVolume = vol;
+  if (menuBgmInstance && !menuBgmInstance.paused) {
+    menuBgmInstance.volume = vol;
+    return;
+  }
+  if (typeof window === 'undefined') return;
+  const path = SOUNDS.bgmMenu;
+  fetch(path, { method: 'HEAD' })
+    .then((res) => {
+      if (!res.ok) return;
+      if (menuBgmInstance) {
+        menuBgmInstance.pause();
+        menuBgmInstance = null;
+      }
+      menuBgmInstance = new Audio(path);
+      menuBgmInstance.volume = vol;
+      menuBgmInstance.loop = true;
+      menuBgmInstance.play().catch(() => {});
+    })
+    .catch(() => {});
+}
+
+export function stopMenuBgm(): void {
+  if (menuBgmInstance) {
+    menuBgmInstance.pause();
+    menuBgmInstance = null;
+  }
+}
+
+export function setMenuBgmVolume(volume: number): void {
+  menuBgmVolume = Math.max(0, Math.min(1, volume));
+  if (menuBgmInstance) menuBgmInstance.volume = menuBgmVolume;
+}
+
+/** タブ非表示・アプリ終了時にすべてのBGMを停止（visibilitychange / pagehide で呼ぶ） */
+export function stopAllBgmOnHide(): void {
+  if (typeof window === 'undefined') return;
+  const stop = () => {
+    stopBgm();
+    stopMenuBgm();
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') stop();
+  });
+  window.addEventListener('pagehide', stop);
 }
 
 export { SOUNDS };

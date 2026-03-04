@@ -1,0 +1,12 @@
+# リポジトリ内は LF に統一（Windows/Mac どちらで clone しても一貫）
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.mp4 binary
+*.mp3 binary
+*.pdf binary
+*.xlsx binary
+*.xls binary

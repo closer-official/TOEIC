@@ -114,19 +114,24 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.2 }}
-              className="fixed left-0 top-0 z-[101] overflow-hidden shadow-2xl"
+              className="fixed left-0 top-0 z-[101] overflow-hidden"
               style={{
                 paddingTop: 'env(safe-area-inset-top)',
                 paddingLeft: 'env(safe-area-inset-left)',
                 paddingBottom: 'env(safe-area-inset-bottom)',
-                width: 'min(300px, 85vw)',
-                maxWidth: '300px',
+                width: '280px',
+                maxWidth: '78vw',
                 height: '100%',
                 backgroundColor: '#18181b',
                 display: 'flex',
                 flexDirection: 'column',
+                position: 'relative',
+                boxShadow: '4px 0 24px rgba(0,0,0,0.4)',
+                borderRight: '1px solid #3f3f46',
               }}
-              data-menu-drawer="nav-list"
+              data-menu-drawer="sidebar"
+              role="dialog"
+              aria-label="サイドバーメニュー"
             >
               {showPlayHistory ? (
                 <>
@@ -253,10 +258,13 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
                       <button
                         type="button"
                         onClick={() => {
-                          close();
-                          onQuit();
+                          if (window.confirm('ゲームをやめてホームに戻りますか？')) {
+                            close();
+                            onQuit();
+                          }
                         }}
-                        className="touch-target mt-2 w-full rounded-xl py-3 text-sm text-zinc-500 active:opacity-80 hover:text-white"
+                        className="touch-target mt-2 w-full rounded-xl py-3 text-sm text-zinc-500 active:opacity-80 hover:text-white focus-visible:ring-2 focus-visible:ring-amber-500"
+                        aria-label="ゲームをやめる"
                       >
                         やめる
                       </button>
@@ -265,11 +273,23 @@ export function GameMenu({ onClose, onQuit, variant = 'home' }: GameMenuProps) {
                 </>
               ) : (
                 <>
-                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46', padding: '16px' }}>
-                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>メニュー</h2>
-                    <button type="button" onClick={close} aria-label="閉じる" style={{ background: 'none', border: 'none', color: '#a1a1aa', fontSize: '18px', cursor: 'pointer', padding: '8px' }}>✕</button>
+                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46', padding: '16px', backgroundColor: '#18181b' }}>
+                    <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#fff' }}>ナビゲーション</h2>
+                    <button type="button" onClick={close} aria-label="サイドバーを閉じる" style={{ background: 'none', border: 'none', color: '#a1a1aa', fontSize: '18px', cursor: 'pointer', padding: '8px' }}>✕</button>
                   </div>
-                  <nav style={{ flex: '1 1 0', minHeight: '320px', overflowY: 'auto', padding: '16px 8px', backgroundColor: '#18181b' }} aria-label="メインメニュー">
+                  <nav
+                    aria-label="メインメニュー"
+                    style={{
+                      position: 'absolute',
+                      top: '57px',
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      overflowY: 'auto',
+                      padding: '16px 8px',
+                      backgroundColor: '#18181b',
+                    }}
+                  >
                     <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                       <li style={{ marginBottom: '4px' }}><a href="/" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>ホーム</a></li>
                       <li style={{ marginBottom: '4px' }}><a href="/history" onClick={close} style={{ display: 'block', padding: '14px 16px', fontSize: '15px', fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>学習履歴</a></li>

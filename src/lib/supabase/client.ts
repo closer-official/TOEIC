@@ -1,4 +1,5 @@
-import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -12,10 +13,13 @@ export function isSupabaseConfigured(): boolean {
 export function createClient(): SupabaseClient {
   if (!supabaseUrl || !supabaseAnonKey) {
     if (!_client) {
-      _client = createSupabaseClient('https://placeholder.supabase.co', 'placeholder-key');
+      _client = createBrowserClient(
+        'https://placeholder.supabase.co',
+        'placeholder-key'
+      );
     }
     return _client;
   }
-  if (!_client) _client = createSupabaseClient(supabaseUrl, supabaseAnonKey);
+  if (!_client) _client = createBrowserClient(supabaseUrl, supabaseAnonKey);
   return _client;
 }

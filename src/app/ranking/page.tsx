@@ -4,83 +4,70 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
-import { GameMenu } from '@/components/GameMenu';
-
-type ModeKey = 'part5' | 'vocab';
-type RankKey = 'ROOKIE' | 'ACE' | 'LEGEND';
+import { AppHeader } from '@/components/AppHeader';
+import { BottomNav } from '@/components/BottomNav';
+import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
 interface RunRow {
   id: string;
   user_id: string;
   score: number;
-  total_time_ms: number;
-  created_at: string;
-  game_mode: ModeKey;
-  survival_rank: RankKey;
   username?: string | null;
+  avatar_url?: string | null;
+}
+
+interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: string;
 }
 
 export default function RankingPage() {
   const [runs, setRuns] = useState<RunRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [modeKey, setModeKey] = useState<ModeKey>('part5');
-  const [rankKey, setRankKey] = useState<RankKey>('ROOKIE');
+  const [myUserId, setMyUserId] = useState<string | null>(null);
+  const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null);
+  const [runsError, setRunsError] = useState<string | null>(null);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  useEffect(() => {
+    const err = (() => {
+      try {
+        const raw = sessionStorage.getItem('runs_insert_error');
+        if (raw) {
+          sessionStorage.removeItem('runs_insert_error');
+          const o = JSON.parse(raw) as { message?: string };
+          if (o?.message === 'not_logged_in') return 'ランキングに記録するにはログインしてください。';
+          return o?.message ? `記録に失敗しました: ${o.message}` : null;
+        }
+      } catch {
+        // ignore
+      }
+      return null;
+    })();
+    if (err) setRunsError(err);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
+      setRunsError(null);
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session?.user);
+      const user = session?.user;
+      setIsLoggedIn(!!user);
+      setMyUserId(user?.id ?? null);
+      const avatarUrl =
+        (user?.user_metadata?.avatar_url as string) ??
+        (user?.user_metadata?.picture as string) ??
+        null;
+      setMyAvatarUrl(avatarUrl && avatarUrl.trim() ? avatarUrl.trim() : null);
 
       try {
-        const { data: runsData, error } = await supabase
-          .from('runs')
-          .select('id, user_id, score, total_time_ms, created_at, game_mode, survival_rank')
-          .eq('game_mode', modeKey)
-          .eq('survival_rank', rankKey)
-          .order('score', { ascending: false })
-          .limit(150);
-        if (error) {
-          console.warn('runs fetch', error.message);
-          setRuns([]);
-          setLoading(false);
-          return;
-        }
-        const raw = Array.isArray(runsData) ? runsData : [];
-        const bestByUser = new Map<string, typeof raw[0]>();
-        for (const r of raw) {
-          const cur = bestByUser.get(r.user_id);
-          if (!cur || r.score > cur.score || (r.score === cur.score && r.total_time_ms < cur.total_time_ms)) {
-            bestByUser.set(r.user_id, r);
-          }
-        }
-        const list = [...bestByUser.values()].sort((a, b) => {
-          if (a.score !== b.score) return b.score - a.score;
-          return a.total_time_ms - b.total_time_ms;
-        }).slice(0, 20);
-        if (list.length === 0) {
-          setRuns([]);
-          setLoading(false);
-          return;
-        }
-        const nameByUserId = new Map<string, string | null>();
-        const userIds = [...new Set(list.map((r) => r.user_id))];
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('user_id, username')
-          .in('user_id', userIds);
-        if (profilesData) {
-          for (const p of profilesData) {
-            nameByUserId.set(p.user_id, p.username ?? null);
-          }
-        }
-        setRuns(
-          list.map((r) => ({
-            ...r,
-            username: nameByUserId.get(r.user_id) ?? null,
-          }))
-        );
+        const res = await fetch('/api/ranking/combined?limit=50', { credentials: 'include' });
+        const data = await res.json().catch(() => ({ runs: [] }));
+        setRuns(Array.isArray(data.runs) ? data.runs : []);
       } catch {
         setRuns([]);
       } finally {
@@ -89,98 +76,119 @@ export default function RankingPage() {
     };
     setLoading(true);
     load();
-  }, [modeKey, rankKey]);
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/announcements', { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => setAnnouncements(json?.items ?? []))
+      .catch(() => setAnnouncements([]));
+  }, []);
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-zinc-950">
-      <header className="fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between border-b border-zinc-800/50 bg-zinc-950/90 px-4 py-3 backdrop-blur sm:px-6">
-        <GameMenu variant="home" />
-        <Link href="/" className="touch-target text-lg font-bold text-white active:opacity-80 hover:text-amber-400">
-          瞬
-        </Link>
-        <div className="w-11" />
-      </header>
-      <div className="px-4 pt-16 pb-8 safe-area-pad sm:px-6 sm:py-8">
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-black">
+      <AppHeader />
+      <main
+        className="min-h-0 flex-1 overflow-y-auto px-4 content-below-header safe-area-pad sm:px-6 sm:py-8"
+        style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
+      >
         <div className="mx-auto max-w-lg">
           <h1 className="text-xl font-bold text-white sm:text-2xl">全国ランキング</h1>
-        <p className="mt-1 text-sm text-zinc-500">単語 / Part 5 × 3ランクで6つのランキング</p>
+        <p className="mt-1 text-sm text-zinc-500">単語＋Part 5 の合計得点（60秒モード）</p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
-          <div className="inline-flex rounded-full bg-zinc-900 p-1">
-            <button
-              type="button"
-              onClick={() => setModeKey('part5')}
-              className={`touch-target rounded-full px-3 py-2 text-xs font-medium sm:py-1 ${
-                modeKey === 'part5'
-                  ? 'bg-amber-500 text-black'
-                  : 'text-zinc-400 active:opacity-80 hover:text-white'
-              }`}
-            >
-              Part 5
-            </button>
-            <button
-              type="button"
-              onClick={() => setModeKey('vocab')}
-              className={`touch-target rounded-full px-3 py-2 text-xs font-medium sm:py-1 ${
-                modeKey === 'vocab'
-                  ? 'bg-amber-500 text-black'
-                  : 'text-zinc-400 active:opacity-80 hover:text-white'
-              }`}
-            >
-              単語
-            </button>
+        {runsError && (
+          <div className="mt-3 rounded-lg border border-gold-subtle bg-[var(--gold)]/10 px-3 py-2 text-sm text-gold-bright">
+            {runsError}
           </div>
-          <div className="inline-flex rounded-full bg-zinc-900 p-1">
-            {(['ROOKIE', 'ACE', 'LEGEND'] as RankKey[]).map((rk) => (
-              <button
-                key={rk}
-                type="button"
-                onClick={() => setRankKey(rk)}
-                className={`touch-target rounded-full px-3 py-2 text-xs font-medium sm:py-1 ${
-                  rankKey === rk
-                    ? 'bg-amber-500 text-black'
-                    : 'text-zinc-400 active:opacity-80 hover:text-white'
-                }`}
-              >
-                {rk}
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
         {!isLoggedIn && (
-          <p className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+          <p className="mt-2 rounded-lg border border-gold-subtle bg-[var(--gold)]/10 px-3 py-2 text-sm text-gold-bright">
             ゲストのままプレイしたスコアはランキングに反映されません。ログインすると記録されます。
           </p>
         )}
 
         {loading ? (
-          <p className="mt-8 text-zinc-500">読み込み中...</p>
+          <LoadingWithPercent className="mt-8 block text-zinc-500" />
         ) : runs.length === 0 ? (
           <p className="mt-8 text-zinc-500">まだ記録がありません</p>
         ) : (
           <ul className="mt-6 space-y-2">
-            {runs.map((run, i) => (
+            {runs.map((run, i) => {
+              const isMe = myUserId != null && run.user_id === myUserId;
+              return (
               <motion.li
                 key={run.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="flex items-center justify-between gap-2 rounded-xl border border-zinc-700 bg-zinc-900/50 px-4 py-3"
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
+                  isMe ? 'border-[var(--gold)]/60 bg-[var(--gold)]/15' : 'border-gold-subtle bg-zinc-900/80'
+                }`}
               >
-                <span className="shrink-0 text-lg font-bold text-amber-400">#{i + 1}</span>
-                <span className="min-w-0 truncate text-white" title={run.username ?? '匿名'}>
+                <span className="shrink-0 text-lg font-bold text-gold">#{i + 1}</span>
+                <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-zinc-700">
+                  {(isMe && myAvatarUrl) || run.avatar_url?.trim() ? (
+                    <img
+                      src={(isMe && myAvatarUrl) ? myAvatarUrl : run.avatar_url!}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-sm font-medium text-zinc-400">
+                      {(run.username?.trim() || '?').slice(0, 1).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <span className="min-w-0 flex-1 truncate text-white" title={run.username ?? '匿名'}>
                   {run.username?.trim() || '匿名'}
                 </span>
                 <span className="shrink-0 font-medium text-white">{run.score} pt</span>
-                <span className="shrink-0 text-sm text-zinc-500">
-                  {(run.total_time_ms / 1000).toFixed(1)}秒
-                </span>
+                {isMe && <span className="shrink-0 rounded bg-[var(--gold)]/20 px-1.5 py-0.5 text-xs text-gold">自分</span>}
               </motion.li>
-            ))}
+              );
+            })}
           </ul>
         )}
+
+        {/* 掲示板（運営からの連絡） */}
+        <section className="mt-10">
+          <h2 className="text-base font-semibold text-white">掲示板</h2>
+          <p className="mt-0.5 text-xs text-zinc-500">運営からのお知らせ</p>
+          {announcements.length === 0 ? (
+            <p className="mt-4 rounded-xl border border-gold-subtle bg-zinc-900/80 px-4 py-6 text-center text-sm text-zinc-500">
+              お知らせはありません
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {announcements.map((a) => (
+                <li
+                  key={a.id}
+                  className="rounded-xl border border-gold-subtle bg-zinc-900/80 px-4 py-3"
+                >
+                  <p className="font-medium text-white">{a.title}</p>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-sm text-zinc-400">{a.body}</p>
+                  <p className="mt-2 text-xs text-zinc-500">
+                    {new Date(a.createdAt).toLocaleDateString('ja-JP', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <p className="mt-8 text-center">
+          <Link href="/" className="text-sm text-gold hover:text-gold-bright">
+            ← ホームへ
+          </Link>
+        </p>
         </div>
-      </div>
+      </main>
+      <BottomNav />
     </div>
   );
 }

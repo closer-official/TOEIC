@@ -1,5 +1,26 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## 開発環境の移行（Windows ↔ Mac）
+
+別のマシンで続きから開発する場合:
+
+1. **リポジトリをクローン**
+   ```bash
+   git clone https://github.com/closer-official/TOEIC.git
+   cd TOEIC
+   ```
+
+2. **依存関係のインストール**
+   ```bash
+   npm install
+   ```
+
+3. **環境変数**
+   - `.env.local` は Git に含まれません。Supabase の URL/Key などは Mac 側で新しく `.env.local` を作成するか、手元でコピーしてください。
+
+4. **改行・パス**
+   - リポジトリはクロスプラットフォームを想定しています。`.gitignore` で OS ごとの不要ファイル（`.DS_Store`, `Thumbs.db` など）を除外しています。
+
 ## Getting Started
 
 First, run the development server:

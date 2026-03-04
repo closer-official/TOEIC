@@ -1,0 +1,31 @@
+# 2000問未満の間: 毎日 0:00 JST に最大200問を追加
+name: Daily Question Generation (until 2000)
+
+on:
+  schedule:
+    - cron: '0 15 * * *'   # 毎日 15:00 UTC = 0:00 JST
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run pipeline (daily: add 200 if count < 2000)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MODE: daily
+        run: npm run pipeline

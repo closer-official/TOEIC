@@ -1,5 +1,5 @@
-# 毎週月曜 4:00 (JST) に50問を生成・検証し Supabase にマージ
-name: Weekly Question Generation
+# 2000問を超えた後: 毎週月曜 4:00 JST に200問を追加
+name: Weekly Question Generation (after 2000)
 
 on:
   schedule:
@@ -22,9 +22,10 @@ jobs:
 
       - run: npm ci
 
-      - name: Run Gen & Validate pipeline
+      - name: Run pipeline (weekly: add 200 if count >= 2000)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MODE: weekly
         run: npm run pipeline

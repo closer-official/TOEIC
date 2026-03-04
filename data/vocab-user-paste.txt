@@ -1,0 +1,655 @@
+Refurbish：改装する、磨き直す
+Remodel：リフォームする、作り変える
+Dwindle：だんだん減少する
+Plummet：急落する、真っ逆さまに落ちる
+Soar：急上昇する、高く舞い上がる
+Surge：急増する、波のように押し寄せる
+Mount：増える、据え付ける
+Substantial：かなりの、相当な
+Considerable：かなりの、注目に値する
+Notable：注目すべき、著しい
+Significant：重要な、かなりの
+Appreciable：感知できるほどの、かなりの
+Drastic：劇的な、思い切った
+Abrupt：突然の、ぶっきらぼうな
+Gradual：徐々の、緩やかな
+Steady：着実な、固定された
+Consistent：一貫した、矛盾のない
+Persistent：粘り強い、しつこい
+Tenant：入居者、借家人
+Occupant：占有者、居住者
+Inhabitant：居住者、住民
+Resident：居住者、研修医
+Vendor：業者、売り主
+Supplier：供給業者、納入業者
+Contractor：請負業者、土建屋
+Provider：提供者、支援者
+Implement：実行する、道具
+Execute：遂行する、処刑する
+Enforce：施行する、強いる
+Administer：管理する、運営する
+Verify：確かめる、実証する
+Validate：有効にする、認証する
+Confirm：確認する、固める
+Authenticate：本物であると証明する
+Acquire：手に入れる、買収する
+Obtain：入手する、獲得する
+Procure：調達する、手に入れる
+Secure：確保する、安全な
+Attribute：〜のせいにする、特性
+Ascribe：〜に帰する、〜のせいにする
+Delegate：委譲する、代表者
+Assign：割り当てる、配属する
+Allocate：配分する、割り当てる
+Designate：指定する、指名する
+Nominate：指名する、推薦する
+Appoint：指名する、任命する
+Address：対処する、演説する
+Handle：扱う、取っ手
+Manage：管理する、どうにか〜する
+Tackle：取り組む、タックル
+Curb：抑制する、縁石
+Restrain：抑える、制止する
+Restrict：制限する、限定する
+Limit：制限する、境界
+Prohibit：禁止する
+Forbid：禁じる
+Ban：禁止、禁止する
+Bar：禁じる、棒、酒場
+Cease：やめる、終わる
+Halt：停止させる、中断
+Suspend：一時停止する、吊るす
+Terminate：終結させる、解雇する
+Initiate：開始する、伝授する
+Commence：始まる、開始する
+Launch：立ち上げる、発売する
+Inaugurate：就任させる、開始する
+Mandatory：義務的な、強制的な
+Compulsory：義務的な、必修の
+Obligatory：義務的な、必須の
+Required：必須の、必要な
+Vague：曖昧な、漠然とした
+Ambiguous：曖昧な、多義の
+Obscure：不明瞭な、世に知られていない
+Implicit：暗黙の、信じて疑わない
+Explicit：明白な、露骨な
+Definite：明確な、確実な
+Specific：具体的な、特定の
+Precise：正確な、精密な
+Versatile：多才な、多目的の
+Adaptable：適応できる、順応性のある
+Flexible：柔軟な、曲げやすい
+Pliable：柔軟な、影響されやすい
+Stringent：厳格な、厳しい
+Rigorous：厳格な、徹底した
+Severe：厳しい、深刻な
+Strict：厳しい、厳格な
+Evaluate：評価する、査定する
+Assess：評価する、査定する
+Appraise：査定する、鑑定する
+Rate：評価する、割合
+Prompt：迅速な、促す
+Swift：迅速な、速い
+Rapid：急速な、速い
+Immediate：即座の、直接の
+Postpone：延期する
+Delay：遅らせる、遅延
+Defer：延期する、従う
+Adjourn：休会する、延期する
+Prospective：見込みのある、将来の
+Potential：潜在的な、可能性
+Likely：ありそうな、たぶん
+Promising：有望な、見込みのある
+Incur：負う、被る
+Sustain：維持する、被る
+Undergo：経験する、耐える
+Experience：経験、経験する
+Submit：提出する、服従する
+File：提出する、綴じ込み
+Turn in：提出する、返す
+Hand in：提出する
+Regarding：〜に関して
+Concerning：〜に関して
+Respecting：〜に関して
+As for：〜については
+Therefore：したがって
+Consequently：結果として
+Hence：それゆえに
+Thus：このように
+Moreover：さらに
+Furthermore：さらに
+In addition：加えて
+Additionally：さらに
+However：しかしながら
+Nevertheless：それにもかかわらず
+Nonetheless：それにもかかわらず
+Still：それにもかかわらず、静止した
+Alleviate：軽減する
+Ease：和らげる、容易さ
+Relieve：和らげる、安心させる
+Mitigate：和らげる、軽減する
+Comprise：構成する、含む
+Consist of：〜から成る
+Compose：構成する、作曲する
+Constituents：構成要素、有権者
+Exclude：除外する
+Omit：省く、抜かす
+Eliminate：取り除く、削除する
+Discard：捨てる、解雇する
+Abundant：豊富な
+Plentiful：豊富な
+Ample：十分すぎるほどの
+Remuneration：報酬、給与
+Stipend：奨学金、給料
+Allowance：手当、許容量
+Commission：歩合、委員会
+Perk：特典、福利厚生
+Entitlement：権利、給付資格
+Seniority：年功序列、先任
+Tenure：在職期間、終身雇用権
+Probation：試用期間、保護観察
+Apprenticeship：見習い期間
+Internship：実習、インターン
+Vetting：精査、審査
+Credentials：資格、実績
+Reference：参照、推薦状
+Testimonial：推薦状、感謝状
+Appraisal：評価、査定
+Redundancy：余剰、解雇
+Severance：退職金、切断
+Downsizing：人員削減
+Restructuring：再構築
+Attrition：自然減、摩滅
+Turnover：離職率、売上高
+Absenteeism：無断欠勤
+Productivity：生産性
+Efficiency：効率
+Compliance：遵守
+Regulation：規制、規則
+Ordinance：条例
+Statute：法令
+Clause：条項
+Provision：規定、準備
+Stipulation：規定、条件
+Amendment：修正案
+Legislation：立法
+Litigation：訴訟
+Plaintiff：原告
+Defendant：被告
+Arbitration：仲裁
+Mediation：調停
+Liability：法的責任、負債
+Indemnity：賠償、免責
+Waiver：権利放棄
+Notary：公証人
+Infringement：侵害
+Plagiarism：盗作
+Breach：違反
+Default：不履行、初期設定
+Bankruptcy：破産
+Insolvency：支払い不能
+Liquidation：清算、解散
+Merger：合併
+Acquisition：買収
+Subsidiary：子会社
+Affiliate：系列会社
+Parent company：親会社
+Headquarters：本社
+Branch：支店、枝
+Franchise：特約店
+Outsourcing：外注
+Joint venture：合弁事業
+Revenue：収益
+Expenditure：支出
+Overhead：諸経費
+Surplus：余剰、黒字
+Deficit：欠損、赤字
+Margin：利益、余白
+Equity：純資産、公平
+Asset：資産
+Balance sheet：貸借対照表
+Audit：監査
+Fiscal year：会計年度
+Quarterly：四半期ごとの
+Dividend：配当
+Stock：株、在庫
+Share：株、共有する
+Bond：債券、絆
+Interest rate：金利
+Mortgage：住宅ローン
+Collateral：担保
+Foreclosure：差し押さえ
+Rebate：払い戻し
+Refund：返金
+Invoice：請求書
+Voucher：引換券
+Receipt：領収書、受け取り
+Arrears：滞納金
+Remittance：送金
+Surcharge：追加料金
+Premises：敷地、建物
+Inventory：在庫
+Warehouse：倉庫
+Consignment：委託
+Freight：貨物
+Cargo：積み荷
+Logistics：物流
+Distribution：流通、配布
+Procurement：調達
+Wholesale：卸売り
+Retail：小売り
+Implementation：実施、導入
+Deployment：展開、配置
+Configuration：設定、構成
+Integration：統合
+Compatibility：互換性
+Scalability：拡張性
+Availability：利用可能性
+Connectivity：接続性
+Bandwidth：帯域幅
+Latency：遅延
+Security breach：情報漏洩
+Encryption：暗号化
+Authentication：認証
+Authorization：認可
+Migration：移行
+Optimization：最適化
+Backup：予備、支援
+Update：更新
+Upgrade：格上げ
+Interface：接点
+Architecture：設計、構造
+Algorithm：計算手順
+Database：データベース
+Framework：枠組み
+Sustainability：持続可能性
+Corporate Social Responsibility：企業の社会的責任
+Ethical：倫理的な
+Environmental：環境の
+Philanthropy：慈善活動
+Governance：統治
+Strategy：戦略
+Vision：構想
+Mission：使命
+Objective：目標、客観的な
+Milestone：節目
+Paradigm：枠組み
+Leverage：活用する
+Benchmark：基準
+Best practice：最良の手法
+Synergy：相乗効果
+Ambitious：野心的な
+Diligent：勤勉な
+Reliable：信頼できる
+Dependable：信頼できる
+Punctual：時間を守る
+Meticulous：細心の注意を払う
+Scrupulous：良心的な、几帳面な
+Conscientious：誠実な、慎重な
+Versatile：多才な
+Resourceful：機転が利く
+Innovative：革新的な
+Proactive：積極的な
+Assertive：断定的、積極的
+Tenacious：粘り強い
+Resilient：回復力のある
+Persuasive：説得力のある
+Eloquent：雄弁な
+Articulate：はっきり述べる
+Charismatic：カリスマ性のある
+Diplomatic：外交的な、如才ない
+Courteous：礼儀正しい
+Respectful：敬意を表する
+Considerate：思いやりのある
+Compassionate：情け深い
+Humble：謙虚な
+Modest：控えめな
+Arrogant：傲慢な
+Conceited：自惚れた
+Stubborn：頑固な
+Obstinate：強情な
+Cynical：冷笑的な
+Skeptical：懐疑的な
+Pessimistic：悲観的な
+Optimistic：楽観的な
+Altruistic：利他的な
+Selfish：利己的な
+Greedy：欲張りな
+Lazy：怠慢な
+Negligent：怠慢な、不注意な
+Sloppy：だらしない
+Indecisive：優柔不断な
+Decisive：決断力のある
+Inquisitive：好奇心の強い
+Naive：世間知らずな
+Gullible：だまされやすい
+Shrewd：抜け目のない
+Astute：鋭い、抜け目のない
+Discerning：洞察力のある
+Keen：鋭い
+Blunt：ぶっきらぼうな
+Candid：率直な
+Frank：率直な
+Devoted：献身的な
+Loyal：忠実な
+Steadfast：揺るぎない
+Unwavering：揺るぎない
+Erratic：不規則な
+Volatile：不安定な
+Capricious：気まぐれな
+Eccentric：風変わりな
+Conventional：型にはまった
+Orthodox：正統派の
+Progressive：進歩的な
+Conservative：保守的な
+Radical：根本的な、過激な
+Apathetic：無関心な
+Enthusiastic：熱狂的な
+Passionate：情熱的な
+Stolid：鈍感な
+Stoic：禁欲的な
+Dynamic：活動的な
+Static：静的な
+Vibrant：活気ある
+Lively：元気な
+Dull：退屈な
+Tedious：退屈な
+Monotonous：単調な
+Intriguing：興味をそそる
+Fascinating：魅力的な
+Captivating：魅惑的な
+Abominable：忌まわしい
+Admirable：賞賛に値する
+Exemplary：模範的な
+Praiseworthy：称賛に値する
+Incompetent：無能な
+Competent：有能な
+Expert：熟練した
+Adept：熟達した
+Proficient：堪能な
+Skilled：熟練した
+Clumsy：不器用な
+Awkward：気まずい、不器用な
+Graceful：優雅な
+Sophisticated：洗練された
+Refined：洗練された
+Rustic：田舎風の
+Primitive：原始的な
+Prehistoric：先史時代の
+Aisle：通路
+Aisle seat：通路側の席
+Window seat：窓側の席
+Boarding pass：搭乗券
+Baggage claim：手荷物受取所
+Itinerary：旅程表
+Layover：乗り継ぎ待ち
+Stopover：途中降機
+Concierge：コンシェルジュ
+Bellhop：ベルボーイ
+Housekeeping：客室係
+Amenity：快適な設備
+Complimentary：無料の
+Courtesy：礼儀、優待
+Valet parking：代理駐車
+Reservation：予約
+Confirmation：確認
+Cancellation：取り消し
+Exchange：交換
+Inquiry：問い合わせ
+Directory：名簿、案内板
+Signage：標識
+Notice：通知、掲示
+Circular：回覧板
+Memo：社内連絡
+Agenda：協議事項
+Minutes：議事録
+Transcript：成績証明書、書き起こし
+Bill：請求書、勘定書き
+Statement：明細書、声明
+Coupon：クーポン
+Discount：割引
+Markup：値上げ
+Markdown：値下げ
+Merchandise：商品
+Commodity：日用品、商品
+Outlet：小売店、出口
+Distributor：販売代理店
+Retailer：小売業者
+Wholesaler：卸売業者
+Exhibition：展示会
+Fair：品評会、公正な
+Convention：会議
+Seminar：セミナー
+Workshop：講習会
+Lecture：講義
+Presentation：発表
+Demonstration：実演、デモ
+Maintenance：保守
+Renovation：改装
+Restoration：復元
+Remodeling：リフォーム
+Upkeep：維持費
+Facility：施設
+Complex：複合施設、複雑な
+Venue：会場
+Auditorium：講堂
+Stadium：スタジアム
+Gallery：ギャラリー
+Museum：博物館
+Library：図書館
+Hospital：病院
+Clinic：診療所
+Pharmacy：薬局
+Grocery：食料雑貨店
+Supermarket：スーパー
+Laundry：クリーニング店
+Bakery：パン屋
+Florist：花屋
+Bookstore：本屋
+Stationery：文房具屋
+Appliance：電化製品
+Furniture：家具
+Household：家庭の
+Domestic：国内の、家庭の
+Residential：居住の
+Commercial：商業の
+Industrial：産業の
+Agricultural：農業の
+Public：公共の
+Private：私的な
+Official：公式の
+Civic：市民の
+Municipal：市営の
+Urban：都市の
+Rural：田舎の
+Local：地元の
+Global：世界的な
+Universal：普遍的な
+General：一般的な
+Considerably：かなり
+Substantially：大幅に
+Significantly：著しく
+Remarkably：驚くほど
+Noticeably：目立って
+Marginally：わずかに
+Slightly：少しだけ
+Barely：かろうじて
+Hardly：ほとんど〜ない
+Scarcely：ほとんど〜ない
+Seldom：めったに〜ない
+Rarely：まれに
+Frequently：頻繁に
+Constantly：絶えず
+Consistently：一貫して
+Continually：継続的に
+Periodically：定期的に
+Intermittently：断続的に
+Sporadically：散発的に
+Simultaneously：同時に
+Concurrently：並行して
+Subsequently：その後
+Previously：以前に
+Initially：当初は
+Ultimately：最終的に
+Eventually：結局
+Finally：ついに
+Briefly：手短に
+Temporarily：一時的に
+Permanently：永久に
+Tentatively：暫定的に
+Provisionally：仮に
+Approximately：およそ
+Roughly：大まかに
+Exactly：正確に
+Precisely：まさに
+Strictly：厳格に
+Loosely：緩やかに
+Literally：文字通り
+Figuratively：比喩的に
+Implicitly：暗黙のうちに
+Explicitly：明白に
+Virtually：実質的に
+Practically：事実上
+Almost：ほとんど
+Nearly：ほとんど
+Mainly：主に
+Chiefly：主に
+Primarily：第一に
+Principally：主に
+Specifically：具体的に
+Particularly：特に
+Especially：特に
+Notably：特に
+Merely：単に
+Solely：唯一、単独で
+Exclusively：独占的に
+Entirely：完全に
+Wholly：完全に
+Totally：完全に
+Completely：完全に
+Partially：部分的に
+Relatively：比較的
+Comparatively：比較的
+Moderately：適度に
+Extremely：極端に
+Incredibly：信じられないほど
+Terribly：ひどく
+Awfully：ひどく
+Quite：かなり
+Fairly：かなり
+Rather：かなり
+Somewhat：いくぶん
+Adequately：適切に
+Sufficiently：十分に
+Efficiently：効率的に
+Effectively：効果的に
+Appropriately：適切に
+Properly：適切に
+Accurately：正確に
+Correctly：正しく
+Mistakenly：誤って
+Inadvertently：うっかり
+Accidentally：偶然に
+Coincidentally：偶然に
+Intentionally：意図的に
+Deliberately：意図的に
+Voluntarily：自発的に
+Reluctantly：しぶしぶ
+Willingly：快く
+Eagerly：熱心に
+Anxiously：心配して、切望して
+Ideally：理想的には
+Optimally：最適に
+Take advantage of：〜を利用する
+Pay attention to：〜に注意を払う
+In charge of：〜の担当で
+On behalf of：〜を代表して
+In accordance with：〜に従って
+Regardless of：〜にかかわらず
+Prior to：〜より前に
+Subsequent to：〜の後に
+In terms of：〜の点では
+Due to：〜のせいで
+Owing to：〜のために
+Thanks to：〜のおかげで
+In spite of：〜にもかかわらず
+By means of：〜によって
+By way of：〜経由で
+In addition to：〜に加えて
+Apart from：〜は別として
+In relation to：〜に関して
+In light of：〜を考慮して
+With respect to：〜に関して
+As a result of：〜の結果として
+On the verge of：〜の寸前で
+At the expense of：〜を犠牲にして
+In the event of：〜の場合には
+For the purpose of：〜の目的で
+With a view to：〜する目的で
+As a rule：概して
+On the whole：概して
+By and large：概して
+On average：平均して
+At last：ついに
+At first：最初は
+At least：少なくとも
+At most：多くとも
+At once：すぐに
+For good：永久に
+For now：今のところ
+In time：間に合って
+On time：時間通りに
+Once in a while：時々
+Every now and then：時々
+So far：これまでのところ
+Up to now：今に至るまで
+As of now：現在のところ
+Out of stock：在庫切れ
+In stock：在庫あり
+On sale：特売中
+For sale：売り物
+In advance：前もって
+Behind schedule：予定より遅れて
+On schedule：予定通りに
+Ahead of schedule：予定より早く
+Out of order：故障して
+In order：順調で、整って
+By accident：偶然に
+On purpose：わざと
+Under pressure：プレッシャーの下で
+In difficulty：困って
+Without fail：間違いなく
+To some extent：ある程度まで
+In any case：いずれにせよ
+By the way：ところで
+In other words：言い換えれば
+For instance：例えば
+For example：例えば
+In short：要約すると
+In fact：実際
+As a matter of fact：実のところ
+On the contrary：それどころか
+By contrast：対照的に
+On the other hand：他方では
+Needless to say：言うまでもなく
+Above all：とりわけ
+After all：結局
+First of all：まず第一に
+Last but not least：最後になりましたが
+So to speak：いわば
+That is to say：つまり
+In summary：要約すれば
+To sum up：要約すれば
+As follows：次の通り
+In detail：詳細に
+In common：共通して
+In private：密かに
+In public：公然と
+In conclusion：結論として
+Without doubt：疑いなく
+Beyond doubt：疑いの余地なく
+Under construction：工事中で
+Under consideration：検討中で
+Under discussion：議論中で
+In focus：焦点が合って
+Out of focus：焦点がぼけて

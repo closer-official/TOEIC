@@ -3,6 +3,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  /* 高級感のある金（オレンジ寄りを避けたメタリックゴールド） */
+  --gold: #c9a227;
+  --gold-light: #e2c04a;
+  --gold-dark: #8b6914;
+  --gold-muted: rgba(201, 162, 39, 0.45);
+  --gold-border: rgba(139, 105, 20, 0.5);
 }
 
 @theme inline {
@@ -10,6 +20,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +35,384 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
+
+/* iOS Safari: input/textarea が 16px 未満だとフォーカス時に自動ズームしてしまうため 16px に統一 */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* タッチ操作で最低 44px のヒット領域を確保しやすいように */
+@layer utilities {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .safe-area-pad {
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
+  }
+  .safe-area-bottom {
+    padding-bottom: var(--safe-bottom);
+  }
+  /* 固定トップバー下のコンテンツが隠れないよう、ヘッダー高さ + safe-area を確保 */
+  .content-below-header {
+    padding-top: calc(5.5rem + env(safe-area-inset-top, 0px));
+  }
+  /* 金アクセント：メタリックなグラデーション（シズル感） */
+  .text-gold {
+    color: var(--gold);
+  }
+  .text-gold-bright {
+    color: var(--gold-light);
+  }
+  .border-gold-subtle {
+    border-color: var(--gold-border);
+  }
+  .bg-gold-bar {
+    background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 35%, var(--gold-light) 50%, var(--gold) 65%, var(--gold-dark) 100%);
+    box-shadow: 0 0 10px var(--gold-muted);
+  }
+  .shadow-gold-soft {
+    box-shadow: 0 0 12px var(--gold-muted);
+  }
+  /* ホーム用：質感のある空間（深いグリーン羅紗＋ヴィネット） */
+  .home-bg {
+    background-color: #0a1612;
+    background-image:
+      /* 微細な布目風テクスチャ */
+      repeating-linear-gradient(
+        92deg,
+        transparent 0px,
+        transparent 1px,
+        rgba(0, 0, 0, 0.04) 1px,
+        rgba(0, 0, 0, 0.04) 2px
+      ),
+      repeating-linear-gradient(
+        88deg,
+        transparent 0px,
+        transparent 1px,
+        rgba(0, 0, 0, 0.03) 1px,
+        rgba(0, 0, 0, 0.03) 2px
+      ),
+      /* ヴィネット：四隅を暗くしてスポットライト感 */
+      radial-gradient(
+        ellipse 85% 85% at 50% 45%,
+        transparent 35%,
+        rgba(0, 0, 0, 0.4) 70%,
+        rgba(0, 0, 0, 0.75) 100%
+      );
+  }
+  /* ショップ／LOUNGE：フェルト地・ダマスク風・薄暗い輝き */
+  .shop-bg {
+    background-color: #0c0a09;
+    background-image:
+      /* 微細なフェルト/布目 */
+      repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 3px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 3px
+      ),
+      /* ダマスク風のごく薄い模様 */
+      radial-gradient(
+        ellipse 100% 100% at 50% 50%,
+        rgba(92, 42, 48, 0.04) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 120% 100% at 50% 0%,
+        rgba(201, 162, 39, 0.07) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse 80% 80% at 50% 50%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.35) 100%
+      );
+  }
+  /* ガラスモフィズム：すりガラス・背後が微かに透ける */
+  .shop-glass {
+    background: rgba(23, 23, 23, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(201, 162, 39, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  .roulette-glass {
+    background: rgba(28, 25, 23, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(201, 162, 39, 0.25);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  /* ネオン・グロー：ボタンや重要数字 */
+  .shop-neon-gold {
+    color: var(--gold-light);
+    text-shadow: 0 0 10px rgba(201, 162, 39, 0.7), 0 0 20px rgba(201, 162, 39, 0.4);
+  }
+  .shop-btn-neon {
+    box-shadow: 0 0 15px rgba(201, 162, 39, 0.5), 0 0 30px rgba(201, 162, 39, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .shop-btn-neon:hover {
+    box-shadow: 0 0 20px rgba(201, 162, 39, 0.6), 0 0 40px rgba(201, 162, 39, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  /* メンバーシップカード：メタル質感 */
+  .shop-card-member {
+    background: linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    border: 1px solid rgba(201, 162, 39, 0.4);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+  .shop-card-vip {
+    background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 50%, #000 100%);
+    border: 1px solid rgba(201, 162, 39, 0.6);
+    box-shadow:
+      0 0 20px rgba(201, 162, 39, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  }
+  .shop-card-vip-edge {
+    position: relative;
+  }
+  /* メイン画面：プレイカード（ガラス＋真鍮グラデーションボーダー） */
+  .brass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-width: 0.5px;
+    border-color: rgba(139, 105, 20, 0.5);
+    box-shadow: 0 1px 0 0 rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+  .brass-card:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 1px 0 0 rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .shop-card-vip-edge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(201,162,39,0.4), rgba(255,200,100,0.3), rgba(201,162,39,0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* トップバー：全幅・ダークマホガニー・木目テクスチャ極薄・真鍮下線 */
+/* トップバーをボトムナビ同様に画面に固定（下に引っ張られない） */
+.header-mahogany {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  background-color: #1A0F0A;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+.header-mahogany::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.15;
+  background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 2px,
+      rgba(0,0,0,0.12) 2px,
+      rgba(0,0,0,0.12) 3px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 3px,
+      rgba(0,0,0,0.08) 3px,
+      rgba(0,0,0,0.08) 4px
+    );
+}
+.header-brass-border {
+  border-bottom: 1px solid rgba(197, 160, 89, 0.45);
+  box-shadow: 0 1px 0 0 rgba(197, 160, 89, 0.2);
+}
+
+/* ボトムナビ：真鍮の盤面が埋め込まれた窪み・アンティークゴールド上端線 */
+.bottom-nav-bar {
+  background-color: #0D0907;
+  border-top: 0.5px solid #C5A059;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 1);
+}
+.bottom-nav-link {
+  color: rgba(197, 160, 89, 0.5);
+}
+.bottom-nav-link[aria-current="page"] {
+  color: #C5A059;
+}
+.bottom-nav-link[aria-current="page"] .bottom-nav-label {
+  color: rgba(255, 191, 0, 0.9);
+}
+.bottom-nav-link:not([aria-current="page"]) .bottom-nav-label {
+  color: rgba(197, 160, 89, 0.45);
+}
+/* アイコン：金属グラデーションはSVG内で適用・バーから浮き出る影 */
+.bottom-nav-icon {
+  filter:
+    drop-shadow(0 2px 2px rgba(0, 0, 0, 0.9))
+    drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.8))
+    drop-shadow(0px 0px 2px rgba(197, 160, 89, 0.3));
+}
+.bottom-nav-icon-inactive {
+  opacity: 0.5;
+}
+/* 選択時（Active）：琥珀色の光が漏れる演出 */
+.bottom-nav-icon-active {
+  opacity: 1;
+  transform: scale(1.1) translateY(1px);
+  filter:
+    drop-shadow(0 2px 2px rgba(0, 0, 0, 0.9))
+    drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.8))
+    drop-shadow(0px 0px 2px rgba(197, 160, 89, 0.3))
+    drop-shadow(0px 0px 8px #FFBF00);
+}
+.bottom-nav-label {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+/* ログイン画面：漆黒レザー（シボ革）・二重線 */
+.login-casino {
+  background-color: #000000;
+}
+.login-casino::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.login-double-border {
+  border: 0.5px solid #C5A059;
+  border-radius: 2px;
+}
+.login-oauth-btn {
+  background-color: #111111;
+  border: 1px solid #C5A059;
+  color: #C5A059;
+}
+.login-oauth-btn:hover:not(:disabled) {
+  background-color: #1a1a1a;
+  border-color: rgba(197, 160, 89, 0.8);
+}
+
+/* /info ページ：ログイン画面と同じ世界観（二重線フレーム） */
+.info-casino {
+  background-color: #000000;
+}
+.info-casino::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.info-double-border {
+  border: 0.5px solid #C5A059;
+  border-radius: 2px;
+}
+
+/* チップカード：暖色トップグロー（スポットライト風）・深い陰影・0.5px境界線維持 */
+.shop-chip-card {
+  box-shadow:
+    inset 0 32px 28px -12px rgba(197, 160, 89, 0.06),
+    inset 0 -8px 16px -4px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.shop-chip-card-high {
+  box-shadow:
+    inset 0 32px 28px -12px rgba(197, 160, 89, 0.06),
+    inset 0 -8px 16px -4px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 0 60px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(197, 160, 89, 0.15);
+}
+
+.shop-chip-card:hover:not(:disabled) {
+  border-color: rgba(197, 160, 89, 0.65);
+  box-shadow:
+    0 0 24px rgba(197, 160, 89, 0.3),
+    0 0 48px rgba(197, 160, 89, 0.14),
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    inset 0 32px 28px -12px rgba(197, 160, 89, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transform: translateY(-3px);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s ease-out;
+}
+
+.shop-chip-card-high:hover:not(:disabled) {
+  box-shadow:
+    0 0 24px rgba(197, 160, 89, 0.3),
+    0 0 48px rgba(197, 160, 89, 0.14),
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    inset 0 32px 28px -12px rgba(197, 160, 89, 0.08),
+    inset 0 0 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ホバー時：チップスタック全体を真鍮色に発光 */
+.shop-chip-card:hover:not(:disabled) .casino-chip-stack {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 2px 6px rgba(60, 40, 20, 0.25))
+    drop-shadow(0 0 14px rgba(197, 160, 89, 0.35))
+    drop-shadow(0 0 24px rgba(197, 160, 89, 0.18));
+}
+
+/* ログイン画面：量子場パーティクルアニメーション（他画面で使用時用） */
+@keyframes particle-drift {
+  0%, 100% { opacity: 0.12; transform: translate(0, 0); }
+  50% { opacity: 0.18; transform: translate(1%, 0.5%); }
+}
+@keyframes particle-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+/* ショップ：チップカード用デジタルグリッチ（7,000+用） */
+@keyframes chip-card-glitch {
+  0%, 88%, 100% { opacity: 1; filter: none; }
+  90% { opacity: 0.92; filter: hue-rotate(-3deg) brightness(1.02); }
+  92% { opacity: 0.95; filter: hue-rotate(2deg); }
+  94% { opacity: 0.93; filter: none; }
+  96% { opacity: 0.97; filter: brightness(1.01); }
+}
+@keyframes chip-stack-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+

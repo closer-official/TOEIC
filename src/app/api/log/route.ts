@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
+
+export const dynamic = 'force-static';
+
 /** POST: { userId, questionId, correct, responseTimeMs, category } */
 export async function POST(req: NextRequest) {
+  if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   const supabase = createServerSupabaseClient();
   const body = await req.json();
   const { userId, questionId, correct, responseTimeMs, category } = body;
