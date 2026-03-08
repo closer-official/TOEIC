@@ -91,7 +91,8 @@ OAuth（Google / Apple ログイン）の `redirectTo` が **Web の URL**（例
 1. [Supabase Dashboard](https://supabase.com/dashboard) → 対象プロジェクト
 2. **Authentication** → **URL Configuration**
 3. **Redirect URLs** に次を追加:
-   - `com.toeic-sigma.shun://auth/callback`
+   - アプリ: `com.toeic-sigma.shun://auth/callback`
+   - Web: `https://shun.closer-official.com/api/auth/callback`（本番ドメインに合わせて変更可）
 4. 保存
 
 これがないと、Supabase が「許可されていないリダイレクト先」としてエラーにし、アプリ内に戻れません。
@@ -140,3 +141,23 @@ OAuth（Google / Apple ログイン）の `redirectTo` が **Web の URL**（例
 | サーバー・API の変更 | Vercel デプロイで即反映（アプリはそのまま） |
 | アプリの見た目・ロジック | 新バージョンをビルド → ストアに提出 → ユーザーがアプリを更新 |
 | OTA（JS だけの更新） | Live Updates / CodePush 等の導入が必要   |
+
+---
+
+## 3. 利用規約・プライバシーポリシーを Web 版と App Store 版で変える
+
+### 結論: **できます。すでに実装済みです。**
+
+- **同じ URL**（`/terms`・`/privacy`）で、**開いた環境に応じて表示を切り替え**ています。
+- **Web**：Stripe による決済の説明（クレジットカード等）。
+- **App Store 版**：Apple のアプリ内課金（In-App Purchase）の説明・自動更新の注意など。
+
+### 判定の仕組み
+
+- アプリから開いたときは **`?platform=app`** をつけるか、**Capacitor 判定**（実機ビルドでは `NEXT_PUBLIC_CAPACITOR_APP=1` または `window.Capacitor.isNativePlatform()`）で「App 版」とみなします。
+- 設定・ゲームメニューなどから「利用規約」「プライバシーポリシー」へ飛ぶリンクは `/terms`・`/privacy` のままでよく、**アプリ内なら自動で App 向けの文言**が表示されます。
+
+### さらに分けたい場合
+
+- 条文の追加・差し替えは、`src/app/terms/page.tsx` と `src/app/privacy/page.tsx` の **`isApp`** で分岐を増やせば対応できます。
+- 完全に別ページにしたい場合は、例として `/terms-app` と `/privacy-app` を用意し、アプリ内のリンクだけそこに向ける方法もあります。

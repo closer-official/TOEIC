@@ -4,7 +4,7 @@ import { HeaderStatsProvider } from "@/lib/header-stats-context";
 import { BgmProvider } from "@/lib/bgm-context";
 import { OfflineProvider } from "@/lib/offline-context";
 import { OfflineDownloadScreen } from "@/components/OfflineDownloadScreen";
-import { AppAuthCallbackListener } from "@/components/AppAuthCallbackListener";
+import { AppAuthCallbackListenerWrapper } from "@/components/AppAuthCallbackListenerWrapper";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -94,7 +94,7 @@ export default function RootLayout({
         <HeaderStatsProvider>
           <OfflineProvider>
             <BgmProvider>
-              <AppAuthCallbackListener />
+              <AppAuthCallbackListenerWrapper />
               {children}
               <OfflineDownloadScreen />
             </BgmProvider>

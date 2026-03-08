@@ -111,6 +111,15 @@ if (existsSync(envLocalPath)) {
 console.log("Installing dependencies in temp...");
 execSync("npm ci", { cwd: tempDir, stdio: "inherit", shell: true });
 
+// iOS ビルドでは @capacitor/app を直接使うよう capacitor-app.ts を差し替え（temp では npm ci で入る）
+const { writeFileSync } = require("fs");
+const capAppPath = join(tempDir, "src", "lib", "capacitor-app.ts");
+writeFileSync(
+  capAppPath,
+  "export { App } from '@capacitor/app';\n",
+  "utf8"
+);
+
 console.log("Running Next.js build (static export, no API routes)...");
 execSync(
   "npx next build",

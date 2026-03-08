@@ -25,7 +25,7 @@ export function AppAuthCallbackListener() {
 
     if (!isApp) return;
 
-    import('@capacitor/app').then(({ App }) => {
+    import('@/lib/capacitor-app').then(({ App }) => {
       // コールドスタートで URL で起動した場合に getLaunchUrl で取れることがある
       App.getLaunchUrl().then((result) => {
         if (result?.url) handleAuthUrl(result.url);

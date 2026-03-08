@@ -8,7 +8,14 @@ import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
 function TermsContent() {
   const searchParams = useSearchParams();
-  const isApp = useMemo(() => searchParams.get('platform') === 'app', [searchParams]);
+  const isApp = useMemo(
+    () =>
+      searchParams.get('platform') === 'app' ||
+      (typeof window !== 'undefined' &&
+        (process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' ||
+          (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.())),
+    [searchParams]
+  );
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-zinc-950">
