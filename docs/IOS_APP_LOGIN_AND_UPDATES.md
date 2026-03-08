@@ -100,11 +100,16 @@ OAuth（Google / Apple ログイン）の `redirectTo` が **Web の URL**（例
 ### ログイン後もアプリに戻らないときの確認
 
 - **Supabase**  
-  **Redirect URLs** に **`com.toeic-sigma.shun://auth/callback`** が**正確に**1件入っているか確認（ typo や余分なスラッシュがないか）。
+  **Redirect URLs** に **`com.toeic-sigma.shun://auth/callback`** が**正確に**1件入っているか確認（ typo や余分なスラッシュがないか）。未設定だと認証後に「許可されていないリダイレクト」となり、アプリが開きません。
 - **ビルド手順**  
-  実機用には必ず **`npm run build:ios`** でビルドし、**`npx cap sync ios`** を実行してから Xcode で開く。通常の `npm run build` だけだと `redirectTo` が Web の URL のままになる。
+  実機用には必ず **`npm run build:ios`** でビルドし、**`npx cap sync ios`** を実行してから Xcode で開く。通常の `npm run build` だけだと `redirectTo` が Web の URL のままになり、ブラウザのままになります。
 - **Info.plist**  
   `ios/App/App/Info.plist` の **CFBundleURLSchemes** に `com.toeic-sigma.shun` が入っているか確認。
+- **実装上の対策（すでに入れているもの）**  
+  - iOS では URL でアプリが起動したとき、`getLaunchUrl()` が遅れて届くことがあるため、**0ms / 200ms / 500ms / 1s / 2s / 3.5s の複数回リトライ**で受け取るようにしている。  
+  - ログイン画面表示時にも **getLaunchUrl を 0ms と 500ms で確認**するフォールバックがあり、リストナーが取りこぼした場合にログイン画面で検知して `/auth/callback` へ飛ぶ。
+- **それでも戻らない場合**  
+  認証画面が **アプリ内ブラウザ** ではなく **Safari** で開くようにすると、リダイレクトでアプリに戻りやすくなることがあります。その場合は、OAuth の開始 URL を Safari で開く「Safariで開いてログイン」のようなボタンを別途用意する方法があります。
 
 ### 動作の流れ（アプリ内完結）
 

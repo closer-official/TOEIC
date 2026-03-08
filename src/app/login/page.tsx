@@ -47,6 +47,29 @@ function LoginContent() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
+  // 実機: ログイン画面に戻ってきたときに getLaunchUrl を確認（AppAuthCallbackListener が取りこぼした場合のフォールバック）
+  useEffect(() => {
+    if (typeof window === 'undefined' || process.env.NEXT_PUBLIC_CAPACITOR_APP !== '1') return;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    import('@/lib/capacitor-app')
+      .then(({ App }) => {
+        const check = () =>
+          App.getLaunchUrl().then((r) => {
+            if (r?.url?.includes('/auth/callback')) {
+              const q = r.url.indexOf('?');
+              const query = q >= 0 ? r.url.slice(q) : '';
+              window.location.href = `/auth/callback${query}`;
+            }
+          });
+        check();
+        timeoutId = setTimeout(check, 500);
+      })
+      .catch(() => {});
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
   const supabase = createClient();
 
   const handleOAuthLogin = async (provider: 'google' | 'apple') => {
