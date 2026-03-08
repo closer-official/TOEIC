@@ -13,7 +13,7 @@ import {
 import { computeCurrentStamina, getMaxStamina, type SubscriptionTier } from '@/lib/stamina';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       goldenDiceCount -= 1;
     } else {
       if (diceCount < 1) {
-        return NextResponse.json({ error: 'サイコロがありません。100チップで1個購入可能' }, { status: 400 });
+        return NextResponse.json({ error: 'サイコロがありません。毎日ログインで3個、17番ショップで100チップで1個購入可能' }, { status: 400 });
       }
       steps = rollDice();
       diceCount -= 1;
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
         messages.push('サイコロ+1');
       } else if (space.kind === 'eternal_altar') {
         fragments += 1;
-        messages.push('エターナル素材の欠片を1個獲得！');
+        messages.push('エターナルのかけらを1個獲得！');
       } else if (space.kind === 'trap_guard') {
         trapGuard = true;
         messages.push('トラップガードを獲得');
@@ -248,6 +248,10 @@ export async function POST(req: NextRequest) {
     }
     await supabase.from('profiles').update(profileUpdate).eq('user_id', user.id);
 
+    let commonXp = 0;
+    const { data: prof } = await supabase.from('profiles').select('evolution_points').eq('user_id', user.id).maybeSingle();
+    if (prof) commonXp = Math.max(0, Math.floor(Number((prof as { evolution_points?: number }).evolution_points ?? 0)));
+
     return NextResponse.json({
       ok: true,
       steps: useGoldenDice ?? steps,
@@ -257,6 +261,7 @@ export async function POST(req: NextRequest) {
       lapCount,
       fragments,
       eventXp,
+      commonXp,
       trapGuard,
       goldenDiceCount,
       gems,

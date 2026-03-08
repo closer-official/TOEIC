@@ -49,7 +49,7 @@ export async function DELETE(
 
     const { data: listing, error: fetchErr } = await adminSupabase
       .from('marketplace_listings')
-      .select('seller_id, item_type, item_id, quantity, status')
+      .select('seller_id, item_type, item_id, quantity, status, equipment_grade, equipment_level, effect_base')
       .eq('id', id)
       .single();
 
@@ -57,31 +57,54 @@ export async function DELETE(
       return NextResponse.json({ error: '出品が見つかりません' }, { status: 404 });
     }
 
-    if ((listing as { seller_id: string }).seller_id !== user.id) {
+    const L = listing as {
+      seller_id: string;
+      item_type: string;
+      item_id: string;
+      quantity: number;
+      status: string;
+      equipment_grade?: string | null;
+      equipment_level?: number | null;
+      effect_base?: number | null;
+    };
+
+    if (L.seller_id !== user.id) {
       return NextResponse.json({ error: '自分の出品のみ取り消せます' }, { status: 403 });
     }
 
-    if ((listing as { status: string }).status !== 'active') {
+    if (L.status !== 'active') {
       return NextResponse.json({ error: 'この出品は既に終了しています' }, { status: 400 });
     }
 
-    const itemType = (listing as { item_type: string }).item_type;
-    const itemId = (listing as { item_id: string }).item_id;
-    const qty = (listing as { quantity: number }).quantity;
-
     // 在庫に戻す
-    if (itemType === 'item') {
-      await adminSupabase.from('user_inventory').insert({
+    if (L.item_type === 'item') {
+      const { error: insertErr } = await adminSupabase.from('user_inventory').insert({
         user_id: user.id,
-        item_id: itemId,
-        quantity: qty,
+        item_id: L.item_id,
+        quantity: L.quantity,
       });
+      if (insertErr) {
+        console.error('[exchange listings delete] user_inventory insert:', insertErr);
+        return NextResponse.json({ error: '在庫の復元に失敗しました' }, { status: 500 });
+      }
     } else {
-      await adminSupabase.from('user_equipment').insert({
+      const grade = (L.equipment_grade && ['common', 'normal', 'rare', 'epic', 'legendary', 'eternal'].includes(L.equipment_grade))
+        ? L.equipment_grade
+        : 'common';
+      const level = typeof L.equipment_level === 'number' && L.equipment_level >= 0 ? L.equipment_level : 0;
+      const effectBase = typeof L.effect_base === 'number' && L.effect_base >= 0 ? L.effect_base : 1;
+      const { error: insertErr } = await adminSupabase.from('user_equipment').insert({
         user_id: user.id,
-        equipment_id: itemId,
-        quantity: qty,
+        equipment_id: L.item_id,
+        quantity: L.quantity,
+        grade,
+        level,
+        effect_base: effectBase,
       });
+      if (insertErr) {
+        console.error('[exchange listings delete] user_equipment insert:', insertErr);
+        return NextResponse.json({ error: '装備の復元に失敗しました' }, { status: 500 });
+      }
     }
 
     await adminSupabase

@@ -341,6 +341,15 @@ export function costForEquipmentLevel(currentLevel: number): number {
   return EQUIPMENT_LEVEL_XP_BASE * Math.pow(2, currentLevel);
 }
 
+/** グレード進化に必要な全共通XP。common→normal 4000, normal→rare 8000, … legendary→eternal 64000 */
+export const EQUIPMENT_EVOLVE_XP_BASE = 4000;
+
+export function costForEquipmentEvolve(fromGrade: EquipmentGrade): number {
+  const i = EQUIPMENT_GRADES.indexOf(fromGrade);
+  if (i < 0 || i >= EQUIPMENT_GRADES.length - 1) return Infinity;
+  return EQUIPMENT_EVOLVE_XP_BASE * Math.pow(2, i);
+}
+
 /** グレードごとのレベルあたり加算値。コモン0.001、ノーマル0.002、レア0.003... */
 export function getEquipmentPerLevel(grade: EquipmentGrade): number {
   const gradeIndex = EQUIPMENT_GRADES.indexOf(grade);

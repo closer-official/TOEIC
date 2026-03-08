@@ -22,6 +22,7 @@ import {
   COMBO_BONUS_SEC,
   COMBO_BONUS_INTERVAL,
   WRONG_PENALTY_SEC,
+  WRONG_SCORE_PENALTY_RATIO,
   SKIP_PENALTY_SEC,
   STUN_DURATION_MS,
   FEVER_ENTRY_COMBO,
@@ -55,15 +56,19 @@ import {
   inferPosFromMeaning,
 } from '@/lib/vocab-window';
 import { getEquipmentEffects, getEquipmentEffectSources, type EquippedState, type EquipmentEffects, type EffectSource } from '@/lib/equipment-effects';
+import { STAMINA_CONSUME_OPTIONS, getXpMultiplierForStamina } from '@/lib/stamina';
 import { GACHA_EQUIPMENT, formatEffectDescription } from '@/lib/equipment-items';
 import { getItemEffects, type ItemEffects } from '@/lib/item-effects';
 import { LoadingWithPercent } from '@/components/LoadingWithPercent';
+import { useOffline } from '@/lib/offline-context';
+import { getVocabCache, getPart5Cache, addPendingRun } from '@/lib/offline-db';
 
 const VOCAB_TIMEOUT_MS = 5000;
 const GRAMMAR_TIMEOUT_MS = 10000;
 const TICK_MS = 100;
-/** 最大プレイ時間（経過で強制終了） */
-const MAX_GAME_DURATION_MS = 5 * 60 * 1000;
+/** 最大プレイ時間（経過で強制終了）。単語3分・Part5は5分 */
+const MAX_GAME_DURATION_VOCAB_MS = 3 * 60 * 1000;
+const MAX_GAME_DURATION_PART5_MS = 5 * 60 * 1000;
 
 function GamePageInner() {
   const searchParams = useSearchParams();
@@ -90,7 +95,7 @@ function toGameQuestion(w: Word): GameQuestion {
 
 const VOCAB_PLACEHOLDERS = ['（該当なし）', '（不明）', '（×）'] as const;
 
-type VocabEntry = { word: string; pos?: string; meanings?: string[] };
+type VocabEntry = { word: string; pos?: string; meanings?: string[]; dummies?: string[] };
 
 /** 旧データ・global_vocabulary 混在対策: 品詞表記を除去して表示を統一（品詞は表示しない仕様） */
 function stripPosForDisplay(s: string): string {
@@ -110,13 +115,13 @@ const BAD_VOTES_THRESHOLD = 5;
 /** 単語ごとの選択肢統計（誤答率トップ3・悪問除外で使う） */
 type VocabChoiceStats = { text: string; wrongSelectedCount: number; badVotes: number }[];
 
-/** 1単語1問。意味は translation_1/2 からランダムに1つのみ。4択の誤答3つは stats があれば誤答率トップ3（悪問除外）、なければランダム。 */
+/** 1単語1問。vocab.json 形式（meaning+dummies）のときは正答＝意味・誤答＝ダミーから3つ。問題文は「単語[品詞]」で表示。 */
 function vocabListToQuestions(
   list: VocabEntry[],
   shuffle: <T>(arr: T[]) => T[],
   statsByWord?: Record<string, VocabChoiceStats>
 ): GameQuestion[] {
-  const cards: { word: string; meaning: string }[] = [];
+  const cards: { word: string; pos?: string; meaning: string; dummies?: string[] }[] = [];
   for (const v of list) {
     const raw = Array.isArray(v.meanings) && v.meanings.length > 0 ? v.meanings : [v.word];
     const normalized = raw.map((m) => stripPosForDisplay(String(m ?? '').trim())).filter(Boolean);
@@ -125,7 +130,11 @@ function vocabListToQuestions(
     const meaning = unique[Math.floor(Math.random() * unique.length)]!;
     const word = stripPosForDisplay(String(v.word ?? '').trim());
     if (!word) continue;
-    cards.push({ word, meaning });
+    const pos = typeof v.pos === 'string' ? v.pos.trim() : undefined;
+    const dummies = Array.isArray(v.dummies) && v.dummies.length >= 3
+      ? v.dummies.map((d) => stripPosForDisplay(String(d).trim())).filter(Boolean)
+      : undefined;
+    cards.push({ word, pos, meaning, dummies });
   }
   const byPos = new Map<string, string[]>();
   for (const c of cards) {
@@ -135,25 +144,29 @@ function vocabListToQuestions(
   }
   const shuffledCards = shuffle([...cards]);
   return shuffledCards.map((card, i) => {
-    const samePos = inferPosFromMeaning(card.meaning);
-    const samePosMeanings = [...new Set(byPos.get(samePos) ?? [])].filter((m) => m !== card.meaning);
     let wrongs: string[];
-    const stats = statsByWord?.[card.word];
-    if (stats && samePosMeanings.length > 0) {
-      const withStats = samePosMeanings
-        .map((text) => {
-          const s = stats.find((x) => x.text === text);
-          return { text, wrongSelectedCount: s?.wrongSelectedCount ?? 0, badVotes: s?.badVotes ?? 0 };
-        })
-        .filter((x) => x.badVotes < BAD_VOTES_THRESHOLD);
-      const sorted = [...withStats].sort((a, b) => b.wrongSelectedCount - a.wrongSelectedCount);
-      wrongs = shuffle(sorted.slice(0, 3).map((x) => x.text));
-      while (wrongs.length < 3) {
-        const rest = samePosMeanings.filter((m) => !wrongs.includes(m));
-        wrongs.push(rest[Math.floor(Math.random() * rest.length)] ?? VOCAB_PLACEHOLDERS[wrongs.length] ?? `（選択肢${wrongs.length + 1}）`);
-      }
+    if (card.dummies && card.dummies.length >= 3) {
+      wrongs = shuffle([...card.dummies]).slice(0, 3);
     } else {
-      wrongs = shuffle([...samePosMeanings]).slice(0, 3);
+      const samePos = inferPosFromMeaning(card.meaning);
+      const samePosMeanings = [...new Set(byPos.get(samePos) ?? [])].filter((m) => m !== card.meaning);
+      const stats = statsByWord?.[card.word];
+      if (stats && samePosMeanings.length > 0) {
+        const withStats = samePosMeanings
+          .map((text) => {
+            const s = stats.find((x) => x.text === text);
+            return { text, wrongSelectedCount: s?.wrongSelectedCount ?? 0, badVotes: s?.badVotes ?? 0 };
+          })
+          .filter((x) => x.badVotes < BAD_VOTES_THRESHOLD);
+        const sorted = [...withStats].sort((a, b) => b.wrongSelectedCount - a.wrongSelectedCount);
+        wrongs = shuffle(sorted.slice(0, 3).map((x) => x.text));
+        while (wrongs.length < 3) {
+          const rest = samePosMeanings.filter((m) => !wrongs.includes(m));
+          wrongs.push(rest[Math.floor(Math.random() * rest.length)] ?? VOCAB_PLACEHOLDERS[wrongs.length] ?? `（選択肢${wrongs.length + 1}）`);
+        }
+      } else {
+        wrongs = shuffle([...samePosMeanings]).slice(0, 3);
+      }
     }
     let pi = 0;
     while (wrongs.length < 3) {
@@ -162,9 +175,10 @@ function vocabListToQuestions(
     }
     const fourOptions = shuffle([card.meaning, ...wrongs]) as [string, string, string, string];
     const correctIndex = fourOptions.indexOf(card.meaning);
+    const questionText = card.pos ? `${card.word} [${card.pos}]` : card.word;
     return {
       id: `vocab-${card.word}-${i}-${card.meaning.slice(0, 8)}`,
-      question: card.word,
+      question: questionText,
       options: fourOptions,
       correctIndex: correctIndex >= 0 ? correctIndex : 0,
       type: 'vocabulary' as const,
@@ -206,7 +220,7 @@ function supabaseToGameQuestion(q: {
 function GameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // 遷移直後は searchParams が遅れることがあるため、URL からも mode を取得
+  const { isOffline, effectiveOfflineStamina } = useOffline();
   const modeFromUrl = typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('mode') as GameMode) : null;
   const mode: GameMode = (searchParams.get('mode') as GameMode) ?? modeFromUrl ?? 'part5-national';
   const isTournamentMode = mode === 'part5-tournament' || mode === 'vocab-tournament';
@@ -220,6 +234,11 @@ function GameContent() {
   const [showStaminaModal, setShowStaminaModal] = useState(false);
   const [nextRecoveryAt, setNextRecoveryAt] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  /** ゲーム開始前: 消費スタミナ量選択（5〜25）。null で非表示 */
+  const [showStaminaAmountSelect, setShowStaminaAmountSelect] = useState(false);
+  const [staminaAmountToConsume, setStaminaAmountToConsume] = useState(5);
+  const [currentStaminaForSelect, setCurrentStaminaForSelect] = useState<number | null>(null);
+  const staminaConsumeRef = useRef(5);
   const [showSummary, setShowSummary] = useState(false);
   const evolutionExpAddedRef = useRef(false);
   const scoreRef = useRef(0);
@@ -278,12 +297,18 @@ function GameContent() {
   const checkpointsRef = useRef<{ q: number; t: number; remainingSec: number }[]>([]);
   const ghostCheckpointsRef = useRef<{ q: number; t: number; remainingSec: number }[]>([]);
   const vocabWrongWordsRegisteredRef = useRef(false);
-  /** ゲーム開始した実時刻（5分で強制終了用） */
+  /** ゲーム開始した実時刻（単語3分・Part5は5分で強制終了用） */
   const gameStartMsRef = useRef<number | null>(null);
   const [forYouCountdown, setForYouCountdown] = useState<number | null>(null);
   /** ランク選択後の3秒カウント（全国・Part5 For You 用） */
   const [countdownBeforeStart, setCountdownBeforeStart] = useState<number | null>(null);
   const [selectedRank, setSelectedRank] = useState<SurvivalRank | null>(null);
+  /** 初回ルール説明モーダル（null=未判定, true=表示, false=スキップ済） */
+  const [showRuleModal, setShowRuleModal] = useState<boolean | null>(null);
+  /** BOSS 終了後の誤タップ防止クールダウン（1.5秒） */
+  const [postBossCooldown, setPostBossCooldown] = useState(false);
+  /** ルールモーダル「次回からスキップ」チェック */
+  const [ruleSkipNext, setRuleSkipNext] = useState(false);
   const keyBindingsRef = useRef<{ topLeft: string; bottomLeft: string; topRight: string; bottomRight: string } | null>(null);
   const evolutionRef = useRef<{
     correct_time: number;
@@ -394,7 +419,7 @@ function GameContent() {
 
   // 進化状態の取得（全国・大会モードでランク選択後）。研鑽の極意→正解時加算秒数、至高の技巧→スコア倍率、魂の燃焼→誤答ペナルティに反映
   useEffect(() => {
-    if (!rank || (mode !== 'part5-national' && mode !== 'vocab-national' && mode !== 'part5-tournament' && mode !== 'vocab-tournament')) return;
+    if (!rank || (mode !== 'part5-national' && mode !== 'vocab-national' && mode !== 'vocab-word-national' && mode !== 'part5-tournament' && mode !== 'vocab-tournament')) return;
     fetch('/api/evolution')
       .then((res) => (res.ok ? res.json() : null))
       .then((d) => {
@@ -474,16 +499,28 @@ function GameContent() {
     else playBgmIfExists('bgmNormal');
   }, [rank, gameOver, isFever, survivalTimeSec]);
 
-  // 全国・大会モード：ランク選択を廃止し、プレイ開始でいきなり3秒カウント（60秒モードのみ）
+  // サバイバル系モードで初回のみルール説明を表示するか（localStorage でスキップ済みなら表示しない）
+  const isSurvivalMode =
+    mode === 'part5-national' || mode === 'vocab-national' || mode === 'vocab-word-national' || mode === 'part5-forYou' || mode === 'vocab-forYou' || mode === 'part5-tournament' || mode === 'vocab-tournament';
   useEffect(() => {
-    if (mode !== 'part5-national' && mode !== 'vocab-national' && mode !== 'part5-tournament' && mode !== 'vocab-tournament') return;
+    if (!isSurvivalMode || queue.length === 0) return;
+    if (showRuleModal !== null) return;
+    const skip = typeof window !== 'undefined' && window.localStorage.getItem('closer_rule_modal_skip') === '1';
+    setShowRuleModal(!skip);
+  }, [isSurvivalMode, queue.length, showRuleModal]);
+
+  // 全国・大会モード：ランク選択を廃止し、プレイ開始でいきなり3秒カウント（60秒モードのみ）。ルールモーダル未解除または表示中は開始しない
+  useEffect(() => {
+    if (showRuleModal !== false) return;
+    if (mode !== 'part5-national' && mode !== 'vocab-national' && mode !== 'vocab-word-national' && mode !== 'part5-tournament' && mode !== 'vocab-tournament') return;
     if (queue.length === 0 || rank !== null) return;
     setSelectedRank('ACE');
     setCountdownBeforeStart(3);
-  }, [mode, queue.length, rank]);
+  }, [mode, queue.length, rank, showRuleModal]);
 
-  // For You: 3-2-1 カウント後に即開始（60秒モードで ACE 扱い）
+  // For You: 3-2-1 カウント後に即開始（60秒モードで ACE 扱い）。ルールモーダル未解除または表示中は開始しない
   useEffect(() => {
+    if (showRuleModal !== false) return;
     if (mode !== 'vocab-forYou' || queue.length === 0 || rank !== null || !queue[0]) return;
     if (forYouCountdown === null) {
       setForYouCountdown(3);
@@ -502,7 +539,7 @@ function GameContent() {
     }
     const t = setTimeout(() => setForYouCountdown((n) => (n == null ? null : n - 1)), 1000);
     return () => clearTimeout(t);
-  }, [mode, queue.length, rank, forYouCountdown]);
+  }, [mode, queue.length, rank, forYouCountdown, showRuleModal]);
 
   // ランク選択後の3秒カウント（全国・Part5 For You）：3→2→1→開始
   useEffect(() => {
@@ -576,10 +613,35 @@ function GameContent() {
       return;
     }
 
-    if (mode !== 'part5-national' && mode !== 'vocab-national') return;
+    if (mode !== 'part5-national' && mode !== 'vocab-national' && mode !== 'vocab-word-national') return;
     const modeKey = mode.startsWith('vocab') ? 'vocab' : 'part5';
     const survivalRank = rank ?? 'ACE';
+    const correctCount = resultsRef.current.filter((r) => r.correct).length;
+    const finalBonusGo = (equipmentEffectsRef.current.final_bonus_coefficient ?? 0) * correctCount;
+    const baseScoreGo = rank != null ? scoreRef.current + finalBonusGo : correctCount;
+    const scoreToShow = rank != null ? Math.round(baseScoreGo) : baseScoreGo;
+    const epMult = 1 + (itemEffectsRef.current.ep_pct ?? 0) / 100;
+    const staminaAmount = staminaConsumeRef.current ?? 5;
+
     runRecordedRef.current = true;
+    if (isOffline) {
+      addPendingRun({
+        id: crypto.randomUUID(),
+        score: scoreToSave,
+        totalTimeMs: totalMs,
+        game_mode: modeKey,
+        staminaAmount,
+        survival_rank: survivalRank,
+        checkpoints: checkpointsRef.current?.length ? checkpointsRef.current : undefined,
+        question_ids: mode === 'part5-national' && queue.length > 0 ? queue.map((q) => q.id) : null,
+        scoreToShow,
+        epMult,
+        createdAt: Date.now(),
+      }).then(() => {
+        if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('offline-pending-updated'));
+      });
+      return;
+    }
     createClient()
       .auth.getSession()
       .then(({ data: { session } }) => {
@@ -607,15 +669,16 @@ function GameContent() {
             if (data?.error) console.warn('[runs auto-record]', data);
           });
       });
-  }, [gameOver, mode, results, rank, score, queue, isTournamentMode]);
+  }, [gameOver, mode, results, rank, score, queue, isTournamentMode, isOffline]);
 
-  // サバイバル tick: 時間減算・装備効果（60s/15s）・FEVER終了・見送り判定・5分経過で強制終了
+  // サバイバル tick: 時間減算・装備効果（60s/15s）・FEVER終了・見送り判定・経過で強制終了（単語3分・Part5は5分）
+  const maxGameDurationMs = mode.startsWith('vocab') ? MAX_GAME_DURATION_VOCAB_MS : MAX_GAME_DURATION_PART5_MS;
   useEffect(() => {
     if (!rank || gameOver) return;
     const eff = () => equipmentEffectsRef.current;
     const id = setInterval(() => {
       const now = Date.now();
-      if (gameStartMsRef.current != null && now - gameStartMsRef.current >= MAX_GAME_DURATION_MS) {
+      if (gameStartMsRef.current != null && now - gameStartMsRef.current >= maxGameDurationMs) {
         setGameOver(true);
         return;
       }
@@ -729,24 +792,35 @@ function GameContent() {
       }
     }, TICK_MS);
     return () => clearInterval(id);
-  }, [rank, gameOver, isBossQuestion, perfectBonusActive]);
+  }, [rank, gameOver, isBossQuestion, perfectBonusActive, maxGameDurationMs]);
 
-  const loadQueue = useCallback(async () => {
+  const loadQueue = useCallback(async (staminaAmount: number = 5) => {
+    staminaConsumeRef.current = staminaAmount;
     const isVocab = mode.startsWith('vocab');
     const isForYou = mode.endsWith('forYou');
+    const consumeOpts = (mode === 'part5-tournament' || mode === 'vocab-tournament')
+      ? { method: 'POST' as const, credentials: 'include' as const }
+      : { method: 'POST' as const, credentials: 'include' as const, headers: { 'Content-Type': 'application/json' } as const, body: JSON.stringify({ amount: staminaAmount }) };
 
-    if (mode === 'vocab-national' || mode === 'vocab-tournament') {
+    if (mode === 'vocab-word-national') {
       try {
-        const res = await fetch('/api/vocab-default');
+        const res = await fetch('/api/vocab-word-default');
         if (res.ok) {
-          const list = (await res.json()) as VocabEntry[];
+          const data = await res.json();
+          const list: VocabEntry[] = Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : []);
           if (Array.isArray(list) && list.length > 0) {
             const total = list.length;
             const initialWindow = Math.min(WINDOW_INITIAL, total);
             const asQuestions = getRandomQuestionsFromWindow(list, initialWindow, 25, total);
             if (asQuestions.length > 0) {
-              if (mode === 'vocab-national') {
-                const consumeRes = await fetch('/api/stamina', { method: 'POST', credentials: 'include' });
+              if (isOffline && effectiveOfflineStamina != null) {
+                if (effectiveOfflineStamina < staminaAmount) {
+                  setShowStaminaModal(true);
+                  setLoading(false);
+                  return;
+                }
+              } else {
+                const consumeRes = await fetch('/api/stamina', consumeOpts);
                 if (consumeRes.status === 402) {
                   const json = await consumeRes.json().catch(() => ({}));
                   setNextRecoveryAt(json.nextRecoveryAt ?? null);
@@ -761,6 +835,74 @@ function GameContent() {
                 }
                 if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('stamina-updated'));
               }
+              setQueue(asQuestions);
+              setWindowEnd(initialWindow);
+              windowEndRef.current = initialWindow;
+              setRevengeStack([]);
+              revengeStackRef.current = [];
+              setFeverQuestions([]);
+              setFeverQuestionIndex(0);
+              seenInSessionRef.current = new Set();
+              setLoading(false);
+              return;
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+      setQueue([]);
+      setLoading(false);
+      return;
+    }
+
+    if (mode === 'vocab-national' || mode === 'vocab-tournament') {
+      try {
+        let list: VocabEntry[] = [];
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          const cache = await getVocabCache();
+          list = cache?.list ?? [];
+        }
+        if (list.length === 0) {
+          const res = await fetch('/api/vocab-default');
+          if (res.ok) {
+            const data = await res.json();
+            list = Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : []);
+          }
+        }
+        if (list.length === 0) {
+          const cache = await getVocabCache();
+          list = cache?.list ?? [];
+        }
+        if (Array.isArray(list) && list.length > 0) {
+          const total = list.length;
+          const initialWindow = Math.min(WINDOW_INITIAL, total);
+          const asQuestions = getRandomQuestionsFromWindow(list, initialWindow, 25, total);
+          if (asQuestions.length > 0) {
+            if (mode === 'vocab-national') {
+              if (isOffline && effectiveOfflineStamina != null) {
+                if (effectiveOfflineStamina < staminaAmount) {
+                  setShowStaminaModal(true);
+                  setLoading(false);
+                  return;
+                }
+              } else {
+                const consumeRes = await fetch('/api/stamina', consumeOpts);
+                if (consumeRes.status === 402) {
+                  const json = await consumeRes.json().catch(() => ({}));
+                  setNextRecoveryAt(json.nextRecoveryAt ?? null);
+                  setShowStaminaModal(true);
+                  setLoading(false);
+                  return;
+                }
+                if (!consumeRes.ok) {
+                  setQueue([]);
+                  setLoading(false);
+                  return;
+                }
+                if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('stamina-updated'));
+              }
+            }
             fullVocabListRef.current = list;
             setQueue(asQuestions);
             setWindowEnd(initialWindow);
@@ -774,9 +916,27 @@ function GameContent() {
             return;
           }
         }
-      }
-    } catch (_) {
-        // fallback
+      } catch (_) {
+        const cache = await getVocabCache();
+        const list = cache?.list ?? [];
+        if (list.length > 0) {
+          const total = list.length;
+          const initialWindow = Math.min(WINDOW_INITIAL, total);
+          const asQuestions = getRandomQuestionsFromWindow(list, initialWindow, 25, total);
+          if (asQuestions.length > 0 && (mode !== 'vocab-national' || (effectiveOfflineStamina != null && effectiveOfflineStamina >= staminaAmount))) {
+            fullVocabListRef.current = list;
+            setQueue(asQuestions);
+            setWindowEnd(initialWindow);
+            windowEndRef.current = initialWindow;
+            setRevengeStack([]);
+            revengeStackRef.current = [];
+            setFeverQuestions([]);
+            setFeverQuestionIndex(0);
+            seenInSessionRef.current = new Set();
+            setLoading(false);
+            return;
+          }
+        }
       }
       setQueue([]);
       setLoading(false);
@@ -840,7 +1000,7 @@ function GameContent() {
             }
             const asQuestions = vocabListToQuestions(list, shuffle, Object.keys(statsByWord).length > 0 ? statsByWord : undefined);
             if (asQuestions.length > 0) {
-              const consumeRes = await fetch('/api/stamina', { method: 'POST', credentials: 'include' });
+              const consumeRes = await fetch('/api/stamina', consumeOpts);
               if (consumeRes.status === 402) {
                 const json = await consumeRes.json().catch(() => ({}));
                 setNextRecoveryAt(json.nextRecoveryAt ?? null);
@@ -869,15 +1029,42 @@ function GameContent() {
     }
 
     try {
-      const params = new URLSearchParams({ mode: isForYou ? 'forYou' : 'national', limit: '20' });
-      if (userIdRef.current) params.set('userId', userIdRef.current);
-      const res = await fetch(`/api/questions?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        const list = Array.isArray(data?.questions) ? data.questions : (Array.isArray(data) ? data : []);
-        if (list.length > 0) {
-          if (mode !== 'part5-tournament') {
-            const consumeRes = await fetch('/api/stamina', { method: 'POST', credentials: 'include' });
+      let list: Parameters<typeof supabaseToGameQuestion>[0][] = [];
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const cache = await getPart5Cache();
+        const qs = cache?.questions ?? [];
+        if (qs.length > 0) {
+          const shuffled = [...qs].sort(() => Math.random() - 0.5);
+          list = shuffled.slice(0, 20);
+        }
+      }
+      if (list.length === 0) {
+        const params = new URLSearchParams({ mode: isForYou ? 'forYou' : 'national', limit: '20' });
+        if (userIdRef.current) params.set('userId', userIdRef.current);
+        const res = await fetch(`/api/questions?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          list = Array.isArray(data?.questions) ? data.questions : (Array.isArray(data) ? data : []);
+        }
+      }
+      if (list.length === 0) {
+        const cache = await getPart5Cache();
+        const qs = cache?.questions ?? [];
+        if (qs.length > 0) {
+          const shuffled = [...qs].sort(() => Math.random() - 0.5);
+          list = shuffled.slice(0, 20);
+        }
+      }
+      if (list.length > 0) {
+        if (mode !== 'part5-tournament') {
+          if (isOffline && effectiveOfflineStamina != null) {
+            if (effectiveOfflineStamina < staminaAmount) {
+              setShowStaminaModal(true);
+              setLoading(false);
+              return;
+            }
+          } else {
+            const consumeRes = await fetch('/api/stamina', consumeOpts);
             if (consumeRes.status === 402) {
               const json = await consumeRes.json().catch(() => ({}));
               setNextRecoveryAt(json.nextRecoveryAt ?? null);
@@ -892,20 +1079,28 @@ function GameContent() {
             }
             if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('stamina-updated'));
           }
-          setIsSupabaseQueue(true);
-          setQueue(list.map(supabaseToGameQuestion));
-          setLoading(false);
-          return;
         }
+        setIsSupabaseQueue(true);
+        setQueue(list.map(supabaseToGameQuestion));
+        setLoading(false);
+        return;
       }
     } catch {
-      // ignore
+      const cache = await getPart5Cache();
+      const qs = cache?.questions ?? [];
+      if (qs.length > 0 && (mode === 'part5-tournament' || (effectiveOfflineStamina != null && effectiveOfflineStamina >= staminaAmount))) {
+        const shuffled = [...qs].sort(() => Math.random() - 0.5);
+        const list = shuffled.slice(0, 20);
+        setIsSupabaseQueue(true);
+        setQueue(list.map(supabaseToGameQuestion));
+        setLoading(false);
+        return;
+      }
     }
-    // Part 5 は Supabase のみ。空なら問題なしと表示（単語シードにフォールバックしない）
     setIsSupabaseQueue(false);
     setQueue([]);
     setLoading(false);
-  }, [mode]);
+  }, [mode, isOffline, effectiveOfflineStamina]);
 
   useEffect(() => {
     createClient()
@@ -935,6 +1130,17 @@ function GameContent() {
         loadQueue();
         return;
       }
+      if (isOffline && effectiveOfflineStamina != null) {
+        if (effectiveOfflineStamina < 5) {
+          setShowStaminaModal(true);
+          setLoading(false);
+          return;
+        }
+        setCurrentStaminaForSelect(effectiveOfflineStamina);
+        setShowStaminaAmountSelect(true);
+        setLoading(false);
+        return;
+      }
       try {
         const res = await fetch('/api/stamina', { credentials: 'include' });
         if (!res.ok) {
@@ -949,16 +1155,22 @@ function GameContent() {
           setLoading(false);
           return;
         }
+        if (json.staminaInfinityActive) {
+          loadQueue(5);
+          return;
+        }
+        setCurrentStaminaForSelect(stamina);
+        setShowStaminaAmountSelect(true);
+        setLoading(false);
       } catch {
         setLoading(false);
         return;
       }
-      loadQueue();
     };
     run();
-  }, [loadQueue, isTournamentMode]);
+  }, [loadQueue, isTournamentMode, isOffline, effectiveOfflineStamina]);
 
-  // ゲームオーバー時: XP加算（表示スコア・EP倍率と同じ計算でAPIに送る）。ポップアップは廃止し本画面のみ表示
+  // ゲームオーバー時: XP加算（オンライン時のみ。オフライン時は同期時に適用）
   useEffect(() => {
     if (!gameOver || evolutionExpAddedRef.current) return;
     const correctCount = resultsRef.current.filter((r) => r.correct).length;
@@ -967,7 +1179,7 @@ function GameContent() {
     const baseScoreGo = rank != null ? scoreRef.current + finalBonusGo : correctCount;
     const scoreToShow = rank != null ? Math.round(baseScoreGo) : baseScoreGo;
     const epMult = 1 + (itemEffectsRef.current.ep_pct ?? 0) / 100;
-    if (scoreToShow > 0 && (mode === 'part5-national' || mode === 'vocab-national') && !isTournamentMode) {
+    if (scoreToShow > 0 && (mode === 'part5-national' || mode === 'vocab-national' || mode === 'vocab-word-national') && !isTournamentMode && !isOffline) {
       evolutionExpAddedRef.current = true;
       createClient()
         .auth.getSession()
@@ -978,12 +1190,12 @@ function GameContent() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
-              body: JSON.stringify({ score: scoreToShow, mode, epMult }),
+              body: JSON.stringify({ score: scoreToShow, mode, epMult, staminaAmount: staminaConsumeRef.current ?? 5 }),
             }).catch(() => {});
           }
         });
     }
-  }, [gameOver, mode, isTournamentMode]);
+  }, [gameOver, mode, isTournamentMode, isOffline]);
 
   // 単語モード結果表示時: 間違えた単語をデフォルトで単語 For You に登録
   useEffect(() => {
@@ -1050,7 +1262,7 @@ function GameContent() {
 
   const handleAnswer = useCallback(
     async (word: GameQuestion, choiceIndex: number) => {
-      if (answered) return;
+      if (answered || postBossCooldown) return;
       const correct = choiceIndex === word.correctIndex;
       const responseTime = Date.now() - questionStartMsRef.current;
 
@@ -1082,6 +1294,20 @@ function GameContent() {
         }
         setStunned(true);
         setRedFlash(true);
+        const eWrongBoss = equipmentEffectsRef.current;
+        if (rank) {
+          let bpWrongBoss = (itemW.crown_all_rare != null ? RARITY_BASE_POINTS.RARE : RARITY_BASE_POINTS[rarityFromDifficulty(word.difficulty)]);
+          if (itemW.bp_luck_chance != null && Math.random() < itemW.bp_luck_chance) bpWrongBoss *= itemW.bp_luck_mult ?? 1.2;
+          if (mode === 'part5-national' && itemW.bp_part5_pct != null) bpWrongBoss *= 1 + itemW.bp_part5_pct / 100;
+          if (mode === 'vocab-national' && itemW.bp_vocab_pct != null) bpWrongBoss *= 1 + itemW.bp_vocab_pct / 100;
+          const effectiveComboMultWrongBoss = (combo === 0 && eWrongBoss.combo_resume_multiplier != null ? eWrongBoss.combo_resume_multiplier : comboMultiplier(combo)) + (itemW.combo_bonus_add ?? 0);
+          const baseWrongBoss = Math.ceil(bpWrongBoss * effectiveComboMultWrongBoss * 1) * scoreMultiplier(evolutionRef.current.score, evolutionRef.current.seasonCarry?.score ?? 0) * (1 + (evolutionRef.current.guildScoreBonus ?? 0));
+          let penaltyBoss = baseWrongBoss * WRONG_SCORE_PENALTY_RATIO * (itemW.miss_penalty_mult ?? 1);
+          penaltyBoss *= Math.max(0, 1 - (itemW.miss_penalty_reduce_pct ?? 0) / 100);
+          setScore((sc) => Math.max(0, sc - Math.round(penaltyBoss)));
+        } else {
+          setScore((sc) => Math.max(0, sc - 1));
+        }
         setTimeout(() => {
           setRedFlash(false);
           setStunned(false);
@@ -1202,14 +1428,20 @@ function GameContent() {
         setBossQuestion(null);
         setIsBossQuestion(false);
         transitionEndRef.current = Date.now();
-        if (currentIndex + 1 >= queue.length) {
-          setShowSummary(true);
-        } else {
-          setCurrentIndex((i) => i + 1);
-          setAnswered(false);
-          setResult(null);
-          barStartTimeRef.current = Date.now();
-        }
+        const nextIdx = currentIndex + 1;
+        const qLen = queue.length;
+        setPostBossCooldown(true);
+        setTimeout(() => {
+          setPostBossCooldown(false);
+          if (nextIdx >= qLen) {
+            setShowSummary(true);
+          } else {
+            setCurrentIndex(nextIdx);
+            setAnswered(false);
+            setResult(null);
+            barStartTimeRef.current = Date.now();
+          }
+        }, 1500);
         return;
       }
 
@@ -1245,8 +1477,22 @@ function GameContent() {
         stunUntilRef.current = now + flashMs;
         setStunned(true);
         setRedFlash(true);
-        // 鉄火場のシルクシャツ: 不正解時50%で即ゲームオーバー
         const eWrong = equipmentEffectsRef.current;
+        // 誤答スコアペナルティ（A連打対策: 2誤答で正解1回分を相殺。装備の miss_penalty_mult / miss_penalty_reduce_pct を反映）
+        if (rank) {
+          let bpWrong = (itemWrong.crown_all_rare != null ? RARITY_BASE_POINTS.RARE : RARITY_BASE_POINTS[rarityFromDifficulty(word.difficulty)]);
+          if (itemWrong.bp_luck_chance != null && Math.random() < itemWrong.bp_luck_chance) bpWrong *= itemWrong.bp_luck_mult ?? 1.2;
+          if (mode === 'part5-national' && itemWrong.bp_part5_pct != null) bpWrong *= 1 + itemWrong.bp_part5_pct / 100;
+          if (mode === 'vocab-national' && itemWrong.bp_vocab_pct != null) bpWrong *= 1 + itemWrong.bp_vocab_pct / 100;
+          const effectiveComboMultWrong = (combo === 0 && eWrong.combo_resume_multiplier != null ? eWrong.combo_resume_multiplier : comboMultiplier(combo)) + (itemWrong.combo_bonus_add ?? 0);
+          const baseWrong = Math.ceil(bpWrong * effectiveComboMultWrong * 1) * scoreMultiplier(evolutionRef.current.score, evolutionRef.current.seasonCarry?.score ?? 0) * (1 + (evolutionRef.current.guildScoreBonus ?? 0));
+          let penalty = baseWrong * WRONG_SCORE_PENALTY_RATIO * (itemWrong.miss_penalty_mult ?? 1);
+          penalty *= Math.max(0, 1 - (itemWrong.miss_penalty_reduce_pct ?? 0) / 100);
+          setScore((sc) => Math.max(0, sc - Math.round(penalty)));
+        } else {
+          setScore((sc) => Math.max(0, sc - 1));
+        }
+        // 鉄火場のシルクシャツ: 不正解時50%で即ゲームオーバー
         if (eWrong.tekka_instant_death_chance != null && Math.random() < eWrong.tekka_instant_death_chance) {
           setTimeout(() => setGameOver(true), 100);
         }
@@ -1519,6 +1765,8 @@ function GameContent() {
                 setIsBossQuestion(true);
                 setBossWarningShown(false);
                 playSoundIfExists('bossWarning');
+                // BOSS 突入時に時間を少し追加（所見殺し軽減）
+                setSurvivalTimeSec((s) => Math.min(MAX_SURVIVAL_SEC, s + 10));
               }
             })
             .catch(() => {})
@@ -1537,6 +1785,7 @@ function GameContent() {
     },
     [
       answered,
+      postBossCooldown,
       currentIndex,
       queue.length,
       mode,
@@ -1758,49 +2007,71 @@ function GameContent() {
     const scoreToSave = rank != null ? Math.round(baseScore) : baseScore;
     const modeKey = mode.startsWith('vocab') ? 'vocab' : 'part5';
     const survivalRank = rank ?? 'ACE';
-    if ((mode === 'part5-national' || mode === 'vocab-national') && !runRecordedRef.current) {
-      const { data: { session } } = await createClient().auth.getSession();
-      const uid = session?.user?.id ?? userIdRef.current;
-      if (uid) {
+    if ((mode === 'part5-national' || mode === 'vocab-national' || mode === 'vocab-word-national') && !runRecordedRef.current) {
+      const totalMs = typeof totalTimeMsRef.current === 'number' && Number.isFinite(totalTimeMsRef.current)
+        ? totalTimeMsRef.current
+        : 0;
+      const staminaAmount = staminaConsumeRef.current ?? 5;
+      const scoreToShow = rank != null ? Math.round(score + (equipmentEffectsRef.current.final_bonus_coefficient ?? 0) * totalCorrect) : totalCorrect;
+      const epMult = 1 + (itemEffectsRef.current.ep_pct ?? 0) / 100;
+
+      if (isOffline) {
         runRecordedRef.current = true;
-        const totalMs = typeof totalTimeMsRef.current === 'number' && Number.isFinite(totalTimeMsRef.current)
-          ? totalTimeMsRef.current
-          : 0;
-        const res = await fetch('/api/runs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            userId: uid,
-            score: scoreToSave,
-            totalTimeMs: totalMs,
-            game_mode: modeKey,
-            survival_rank: survivalRank,
-            checkpoints: checkpointsRef.current?.length ? checkpointsRef.current : null,
-            question_ids: mode === 'part5-national' && queue.length > 0 ? queue.map((q) => q.id) : null,
-          }),
+        await addPendingRun({
+          id: crypto.randomUUID(),
+          score: scoreToSave,
+          totalTimeMs: totalMs,
+          game_mode: modeKey,
+          staminaAmount,
+          survival_rank: survivalRank,
+          checkpoints: checkpointsRef.current?.length ? checkpointsRef.current : undefined,
+          question_ids: mode === 'part5-national' && queue.length > 0 ? queue.map((q) => q.id) : null,
+          scoreToShow,
+          epMult,
+          createdAt: Date.now(),
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          console.error('[runs insert]', res.status, data);
+        if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('offline-pending-updated'));
+      } else {
+        const { data: { session } } = await createClient().auth.getSession();
+        const uid = session?.user?.id ?? userIdRef.current;
+        if (uid) {
+          runRecordedRef.current = true;
+          const res = await fetch('/api/runs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              userId: uid,
+              score: scoreToSave,
+              totalTimeMs: totalMs,
+              game_mode: modeKey,
+              survival_rank: survivalRank,
+              checkpoints: checkpointsRef.current?.length ? checkpointsRef.current : null,
+              question_ids: mode === 'part5-national' && queue.length > 0 ? queue.map((q) => q.id) : null,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            console.error('[runs insert]', res.status, data);
+            try {
+              sessionStorage.setItem('runs_insert_error', JSON.stringify({
+                message: data?.message ?? data?.error ?? '記録に失敗しました',
+              }));
+            } catch {
+              // ignore
+            }
+          }
+        } else {
           try {
-            sessionStorage.setItem('runs_insert_error', JSON.stringify({
-              message: data?.message ?? data?.error ?? '記録に失敗しました',
-            }));
+            sessionStorage.setItem('runs_insert_error', JSON.stringify({ message: 'not_logged_in' }));
           } catch {
             // ignore
           }
         }
-      } else {
-        try {
-          sessionStorage.setItem('runs_insert_error', JSON.stringify({ message: 'not_logged_in' }));
-        } catch {
-          // ignore
-        }
       }
     }
-    router.push(isTournamentMode ? '/tournament' : (mode === 'part5-national' || mode === 'vocab-national' ? '/ranking' : '/'));
-  }, [results, mode, router, rank, score, queue, isTournamentMode]);
+    router.push(isTournamentMode ? '/tournament' : (mode === 'part5-national' || mode === 'vocab-national' || mode === 'vocab-word-national' ? '/ranking' : '/'));
+  }, [results, mode, router, rank, score, queue, isTournamentMode, isOffline]);
 
   const handleRegisterWord = useCallback(
     async (word: string, meanings: string[] | unknown) => {
@@ -1856,6 +2127,53 @@ function GameContent() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [displayQuestion, queue, currentIndex, answered, stunned, handleAnswer]);
 
+  if (showStaminaAmountSelect && currentStaminaForSelect != null) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-950 px-4">
+        <h1 className="text-lg font-bold text-white">消費スタミナを選択</h1>
+        <p className="text-center text-sm text-zinc-400">
+          まとめて使うとXPに傾斜がかかります（スコアは等倍）。現在: {currentStaminaForSelect}
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {STAMINA_CONSUME_OPTIONS.map((amount) => {
+            const disabled = amount > currentStaminaForSelect;
+            const selected = staminaAmountToConsume === amount;
+            const mult = getXpMultiplierForStamina(amount);
+            return (
+              <button
+                key={amount}
+                type="button"
+                disabled={disabled}
+                onClick={() => setStaminaAmountToConsume(amount)}
+                className={`rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                  disabled
+                    ? 'cursor-not-allowed border-zinc-700 bg-zinc-800/50 text-zinc-500'
+                    : selected
+                      ? 'border-amber-500 bg-amber-500/20 text-amber-400'
+                      : 'border-zinc-600 bg-zinc-800 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-700'
+                }`}
+              >
+                {amount}
+                <span className="ml-1 text-xs opacity-90">({mult}×XP)</span>
+              </button>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setShowStaminaAmountSelect(false);
+            setLoading(true);
+            loadQueue(staminaAmountToConsume);
+          }}
+          className="rounded-lg border border-amber-500 bg-amber-500/20 px-6 py-3 text-base font-medium text-amber-400 hover:bg-amber-500/30"
+        >
+          プレイ開始
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950">
@@ -1910,11 +2228,12 @@ function GameContent() {
     const slotLabelsSummary: Record<string, string> = { weapon: '武器', head: '頭', torso: '胴体', feet: '足' };
     const epMultSummary = 1 + (itemEffectsRef.current.ep_pct ?? 0) / 100;
     const xpMultiplierSummary = mode === 'part5-national' ? 3 : 1;
+    const staminaXpMultSummary = getXpMultiplierForStamina(staminaConsumeRef.current ?? 5);
     const correctTimeMultSummary = correctTimeMultiplier(evolutionRef.current?.correct_time ?? 0, evolutionRef.current?.seasonCarry?.correct_time ?? 0);
     const baseXpSummary = (totalScoreWithBonus ?? 0) * 0.03;
-    const gainedExpSummary = Math.floor(baseXpSummary * epMultSummary * xpMultiplierSummary * correctTimeMultSummary);
+    const gainedExpSummary = Math.floor(baseXpSummary * epMultSummary * xpMultiplierSummary * correctTimeMultSummary * staminaXpMultSummary);
     const baseScoreWithoutGrowthSummary = rank != null ? scoreWithoutGrowthRef.current + finalBonusSummary : (totalScoreWithBonus ?? 0);
-    const xpWithoutGrowthSummary = Math.floor(baseScoreWithoutGrowthSummary * 0.03 * epMultSummary * xpMultiplierSummary * correctTimeMultSummary);
+    const xpWithoutGrowthSummary = Math.floor(baseScoreWithoutGrowthSummary * 0.03 * epMultSummary * xpMultiplierSummary * correctTimeMultSummary * staminaXpMultSummary);
     type SlotDetailSummary = { slot: string; slotLabel: string; name: string | null; effectText: string | null; contributionPt?: number; actionSummary: string[] };
     const equipmentDetailBySlotSummary: SlotDetailSummary[] = [];
     const equippedSummary = equippedRef.current;
@@ -1986,20 +2305,58 @@ function GameContent() {
     );
   }
 
+  // 初回ルール説明モーダル（サバイバル系モード・スキップしていない場合）
+  if (showRuleModal === true && queue.length > 0) {
+    return (
+      <div className="flex min-h-screen min-h-[100dvh] flex-col items-center justify-center bg-zinc-950 px-4 safe-area-pad">
+        <div className="w-full max-w-md rounded-2xl border border-gold-subtle bg-zinc-900/95 p-6 shadow-xl">
+          <h2 className="text-lg font-bold text-gold">ルール</h2>
+          <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+            正解するほど制限時間が延び、ミスすると減ります。コンボを繋いでスコアを伸ばし、ランキングで競いましょう。
+          </p>
+          <p className="mt-2 text-sm text-zinc-400">
+            装備やガチャのアイテムで、スコアや時間を有利にできます。
+          </p>
+          <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
+            <input
+              type="checkbox"
+              checked={ruleSkipNext}
+              onChange={(e) => setRuleSkipNext(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-500 text-amber-500 focus:ring-amber-500"
+            />
+            次回からスキップ
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              if (ruleSkipNext && typeof window !== 'undefined') window.localStorage.setItem('closer_rule_modal_skip', '1');
+              setShowRuleModal(false);
+            }}
+            className="mt-5 w-full rounded-lg border border-gold-subtle bg-[var(--gold)]/20 py-3 font-medium text-gold hover:bg-[var(--gold)]/30 active:opacity-90"
+          >
+            始める
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!current && !gameOver) {
     return (
       <div className="flex min-h-screen min-h-[100dvh] flex-col items-center justify-center gap-4 bg-zinc-950 px-4 safe-area-pad">
         <p className="text-center text-white sm:text-left">
           {mode === 'vocab-forYou'
             ? '単語 For You に登録された単語がありません。結果画面で単語をタップして追加するか、Part 5 でわからない単語をタップして追加しましょう。'
-            : mode === 'vocab-national'
-              ? '全国単語モード用の単語リストを読み込めませんでした。アカウントには依存しません。しばらく経ってから「再読み込み」を押すか、ホームへ戻って再度お試しください。'
-              : mode.startsWith('vocab')
-                ? '登録単語がありません。Part 5の問題で単語をタップして追加しましょう。'
-                : '出題する問題がありません'}
+            : mode === 'vocab-word-national'
+              ? '単語→単語用のリストを読み込めませんでした。data/vocab-word.json を用意するか「再読み込み」をお試しください。'
+              : mode === 'vocab-national'
+                ? '全国単語モード用の単語リストを読み込めませんでした。アカウントには依存しません。しばらく経ってから「再読み込み」を押すか、ホームへ戻って再度お試しください。'
+                : mode.startsWith('vocab')
+                  ? '登録単語がありません。Part 5の問題で単語をタップして追加しましょう。'
+                  : '出題する問題がありません'}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          {mode === 'vocab-national' && (
+          {(mode === 'vocab-national' || mode === 'vocab-word-national') && (
             <button
               type="button"
               onClick={() => { setLoading(true); loadQueue(); }}
@@ -2061,7 +2418,9 @@ function GameContent() {
                 ? '大会 Part 5'
                 : mode === 'vocab-tournament'
                   ? '大会 単語'
-                  : '単語 全国モード'}
+                  : mode === 'vocab-word-national'
+                    ? '単語→単語 全国モード'
+                    : '単語 全国モード'}
         </p>
         {countdownBeforeStart > 0 ? (
           <motion.span
@@ -2108,11 +2467,12 @@ function GameContent() {
         : { type: 'sixty' as const, correctCount: correctCountForRank, total: scoreToShow };
     const epMult = 1 + (itemEffectsRef.current.ep_pct ?? 0) / 100;
     const xpMultiplier = mode === 'part5-national' ? 3 : 1;
+    const staminaXpMult = getXpMultiplierForStamina(staminaConsumeRef.current ?? 5);
     const correctTimeMult = correctTimeMultiplier(evolutionRef.current?.correct_time ?? 0, evolutionRef.current?.seasonCarry?.correct_time ?? 0);
     const baseXp = scoreToShow * 0.03;
-    const gainedExp = Math.floor(baseXp * epMult * xpMultiplier * correctTimeMult);
+    const gainedExp = Math.floor(baseXp * epMult * xpMultiplier * correctTimeMult * staminaXpMult);
     const baseScoreWithoutGrowth = rank != null ? scoreWithoutGrowthRef.current + finalBonusGo : scoreToShow;
-    const xpWithoutGrowth = Math.floor(baseScoreWithoutGrowth * 0.03 * epMult * xpMultiplier * correctTimeMult);
+    const xpWithoutGrowth = Math.floor(baseScoreWithoutGrowth * 0.03 * epMult * xpMultiplier * correctTimeMult * staminaXpMult);
     const xpBreakdown = { baseXp, epMult, xpMultiplier, correctTimeMult, gainedExp, xpWithoutGrowth: rank != null ? xpWithoutGrowth : gainedExp };
     const shunRank: ShunRank = rank != null ? getShunRank(scoreToShow, maxComboRef.current, correctRateForRank) : null;
     const playDurationSec = Math.floor(totalTimeMsRef.current / 1000);
@@ -2288,15 +2648,31 @@ function GameContent() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            onAnimationComplete={() => setBossWarningShown(true)}
-            className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center bg-red-950/80"
+            className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-red-950/90 px-4"
           >
-            <span className="text-5xl font-black tracking-widest text-red-400 drop-shadow-[0_0_24px_rgba(248,113,113,0.9)]">
+            <span className="text-4xl font-black tracking-widest text-red-400 drop-shadow-[0_0_24px_rgba(248,113,113,0.9)] sm:text-5xl">
               BOSS
             </span>
+            <p className="max-w-sm text-center text-sm text-red-200/90">
+              制限時間が短め。正解で延び・ミスで減。集中して挑戦！
+            </p>
+            <button
+              type="button"
+              onClick={() => setBossWarningShown(true)}
+              className="rounded-lg border-2 border-red-400 bg-red-500/20 px-6 py-3 font-bold text-red-100 hover:bg-red-500/30 active:opacity-90"
+            >
+              OK
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
+      {/* BOSS クリア後 1.5秒の誤タップ防止オーバーレイ */}
+      {postBossCooldown && (
+        <div className="pointer-events-auto fixed inset-0 z-30 flex flex-col items-center justify-center bg-zinc-950/80">
+          <p className="text-2xl font-bold text-amber-400">BOSS クリア!</p>
+          <p className="mt-2 text-sm text-zinc-400">まもなく次の問題へ</p>
+        </div>
+      )}
       {/* ネオンゲージ（画面上部） */}
       {rank && (
         <div className="shrink-0 px-4 pt-4">
@@ -2382,7 +2758,7 @@ function GameContent() {
                     type="button"
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleAnswer(current, i)}
-                    disabled={answered || stunned}
+                    disabled={answered || stunned || postBossCooldown}
                     className={`touch-target min-h-[48px] rounded-xl border-2 px-3 py-3 text-left text-sm font-medium transition-colors sm:min-h-[52px] sm:px-4 sm:py-4 sm:text-base ${
                       result === 'correct' && i === current.correctIndex
                         ? 'border-green-500 bg-green-500/20 text-green-400'

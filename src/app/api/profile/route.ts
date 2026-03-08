@@ -1,10 +1,16 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidReferrerCode } from '@/lib/firebase-admin';
+import { randomBytes } from 'crypto';
+import { isValidReferrerCodeOrAppAccount } from '@/lib/referrer-validate';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+/** en- で始まるアプリ内固有IDを生成（9文字英数字。Firestore users/{id} と被らないように） */
+function generateAccountId(): string {
+  return 'en-' + randomBytes(5).toString('hex').slice(0, 9);
+}
 
 /** GET: 自分のプロフィールを取得 */
 export async function GET() {
@@ -36,18 +42,21 @@ export async function GET() {
     return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
   }
 
-  const baseCols = 'username, current_toeic_score, target_toeic_score, next_exam_date, referrer_id';
-  const { data: profile, error } = await supabase
+  const baseCols = 'username, current_toeic_score, target_toeic_score, next_exam_date, referrer_id, account_id';
+  let profile: Record<string, unknown> | null = null;
+  let selectError: { message: string } | null = null;
+
+  const { data: profileData, error } = await supabase
     .from('profiles')
     .select(`${baseCols}, avatar_url`)
     .eq('user_id', user.id)
     .maybeSingle();
 
   if (error) {
-    if (/column.*(avatar_url|does not exist)/i.test(error.message)) {
+    if (/column.*(account_id|avatar_url|does not exist)/i.test(error.message)) {
       const fallback = await supabase
         .from('profiles')
-        .select(baseCols)
+        .select('username, current_toeic_score, target_toeic_score, next_exam_date, referrer_id, avatar_url')
         .eq('user_id', user.id)
         .maybeSingle();
       if (fallback.error) {
@@ -60,13 +69,33 @@ export async function GET() {
         target_toeic_score: p?.target_toeic_score ?? null,
         next_exam_date: p?.next_exam_date ?? null,
         referrer_id: p?.referrer_id ?? '',
-        avatar_url: '',
+        avatar_url: (typeof p?.avatar_url === 'string' ? p.avatar_url : '') || '',
+        account_id: '',
       });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const p = profile as Record<string, unknown> | null;
+  const p = profileData as Record<string, unknown> | null;
+  let accountId = (typeof p?.account_id === 'string' ? p.account_id : '') || '';
+
+  if (p && !accountId) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const newId = generateAccountId();
+      const { error: updateErr } = await supabase
+        .from('profiles')
+        .update({ account_id: newId, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id);
+      if (!updateErr) {
+        accountId = newId;
+        break;
+      }
+      if (updateErr.code !== '23505') {
+        break;
+      }
+    }
+  }
+
   return NextResponse.json({
     username: p?.username ?? '',
     current_toeic_score: p?.current_toeic_score ?? null,
@@ -74,6 +103,7 @@ export async function GET() {
     next_exam_date: p?.next_exam_date ?? null,
     referrer_id: p?.referrer_id ?? '',
     avatar_url: (typeof p?.avatar_url === 'string' ? p.avatar_url : '') || '',
+    account_id: accountId,
   });
 }
 
@@ -131,11 +161,23 @@ export async function POST(req: NextRequest) {
   if (next_exam_date !== undefined) row.next_exam_date = next_exam_date || null;
   if (closer_id !== undefined) row.closer_id = closer_id || null;
 
-  // 紹介者コード: 空でなければ Firestore users/{code} の存在チェック。有効な場合のみ保存
+  // 紹介者コード: 空でなければ Firestore users/{code} または アプリ内 account_id (en-xxxxx) の存在チェック。自分のIDは不可。
   if (referrer_id !== undefined) {
     const code = typeof referrer_id === 'string' ? referrer_id.trim() : '';
     if (code !== '') {
-      const valid = await isValidReferrerCode(code);
+      const { data: myProfile } = await supabase
+        .from('profiles')
+        .select('account_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const myAccountId = (myProfile as { account_id?: string } | null)?.account_id ?? '';
+      if (myAccountId && code === myAccountId) {
+        return NextResponse.json(
+          { error: '自分の紹介者IDは入力できません。' },
+          { status: 400 }
+        );
+      }
+      const valid = await isValidReferrerCodeOrAppAccount(code);
       if (!valid) {
         return NextResponse.json(
           { error: '無効な紹介者コードです。' },

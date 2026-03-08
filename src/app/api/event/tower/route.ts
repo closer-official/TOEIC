@@ -1,19 +1,20 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEvent, getCurrentWeekIndex, getCurrentWeekRange } from '@/lib/weekly-events';
 import { getTowerClimate, TOWER_CLIMATES, towerCostG, towerRiskSuccessPct, towerVipCostMultiplier, towerRiskSuccessBonus } from '@/lib/tower-event';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
-/** GET: タワー状態・気候・現在階のゴーストXP */
-export async function GET() {
+/** GET: タワー状態・気候・現在階のゴーストXP。?preview=1 で今週でなくても表示可 */
+export async function GET(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
+    const isPreview = req.nextUrl.searchParams.get('preview') === '1' || req.nextUrl.searchParams.get('dev') === '1';
     const cookieStore = await cookies();
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
@@ -39,7 +40,7 @@ export async function GET() {
     }
 
     const current = getCurrentEvent();
-    if (current.id !== 'tower') {
+    if (current.id !== 'tower' && !isPreview) {
       return NextResponse.json({ error: '今週は摩天楼のタワーではありません' }, { status: 404 });
     }
 

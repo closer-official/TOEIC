@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { getGuildXpBoosterMultiplier } from '@/lib/guild-xp-booster';
 
 
 export const dynamic = 'force-dynamic';
@@ -61,7 +62,8 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    const guildReceived = Math.floor(amount * COMMON_TO_GUILD_RATE);
+    const boosterMult = await getGuildXpBoosterMultiplier(supabase, user.id);
+    const guildReceived = Math.floor(amount * COMMON_TO_GUILD_RATE * boosterMult);
     const newCommon = currentCommon - amount;
     const newGuild = currentGuild + guildReceived;
     const now = new Date().toISOString();

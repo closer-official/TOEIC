@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useHeaderStats } from '@/lib/header-stats-context';
+import { useOffline } from '@/lib/offline-context';
 
 const GOLD = '#C5A059';
 
@@ -98,9 +99,18 @@ function useRecoveryProgress(
 export function StaminaGauge() {
   const pathname = usePathname();
   const { stats, loading, refetch } = useHeaderStats();
+  const { isOffline, effectiveOfflineStamina, offlineMaxStamina, saveStaminaMeta } = useOffline();
+  const savedMetaRef = useRef(false);
   const nextRecoveryAt = stats?.nextRecoveryAt ?? null;
   const recoveryIntervalMs = stats?.recoveryIntervalMs ?? null;
   const recoveryProgress = useRecoveryProgress(nextRecoveryAt, recoveryIntervalMs);
+
+  useEffect(() => {
+    if (stats?.offlineMeta && !savedMetaRef.current) {
+      savedMetaRef.current = true;
+      saveStaminaMeta(stats.offlineMeta as Parameters<typeof saveStaminaMeta>[0]).catch(() => {});
+    }
+  }, [stats?.offlineMeta, saveStaminaMeta]);
 
   useEffect(() => {
     const onStaminaUpdated = () => refetch();
@@ -118,16 +128,16 @@ export function StaminaGauge() {
   }, [pathname, refetch]);
 
   if (stats == null && loading) return <div className="h-8 w-20 animate-pulse rounded bg-[#0a0a0a]" />;
-  const stamina = stats?.stamina ?? 0;
-  const maxStamina = stats?.maxStamina ?? 50;
+  const stamina = isOffline && effectiveOfflineStamina != null ? effectiveOfflineStamina : (stats?.stamina ?? 0);
+  const maxStamina = isOffline && offlineMaxStamina != null ? offlineMaxStamina : (stats?.maxStamina ?? 50);
 
   return (
     <div
       className="flex items-center gap-2"
-      title={`Stamina ${stamina}/${maxStamina}（時計1周で1回復）`}
-      aria-label={`Stamina ${stamina}/${maxStamina}`}
+      title={isOffline ? `Stamina ${stamina}/${maxStamina}（オフライン）` : `Stamina ${stamina}/${maxStamina}（時計1周で1回復）`}
+      aria-label={`Stamina ${stamina}/${maxStamina}${isOffline ? ' オフライン' : ''}`}
     >
-      <RecoveryClock progress={recoveryProgress} />
+      <RecoveryClock progress={isOffline ? 1 : recoveryProgress} />
       <div className="flex flex-col items-end">
         <span
           className="text-[10px] uppercase tracking-wider opacity-80"

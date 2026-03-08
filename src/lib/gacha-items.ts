@@ -67,6 +67,12 @@ export const GACHA_ITEMS: GachaItem[] = [
   { id: 'shun_secret', name: '瞬の極意', rarity: 'SR', baseRate: 0.67, effect: '最終スコア30%アップ ＋ コンボ倍率の加算値に +0.05 ボーナス。', effectValues: { final_score_pct: 30, combo_bonus_add: 0.05 } },
   { id: 'phoenix_feather', name: '不死鳥の羽根', rarity: 'SR', baseRate: 0.67, effect: 'タイムオーバーになっても一度だけ残り時間を5秒回復して復活する。', effectValues: { phoenix_revive_sec: 5 } },
   { id: 'crown', name: '知恵の王冠', rarity: 'SR', baseRate: 0.67, effect: '全ての問題が「RARE（難易度900）」以上の基礎点扱いになる。', effectValues: { crown_all_rare: 1 } },
+  // 進化用素材（ガチャでは排出しない。すごろくのかけら10個で変換）
+  { id: 'eternal_material', name: 'エターナル素材', rarity: 'SR', baseRate: 0, effect: 'レジェンダリー装備をエターナルに進化させる際に1個消費する。' },
+  // 1番くじ・すごろくなどで取得。進化でエターナル素材に変換（10個で1個）またはラストワン賞
+  { id: 'eternal_cross_fragment', name: 'エターナル・クロスの欠片', rarity: 'SR', baseRate: 0, effect: 'すごろくで10個集めるとエターナル素材1個に変換可能。1番くじのラストワン賞では欠片×3を獲得。' },
+  // 1番くじB+賞などで取得。その場で使用可能。ギルド所属時はギルド全体、未所属時は自分だけ30分間2倍
+  { id: 'xp_booster', name: 'XPブースター', rarity: 'SR', baseRate: 0, effect: '使うと30分間、獲得XPが2倍になる。ギルドに所属している場合はギルド全体、未所属の場合は自分にのみ有効。' },
 ];
 
 /** id → 効果説明（ショップの排出一覧用） */

@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
 
-export const dynamic = 'force-static';
-
-/** 品詞表記を除去（旧データ・global_vocabulary 混在対策。品詞は表示しない仕様） */
+/** 品詞表記を除去（表示統一用） */
 function stripPosForDisplay(s: string): string {
   if (!s || typeof s !== 'string') return s;
   let t = s.trim();
@@ -17,72 +15,46 @@ function stripPosForDisplay(s: string): string {
   return t;
 }
 
-function loadVocabFile(filePath: string): Array<{ word: string; meanings: string[] }> {
+/** vocab.json を読み込む（単語・品詞・意味・ダミー1〜5）。品詞は問題文「単語[品詞]」用にそのまま返す */
+function loadVocabJson(filePath: string): Array<{ word: string; pos?: string; meanings: string[]; dummies?: string[] }> {
   if (!existsSync(filePath)) return [];
   try {
     const raw = readFileSync(filePath, 'utf8');
     const parsed = JSON.parse(raw);
     const fromFile = Array.isArray(parsed) ? parsed : [];
-    return fromFile.map((e: { word?: string; meanings?: string[] }) => {
+    const result: Array<{ word: string; pos?: string; meanings: string[]; dummies?: string[] }> = [];
+    for (const e of fromFile as Array<{ word?: string; pos?: string; meaning?: string; dummies?: string[] }>) {
       const word = stripPosForDisplay(String(e?.word ?? '').trim());
-      const meanings = (Array.isArray(e?.meanings) ? e.meanings : []).map((m: unknown) => stripPosForDisplay(String(m ?? '').trim())).filter(Boolean);
-      return { word, meanings };
-    }).filter((e) => e.word.length > 0 && e.meanings.length > 0);
+      const meaning = stripPosForDisplay(String(e?.meaning ?? '').trim());
+      if (!word || !meaning) continue;
+      const pos = typeof e?.pos === 'string' ? e.pos.trim() : undefined;
+      const dummies = Array.isArray(e.dummies)
+        ? e.dummies.map((d: unknown) => stripPosForDisplay(String(d ?? '').trim())).filter(Boolean)
+        : [];
+      result.push({ word, pos: pos || undefined, meanings: [meaning], dummies: dummies.length >= 3 ? dummies : undefined });
+    }
+    return result;
   } catch {
     return [];
   }
 }
 
-/** NGSL + TSL を1リストにマージ（同一 word は meanings を結合・重複除去） */
-function mergeVocabLists(ngsl: Array<{ word: string; meanings: string[] }>, tsl: Array<{ word: string; meanings: string[] }>): Array<{ word: string; meanings: string[] }> {
-  const byWord = new Map<string, Set<string>>();
-  for (const e of ngsl) {
-    if (!byWord.has(e.word)) byWord.set(e.word, new Set());
-    e.meanings.forEach((m) => byWord.get(e.word)!.add(m));
-  }
-  for (const e of tsl) {
-    if (!byWord.has(e.word)) byWord.set(e.word, new Set());
-    e.meanings.forEach((m) => byWord.get(e.word)!.add(m));
-  }
-  return [...byWord.entries()].map(([word, set]) => ({ word, meanings: [...set] }));
-}
-
-/** 単語全国モード用デフォルト単語一覧（default-vocab.json = NGSL + tsl-vocab.json = TSL + 管理者追加の global_vocabulary） */
+/** 単語全国モード用。data/vocab.json のみ参照 */
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
     const dataDir = join(process.cwd(), 'data');
-    const ngsl = loadVocabFile(join(dataDir, 'default-vocab.json'));
-    const tsl = loadVocabFile(join(dataDir, 'tsl-vocab.json'));
-    let list = mergeVocabLists(ngsl, tsl);
-    if (list.length === 0 && ngsl.length === 0) {
-      console.warn('[vocab-default] default-vocab.json load failed or empty');
-    }
-
-    try {
-      const supabase = createServerSupabaseClient();
-      const { data: globalList } = await supabase
-        .from('global_vocabulary')
-        .select('word, meanings, pos');
-      if (globalList?.length) {
-        const fromDb = globalList.map((r) => {
-          const meanings = Array.isArray(r.meanings) ? r.meanings : [];
-          return {
-            word: stripPosForDisplay(String(r.word ?? '').trim()),
-            meanings: meanings.map((m: unknown) => stripPosForDisplay(String(m ?? '').trim())).filter(Boolean),
-          };
-        }).filter((r) => r.word.length > 0 && r.meanings.length > 0);
-        list = mergeVocabLists(list, fromDb);
-      }
-    } catch {
-      // global_vocabulary テーブルが未作成の場合はスキップ
-    }
+    const list = loadVocabJson(join(dataDir, 'vocab.json'));
     if (list.length === 0) {
-      console.warn('[vocab-default] vocabulary list is empty');
+      console.warn('[vocab-default] vocab.json is empty or missing. Run: npm run vocab:import');
     }
-    return NextResponse.json(list);
+    const version = `${list.length}`;
+    return NextResponse.json({ list, version });
   } catch (err) {
     console.error('[vocab-default] Failed:', err instanceof Error ? err.message : err);
-    return NextResponse.json([]);
+    return NextResponse.json(
+      { error: '単語リストの読み込みに失敗しました', code: 'vocab_load_failed' },
+      { status: 503 }
+    );
   }
 }

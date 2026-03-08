@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AppHeader } from '@/components/AppHeader';
 import { BottomNav } from '@/components/BottomNav';
@@ -24,7 +25,9 @@ type TowerState = {
   riskSuccessPct: number;
 };
 
-export default function TowerEventPage() {
+function TowerEventContent() {
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get('preview') === '1' || searchParams.get('dev') === '1';
   const [state, setState] = useState<TowerState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +40,8 @@ export default function TowerEventPage() {
   const [shopLoading, setShopLoading] = useState<string | null>(null);
 
   const fetchState = useCallback(async () => {
-    const res = await fetch('/api/event/tower', { credentials: 'include' });
+    const url = isPreview ? '/api/event/tower?preview=1' : '/api/event/tower';
+    const res = await fetch(url, { credentials: 'include' });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
       setError(j.error ?? '状態の取得に失敗しました');
@@ -47,7 +51,7 @@ export default function TowerEventPage() {
     const data = await res.json();
     setState(data);
     setError(null);
-  }, []);
+  }, [isPreview]);
 
   useEffect(() => {
     setLoading(true);
@@ -79,6 +83,7 @@ export default function TowerEventPage() {
           useGoldenOil: elevator === 'risk' ? useGoldenOil : false,
           useShockMat: elevator === 'risk' ? useShockMat : false,
           useMasterKey: elevator === 'vip' ? useMasterKey : false,
+          ...(isPreview ? { preview: true } : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -114,7 +119,7 @@ export default function TowerEventPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ itemId }),
+        body: JSON.stringify({ itemId, ...(isPreview ? { preview: true } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -140,7 +145,7 @@ export default function TowerEventPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen min-h-[100dvh] flex-col bg-black">
-        <AppHeader backHref="/event" />
+        <AppHeader backHref={isPreview ? '/event?preview=1' : '/event'} />
         <div className="flex flex-1 flex-col items-center justify-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--gold)]/70 border-t-transparent" />
           <LoadingWithPercent className="text-zinc-400" />
@@ -153,12 +158,14 @@ export default function TowerEventPage() {
   if (error && !state) {
     return (
       <div className="flex min-h-screen min-h-[100dvh] flex-col bg-black">
-        <AppHeader backHref="/event" />
-        <main className="min-h-0 flex-1 overflow-y-auto px-4 content-below-header safe-area-pad" style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}>
-          <p className="mt-8 text-center text-zinc-400">{error}</p>
-          <p className="mt-4 text-center">
-            <Link href="/event" className="text-sm text-gold hover:text-gold-bright">← イベント一覧へ</Link>
-          </p>
+        <AppHeader backHref={isPreview ? '/event?preview=1' : '/event'} />
+        <main className="min-h-0 flex-1 overflow-y-auto content-below-header safe-area-pad px-4 sm:px-6">
+          <div className="mx-auto max-w-2xl pt-4">
+            <div className="rounded-2xl border border-red-800/50 bg-red-950/30 px-5 py-4">
+              <p className="text-sm text-red-200">{error}</p>
+              <Link href={isPreview ? '/event?preview=1' : '/event'} className="mt-3 inline-block text-sm font-medium text-gold hover:text-gold-bright">← イベント一覧へ</Link>
+            </div>
+          </div>
         </main>
         <BottomNav />
       </div>
@@ -166,179 +173,211 @@ export default function TowerEventPage() {
   }
 
   const s = state!;
+  const tickerText = `【摩天楼のタワー】三択エレベーターで階層を登れ　VIP・リスク・テクニカル　タワーショップでアイテム購入　`;
 
   return (
-    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-black">
-      <AppHeader backHref="/event" />
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-black tower-bg">
+      <AppHeader backHref={isPreview ? '/event?preview=1' : '/event'} />
+
+      <div className="event-ticker-wrap">
+        <div className="event-ticker-track">
+          <span>{tickerText.repeat(4)}</span>
+        </div>
+      </div>
+
       <main
-        className="min-h-0 flex-1 overflow-y-auto px-4 content-below-header safe-area-pad sm:px-6"
+        className="min-h-0 flex-1 overflow-y-auto content-below-header safe-area-pad"
         style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
       >
-        <h1 className="text-xl font-bold text-white">摩天楼のタワー</h1>
-        <p className="mt-1 text-sm text-zinc-500">三択のエレベーターで階層を登ろう</p>
+        <div className="flex gap-0 px-3 sm:px-4 max-w-2xl mx-auto">
+          {/* 左: 階スケール（sticky） */}
+          <div className="tower-floor-scale shrink-0 hidden sm:block">
+            <span className="tower-floor-scale-label">階</span>
+            <span className="tower-floor-scale-value">{s.currentFloor}</span>
+            <span className="text-xs text-zinc-500 mt-0.5">F</span>
+          </div>
 
-        {error && (
-          <div className="mt-3 rounded-lg border border-red-800 bg-red-900/30 px-3 py-2 text-sm text-red-200">
-            {error}
-          </div>
-        )}
+          <div className="flex-1 min-w-0 py-4">
+            <header className="pb-3">
+              <h1 className="event-title-wrap text-xl font-bold tracking-tight sm:text-2xl">
+                <span className="event-title-gold">摩天楼のタワー</span>
+              </h1>
+              <p className="mt-0.5 text-xs text-zinc-500">三択のエレベーターで階層を登ろう</p>
+            </header>
 
-        {/* 状態 */}
-        <section className="mt-4 rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <div>
-              <p className="text-xs text-zinc-500">現在階</p>
-              <p className="text-2xl font-bold text-gold">{s.currentFloor} F</p>
+            {/* 状態バー（階・XP・チップ） */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="rounded-full bg-slate-800/80 border border-slate-600/60 px-3 py-1.5 text-xs font-semibold text-gold">
+                {s.currentFloor} F
+              </span>
+              <span className="rounded-full bg-slate-800/80 border border-slate-600/60 px-3 py-1.5 text-xs text-slate-300">
+                階層XP <span className="font-semibold text-white">{s.floorXp}</span>
+              </span>
+              <span className="rounded-full bg-slate-800/80 border border-slate-600/60 px-3 py-1.5 text-xs text-gold">
+                チップ <span className="font-semibold">{s.gems}</span>
+              </span>
+              {s.goldenOilActive && <span className="rounded-full bg-amber-900/50 px-3 py-1 text-xs font-medium text-amber-200">黄金オイル</span>}
+              {s.shockMatCount > 0 && <span className="rounded-full bg-slate-600 px-3 py-1 text-xs text-slate-200">衝撃吸収×{s.shockMatCount}</span>}
+              {s.masterKeyFloorsLeft > 0 && <span className="rounded-full bg-purple-900/50 px-3 py-1 text-xs font-medium text-purple-200">マスターキー{s.masterKeyFloorsLeft}</span>}
             </div>
-            <div>
-              <p className="text-xs text-zinc-500">階層XP</p>
-              <p className="text-lg font-medium text-white">{s.floorXp}</p>
-            </div>
-            <div>
-              <p className="text-xs text-zinc-500">チップ</p>
-              <p className="text-lg font-medium text-gold">{s.gems}</p>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs">
-            {s.goldenOilActive && <span className="rounded bg-amber-900/50 px-2 py-0.5 text-amber-200">黄金のオイル効果中</span>}
-            {s.shockMatCount > 0 && <span className="rounded bg-zinc-700 px-2 py-0.5 text-zinc-300">衝撃吸収×{s.shockMatCount}</span>}
-            {s.masterKeyFloorsLeft > 0 && <span className="rounded bg-purple-900/50 px-2 py-0.5 text-purple-200">マスターキー残り{s.masterKeyFloorsLeft}階</span>}
-          </div>
-          <div className="mt-3 rounded-lg bg-zinc-800/80 px-3 py-2">
-            <p className="text-sm font-medium text-zinc-300">塔の気候: {s.climate.name}</p>
-            <p className="text-xs text-zinc-500">{s.climate.effect}</p>
-            <p className="text-xs text-zinc-600 mt-1">次回変化: {new Date(s.climateNextChangeMs).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</p>
-          </div>
-          {s.ghostXpAtFloor > 0 && (
-            <p className="mt-2 text-sm text-amber-300">👻 この階に遺失XP {s.ghostXpAtFloor} あり（上昇で回収）</p>
-          )}
-        </section>
 
-        {/* 乗車結果 */}
-        {lastResult && (
-          <div
-            className={`mt-4 rounded-xl border px-4 py-3 ${
-              lastResult.success ? 'border-emerald-800 bg-emerald-900/30 text-emerald-200' : 'border-amber-800 bg-amber-900/30 text-amber-200'
-            }`}
-          >
-            <p className="font-medium">{lastResult.message}</p>
-            {lastResult.ghostCollected != null && lastResult.ghostCollected > 0 && (
-              <p className="mt-1 text-sm">遺失XP +{lastResult.ghostCollected} 回収</p>
+            <div className="rounded-xl border border-slate-600/50 bg-slate-900/60 px-4 py-3 mb-4">
+              <p className="text-sm font-semibold text-slate-200">塔の気候: {s.climate.name}</p>
+              <p className="mt-0.5 text-xs text-slate-400">{s.climate.effect}</p>
+              <p className="mt-1 text-xs text-slate-500">次回: {new Date(s.climateNextChangeMs).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</p>
+              {s.ghostXpAtFloor > 0 && (
+                <p className="mt-2 text-xs text-amber-300">👻 遺失XP {s.ghostXpAtFloor}（上昇で回収）</p>
+              )}
+            </div>
+
+            {error && (
+              <div className="mb-4 rounded-xl border border-red-800/50 bg-red-950/30 px-4 py-3 text-sm text-red-200">
+                {error}
+              </div>
             )}
+
+            {/* 乗車結果（上昇/落下フィードバック） */}
+            {lastResult && (
+              <div
+                className={`mb-4 rounded-xl border px-4 py-3 ${
+                  lastResult.success ? 'border-emerald-700/50 bg-emerald-900/30 text-emerald-200 tower-rise-feedback' : 'border-amber-700/50 bg-amber-900/30 text-amber-200 tower-fall-feedback'
+                }`}
+              >
+                <p className="font-medium">{lastResult.message}</p>
+                {lastResult.ghostCollected != null && lastResult.ghostCollected > 0 && (
+                  <p className="mt-1 text-sm opacity-90">遺失XP +{lastResult.ghostCollected} 回収</p>
+                )}
+              </div>
+            )}
+
+            {/* 三択エレベーター（縦に並ぶ＝登る選択） */}
+            <h2 className="text-sm font-semibold text-slate-300 mb-3">エレベーターを選択 — 階を登れ</h2>
+            <div className="space-y-4">
+              {/* VIP */}
+              <div className={`tower-elevator-card tower-elevator-vip`}>
+                <p className="font-semibold text-white">{TOWER_ELEVATORS.vip.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{TOWER_ELEVATORS.vip.failPenalty}</p>
+                <p className="mt-2 text-gold font-semibold">{s.costVipClimate} チップ</p>
+                {s.masterKeyFloorsLeft > 0 && (
+                  <label className="mt-2 flex items-center gap-2 text-sm text-slate-300">
+                    <input type="checkbox" checked={useMasterKey} onChange={(e) => setUseMasterKey(e.target.checked)} className="rounded" />
+                    マスターキー（30%オフ → {Math.floor(s.costVipClimate * 0.7)}）
+                  </label>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRide('vip')}
+                  disabled={rideLoading || s.gems < (useMasterKey && s.masterKeyFloorsLeft > 0 ? Math.floor(s.costVipClimate * 0.7) : s.costVipClimate)}
+                  className="event-btn-primary-sm mt-3 w-full text-black"
+                >
+                  {rideLoading ? '処理中...' : '乗る'}
+                </button>
+              </div>
+
+              {/* Risk */}
+              <div className="tower-elevator-card tower-elevator-risk">
+                <p className="font-semibold text-white">{TOWER_ELEVATORS.risk.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">成功率 {s.riskSuccessPct}% · 失敗時 {TOWER_ELEVATORS.risk.failPenalty}</p>
+                <p className="mt-2 text-amber-400 font-semibold">{s.costRisk} チップ</p>
+                {s.goldenOilActive && (
+                  <label className="mt-2 flex items-center gap-2 text-sm text-slate-300">
+                    <input type="checkbox" checked={useGoldenOil} onChange={(e) => setUseGoldenOil(e.target.checked)} className="rounded" />
+                    黄金のオイル（+20%）
+                  </label>
+                )}
+                {s.shockMatCount > 0 && (
+                  <label className="mt-1 flex items-center gap-2 text-sm text-slate-300">
+                    <input type="checkbox" checked={useShockMat} onChange={(e) => setUseShockMat(e.target.checked)} className="rounded" />
+                    衝撃吸収マット
+                  </label>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRide('risk')}
+                  disabled={rideLoading || s.gems < s.costRisk}
+                  className="event-btn-primary-sm mt-3 w-full text-black"
+                >
+                  {rideLoading ? '処理中...' : '乗る'}
+                </button>
+              </div>
+
+              {/* Technical */}
+              <div className="tower-elevator-card tower-elevator-technical">
+                <p className="font-semibold text-white">{TOWER_ELEVATORS.technical.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">成功率 30% · 失敗時 {TOWER_ELEVATORS.technical.failPenalty}</p>
+                <p className="mt-2 text-slate-300 font-semibold">{s.costTechnical} チップ</p>
+                <button
+                  type="button"
+                  onClick={() => handleRide('technical')}
+                  disabled={rideLoading || s.gems < s.costTechnical}
+                  className="event-btn-primary-sm mt-3 w-full text-black"
+                >
+                  {rideLoading ? '処理中...' : '乗る'}
+                </button>
+              </div>
+            </div>
+
+            {/* ショップ */}
+            <section className="event-section mt-6 p-4">
+              <button
+                type="button"
+                onClick={() => setShopOpen((o) => !o)}
+                className="flex w-full items-center justify-between text-left font-medium text-white"
+              >
+                タワーショップ（時価）
+                <span className="text-zinc-500">{shopOpen ? '▲' : '▼'}</span>
+              </button>
+              {shopOpen && (
+                <div className="mt-3 space-y-2">
+                  {(Object.keys(TOWER_ITEMS) as (keyof typeof TOWER_ITEMS)[]).map((id) => {
+                    const item = TOWER_ITEMS[id];
+                    return (
+                      <div key={id} className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-2">
+                        <div>
+                          <p className="text-sm font-medium text-white">{item.name}</p>
+                          <p className="text-xs text-zinc-500">{item.effect}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleBuy(id)}
+                          disabled={shopLoading !== null || s.gems < item.price}
+                          className="shrink-0 rounded-lg border border-gold-subtle bg-[var(--gold)]/20 px-3 py-1.5 text-sm text-gold disabled:opacity-50"
+                        >
+                          {shopLoading === id ? '購入中...' : `${item.price} チップ`}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            <p className="mt-8 text-center">
+              <Link href={isPreview ? '/event?preview=1' : '/event'} className="text-sm text-gold hover:text-gold-bright">
+                ← イベント一覧へ
+              </Link>
+            </p>
           </div>
-        )}
-
-        {/* 三択エレベーター */}
-        <section className="mt-4">
-          <h2 className="text-sm font-medium text-zinc-400">エレベーターを選択</h2>
-          <div className="mt-2 space-y-3">
-            {/* VIP */}
-            <div className="rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
-              <p className="font-medium text-white">{TOWER_ELEVATORS.vip.name}</p>
-              <p className="text-xs text-zinc-500">{TOWER_ELEVATORS.vip.failPenalty}</p>
-              <p className="mt-1 text-gold">{s.costVipClimate} チップ</p>
-              {s.masterKeyFloorsLeft > 0 && (
-                <label className="mt-2 flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={useMasterKey} onChange={(e) => setUseMasterKey(e.target.checked)} className="rounded" />
-                  マスターキー使用（30%オフ → {Math.floor(s.costVipClimate * 0.7)}チップ）
-                </label>
-              )}
-              <button
-                type="button"
-                onClick={() => handleRide('vip')}
-                disabled={rideLoading || s.gems < (useMasterKey && s.masterKeyFloorsLeft > 0 ? Math.floor(s.costVipClimate * 0.7) : s.costVipClimate)}
-                className="mt-3 w-full rounded-lg border border-gold-subtle bg-[var(--gold)]/20 py-2 text-sm font-medium text-gold disabled:opacity-50"
-              >
-                {rideLoading ? '処理中...' : '乗る'}
-              </button>
-            </div>
-
-            {/* Risk */}
-            <div className="rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
-              <p className="font-medium text-white">{TOWER_ELEVATORS.risk.name}</p>
-              <p className="text-xs text-zinc-500">成功率 {s.riskSuccessPct}% · 失敗時 {TOWER_ELEVATORS.risk.failPenalty}</p>
-              <p className="mt-1 text-gold">{s.costRisk} チップ</p>
-              {s.goldenOilActive && (
-                <label className="mt-2 flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={useGoldenOil} onChange={(e) => setUseGoldenOil(e.target.checked)} className="rounded" />
-                  黄金のオイル使用（+20%）
-                </label>
-              )}
-              {s.shockMatCount > 0 && (
-                <label className="mt-1 flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={useShockMat} onChange={(e) => setUseShockMat(e.target.checked)} className="rounded" />
-                  衝撃吸収マット使用（落下1階軽減）
-                </label>
-              )}
-              <button
-                type="button"
-                onClick={() => handleRide('risk')}
-                disabled={rideLoading || s.gems < s.costRisk}
-                className="mt-3 w-full rounded-lg border border-amber-700 bg-amber-900/30 py-2 text-sm font-medium text-amber-200 disabled:opacity-50"
-              >
-                {rideLoading ? '処理中...' : '乗る'}
-              </button>
-            </div>
-
-            {/* Technical */}
-            <div className="rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
-              <p className="font-medium text-white">{TOWER_ELEVATORS.technical.name}</p>
-              <p className="text-xs text-zinc-500">成功率 30% · 失敗時 {TOWER_ELEVATORS.technical.failPenalty}</p>
-              <p className="mt-1 text-gold">{s.costTechnical} チップ</p>
-              <button
-                type="button"
-                onClick={() => handleRide('technical')}
-                disabled={rideLoading || s.gems < s.costTechnical}
-                className="mt-3 w-full rounded-lg border border-zinc-600 bg-zinc-800 py-2 text-sm font-medium text-zinc-300 disabled:opacity-50"
-              >
-                {rideLoading ? '処理中...' : '乗る'}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ショップ */}
-        <section className="mt-6 rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
-          <button
-            type="button"
-            onClick={() => setShopOpen((o) => !o)}
-            className="flex w-full items-center justify-between text-left font-medium text-white"
-          >
-            タワーショップ（時価）
-            <span className="text-zinc-500">{shopOpen ? '▲' : '▼'}</span>
-          </button>
-          {shopOpen && (
-            <div className="mt-3 space-y-2">
-              {(Object.keys(TOWER_ITEMS) as (keyof typeof TOWER_ITEMS)[]).map((id) => {
-                const item = TOWER_ITEMS[id];
-                return (
-                  <div key={id} className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-2">
-                    <div>
-                      <p className="text-sm font-medium text-white">{item.name}</p>
-                      <p className="text-xs text-zinc-500">{item.effect}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleBuy(id)}
-                      disabled={shopLoading !== null || s.gems < item.price}
-                      className="shrink-0 rounded-lg border border-gold-subtle bg-[var(--gold)]/20 px-3 py-1.5 text-sm text-gold disabled:opacity-50"
-                    >
-                      {shopLoading === id ? '購入中...' : `${item.price} チップ`}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        <p className="mt-8 text-center">
-          <Link href="/event" className="text-sm text-gold hover:text-gold-bright">
-            ← イベント一覧へ
-          </Link>
-        </p>
+        </div>
       </main>
       <BottomNav />
     </div>
+  );
+}
+
+export default function TowerEventPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen min-h-[100dvh] flex-col bg-black">
+        <AppHeader backHref="/event" />
+        <div className="flex flex-1 flex-col items-center justify-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--gold)]/70 border-t-transparent" />
+          <LoadingWithPercent className="text-zinc-400" />
+        </div>
+        <BottomNav />
+      </div>
+    }>
+      <TowerEventContent />
+    </Suspense>
   );
 }

@@ -13,7 +13,7 @@ import {
 } from '@/lib/tower-event';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }
 
-    if (getCurrentEvent().id !== 'tower') {
+    const body = await req.json().catch(() => ({}));
+    const isPreview = body?.preview === true;
+    if (getCurrentEvent().id !== 'tower' && !isPreview) {
       return NextResponse.json({ error: '今週は摩天楼のタワーではありません' }, { status: 404 });
     }
 
@@ -58,7 +60,6 @@ export async function POST(req: NextRequest) {
     const { start } = getCurrentWeekRange();
     const { climate } = getTowerClimate(start.getTime());
 
-    const body = await req.json().catch(() => ({}));
     const elevator = (['vip', 'risk', 'technical'] as const).includes(body?.elevator)
       ? (body.elevator as TowerElevatorId)
       : null;

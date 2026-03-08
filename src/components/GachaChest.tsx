@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { GachaItem } from '@/lib/gacha-items';
 
@@ -27,31 +26,6 @@ function rarityResultClass(rarity: string): string {
     default:
       return 'text-zinc-500';
   }
-}
-
-/** アイテム/装備画像。未配置時は ? にフォールバック */
-function ItemImage({ id, size = 256, className = '', base = '/gacha' }: { id: string; size?: number; className?: string; base?: string }) {
-  const [imgError, setImgError] = useState(false);
-  if (imgError) {
-    return (
-      <div
-        className={`flex items-center justify-center rounded-lg bg-zinc-700/80 text-4xl font-bold text-amber-400 ${className}`}
-        style={{ width: size, height: size }}
-      >
-        ?
-      </div>
-    );
-  }
-  return (
-    <Image
-      src={`${base}/${id}.png`}
-      alt=""
-      width={size}
-      height={size}
-      className={`object-contain ${className}`}
-      onError={() => setImgError(true)}
-    />
-  );
 }
 
 type Props = {
@@ -173,8 +147,8 @@ export function GachaChest({ onPull, disabled, label, cost, rateMultiplier = 1, 
                     <p className="text-[10px] text-amber-700/90 mb-1">アイテム</p>
                     <h3 className="border-b border-amber-800/50 pb-1 font-serif text-sm font-bold text-amber-100">{result.item.name}</h3>
                     <p className="text-[10px] text-amber-700/90">{result.item.rarity ?? ''}</p>
-                    <div className="my-2 flex justify-center">
-                      <ItemImage id={result.item.id} size={100} className="rounded" base="/gacha" />
+                    <div className="my-2 flex h-16 w-full items-center justify-center rounded bg-zinc-700/80">
+                      <span className="text-sm font-medium text-white">{result.item.name}</span>
                     </div>
                     <div className="rounded border border-amber-800/30 bg-amber-950/50 p-2 mb-3">
                       <p className="text-[10px] font-medium text-amber-800/90">効果</p>
@@ -218,7 +192,6 @@ export function GachaChest({ onPull, disabled, label, cost, rateMultiplier = 1, 
                   {result.item && (
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-[9px] text-zinc-500">アイテム</span>
-                      <ItemImage id={result.item.id} size={80} className="rounded-lg" base="/gacha" />
                       <span className="text-center text-xs font-bold text-white">{result.item.name}</span>
                       <span className={`text-[10px] ${rarityResultClass(result.item.rarity ?? '')}`}>{result.item.rarity}</span>
                     </div>

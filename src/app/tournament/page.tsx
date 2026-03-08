@@ -24,17 +24,24 @@ type RankingEntry = {
   total_score: number;
 };
 
-/** 大会初回開催日（3/15）0:00 JST。以降は毎週日曜開催 */
-const FIRST_TOURNAMENT_DATE = new Date('2025-03-15T00:00:00+09:00');
+/** 今日（JST）の 12:00 JST の Date。12:00 JST = その日の 03:00 UTC */
+function getToday1200JST(): Date {
+  const now = Date.now();
+  const jst = new Date(now + 9 * 60 * 60 * 1000);
+  return new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate(), 3, 0, 0, 0));
+}
 
-/** 次回の大会開催日（日曜 0:00 JST）を返す */
+/** 次回の大会開始日時（初回は今日 12:00 JST、以降は毎週日曜 12:00 JST）を返す。12:00 JST = 03:00 UTC */
 function getNextTournamentAt(): Date {
   const now = Date.now();
-  let d = new Date(FIRST_TOURNAMENT_DATE.getTime());
-  while (d.getTime() <= now) {
-    d.setTime(d.getTime() + 7 * 24 * 60 * 60 * 1000);
-  }
-  return d;
+  const today1200 = getToday1200JST();
+  if (now < today1200.getTime()) return today1200;
+  const d = new Date(now);
+  const utcDay = d.getUTCDay();
+  const nextSun0300 = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + (7 - utcDay) % 7, 3, 0, 0, 0));
+  if (now < nextSun0300.getTime()) return nextSun0300;
+  nextSun0300.setUTCDate(nextSun0300.getUTCDate() + 7);
+  return nextSun0300;
 }
 
 function pad(n: number) {
@@ -239,9 +246,9 @@ export default function TournamentPage() {
                   <span className="flex items-center text-zinc-500">:</span>
                   <span className="rounded-lg bg-zinc-800 px-3 py-2">{pad(rem.seconds)}</span>
                 </div>
-                <p className="text-xs text-zinc-500">毎週日曜 12:00〜23:00 JST（初回は3/15）</p>
+                <p className="text-xs text-zinc-500">毎週日曜 12:00〜23:00 JST（初回は今日 12:00〜）</p>
                 <p className="text-xs text-zinc-500">
-                  次回: {nextAt.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
+                  次回: {nextAt.toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
                 </p>
                 <button
                   type="button"

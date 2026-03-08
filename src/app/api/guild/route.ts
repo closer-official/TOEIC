@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -143,8 +143,26 @@ export async function GET(req: NextRequest) {
       .select('user_id, role, donated_xp, questions_this_week, joined_at')
       .eq('guild_id', guild.id);
 
+    const memberList = members ?? [];
+    const userIds = [...new Set(memberList.map((m: { user_id: string }) => m.user_id))];
+    let usernames: Record<string, string> = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username')
+        .in('user_id', userIds);
+      for (const p of profiles ?? []) {
+        const row = p as { user_id: string; username: string | null };
+        usernames[row.user_id] = (row.username?.trim() || `ID:${row.user_id.slice(0, 8)}`);
+      }
+    }
+    const membersWithUsername = memberList.map((m: { user_id: string; role: string; donated_xp: number; questions_this_week: number; joined_at: string }) => ({
+      ...m,
+      username: usernames[m.user_id] ?? `ID:${m.user_id.slice(0, 8)}`,
+    }));
+
     const role = (membership as { role: string }).role;
-    const guildOut = { ...guild, memberCount: (members ?? []).length };
+    const guildOut = { ...guild, memberCount: memberList.length };
     if (role !== 'leader' && guildOut.invite_code != null) {
       delete (guildOut as Record<string, unknown>).invite_code;
     }
@@ -159,7 +177,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       guild: guildOut,
       membership,
-      members: members ?? [],
+      members: membersWithUsername,
       userGuildXp,
     });
   } catch (err) {

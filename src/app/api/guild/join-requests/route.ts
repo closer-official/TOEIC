@@ -72,7 +72,25 @@ export async function GET() {
       return NextResponse.json({ error: listErr.message }, { status: 500 });
     }
 
-    return NextResponse.json({ requests: requests ?? [] });
+    const list = requests ?? [];
+    const userIds = [...new Set(list.map((r: { user_id: string }) => r.user_id))];
+    let usernames: Record<string, string> = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username')
+        .in('user_id', userIds);
+      for (const p of profiles ?? []) {
+        const row = p as { user_id: string; username: string | null };
+        usernames[row.user_id] = (row.username?.trim() || `ID:${row.user_id.slice(0, 8)}`);
+      }
+    }
+    const withUsername = list.map((r: { id: string; user_id: string; status: string; created_at: string }) => ({
+      ...r,
+      username: usernames[r.user_id] ?? `ID:${r.user_id.slice(0, 8)}`,
+    }));
+
+    return NextResponse.json({ requests: withUsername });
   } catch (err) {
     console.error('[guild join-requests] GET error:', err);
     return NextResponse.json({ error: 'サーバーエラー' }, { status: 500 });

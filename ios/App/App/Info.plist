@@ -45,5 +45,18 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>OAuth callback</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.toeic-sigma.shun</string>
+			</array>
+			<key>CFBundleURLRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
 </dict>
 </plist>

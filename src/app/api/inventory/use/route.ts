@@ -63,6 +63,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'アイテムが見つかりません' }, { status: 400 });
     }
 
+    // XPブースター：その場で使用可能。ギルド所属時はギルド全体、未所属時は自分だけ30分間2倍
+    if (item_id === 'xp_booster') {
+      const endsAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+      const { data: member } = await supabase
+        .from('guild_members')
+        .select('guild_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (member?.guild_id) {
+        const { error: guildErr } = await supabase
+          .from('guilds')
+          .update({ xp_booster_ends_at: endsAt, updated_at: endsAt })
+          .eq('id', (member as { guild_id: string }).guild_id);
+        if (guildErr) {
+          console.error('[inventory use] xp_booster guild update', guildErr.message);
+        }
+      }
+      const { error: profileErr } = await supabase
+        .from('profiles')
+        .update({ xp_booster_ends_at: endsAt, updated_at: endsAt })
+        .eq('user_id', user.id);
+      if (profileErr) {
+        if (/xp_booster_ends_at|column.*does not exist/i.test(profileErr.message)) {
+          console.warn('[inventory use] profiles.xp_booster_ends_at not yet migrated');
+        } else {
+          console.error('[inventory use] xp_booster profile update', profileErr.message);
+          return NextResponse.json({ error: '適用に失敗しました' }, { status: 500 });
+        }
+      }
+    }
+
     const q = row.quantity ?? 0;
     if (q === 1) {
       await supabase.from('user_inventory').delete().eq('id', row.id);

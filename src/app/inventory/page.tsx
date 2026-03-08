@@ -12,6 +12,7 @@ import {
   GACHA_EQUIPMENT,
   nextEquipmentGrade,
   costForEquipmentLevel,
+  costForEquipmentEvolve,
   equipmentEffectMultiplier,
   timeDecayRateMultiplier,
   formatEffectDescription,
@@ -60,6 +61,9 @@ function useSeasonCountdown(seasonEndIso: string | undefined) {
 const GACHA_IMAGE_BASE = '/gacha';
 /** 装備の本: 最大20種類（4部位×5種類）。同一装備は1種類1エントリにまとめる */
 const MAX_EQUIPMENT_BOOK_KINDS = 20;
+
+/** アイテムの本に表示するイベント獲得アイテム（1番くじ等） */
+const EVENT_BOOK_ITEM_IDS = ['eternal_cross_fragment', 'xp_booster'] as const;
 
 const SLOT_ORDER = ['weapon', 'head', 'torso', 'feet'] as const;
 const SLOT_LABELS: Record<string, string> = { weapon: '武器', head: '頭', torso: '胴体', feet: '足' };
@@ -181,7 +185,8 @@ type EquippedSlot = {
 
 export default function InventoryPage() {
   const [mainTab, setMainTab] = useState<'inventory' | 'evolution'>('inventory');
-  const [tab, setTab] = useState<'items' | 'equipment'>('equipment');
+  /** 装備の本 | アイテムの本 */
+  const [bookTab, setBookTab] = useState<'equipment' | 'eventItems'>('equipment');
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [equipment, setEquipment] = useState<EquipmentStack[]>([]);
   const [equipped, setEquipped] = useState<Record<string, EquippedSlot>>({});
@@ -216,6 +221,23 @@ export default function InventoryPage() {
     () => getEquipmentListForBook(equipment, equipped),
     [equipment, equipped]
   );
+
+  /** アイテムの本用：イベント獲得アイテムのみ（所持数0も表示して登録させる） */
+  const eventBookItems = useMemo(() => {
+    const list: InventoryItem[] = [];
+    for (const id of EVENT_BOOK_ITEM_IDS) {
+      const def = GACHA_ITEMS.find((g) => g.id === id);
+      const held = items.find((i) => i.id === id);
+      list.push({
+        id,
+        name: def?.name ?? id,
+        rarity: def?.rarity ?? 'N',
+        quantity: held?.quantity ?? 0,
+        effect: def?.effect ?? '',
+      });
+    }
+    return list;
+  }, [items]);
 
   const fetchData = useCallback(async () => {
     const [invRes, equipRes, evoRes] = await Promise.all([
@@ -315,23 +337,23 @@ export default function InventoryPage() {
     if (mainTab === 'evolution' && evolution == null && !evolutionLoading) fetchEvolution();
   }, [mainTab, evolution, evolutionLoading, fetchEvolution]);
 
-  const currentList = tab === 'items' ? items : equipmentListForBook;
+  const currentList = bookTab === 'eventItems' ? eventBookItems : equipmentListForBook;
   useEffect(() => {
     setPageIndex((i) => Math.min(i, Math.max(0, currentList.length - 1)));
-  }, [tab, currentList.length]);
+  }, [bookTab, currentList.length]);
 
   useEffect(() => {
     setSelectedStackOverride(null);
     setSameEquipmentExpanded(false);
-  }, [tab]);
+  }, [bookTab]);
 
   const currentItem = currentList[pageIndex];
 
   const sameStacks = useMemo(() => {
-    if (tab !== 'equipment' || !currentItem) return [];
+    if (bookTab !== 'equipment' || !currentItem) return [];
     const eq = currentItem as EquipmentStack;
     return getSameEquipmentStacks(equipment, eq.equipment_id, eq.slot, equipped);
-  }, [tab, currentItem, equipment, equipped]);
+  }, [bookTab, currentItem, equipment, equipped]);
 
   /** 同じ装備・同じレアリティの合計個数（進化はレベル混在で5個必要） */
   const totalByEquipGrade = useMemo(() => {
@@ -345,10 +367,10 @@ export default function InventoryPage() {
   }, [equipment]);
 
   const displayedEquipment = useMemo(() => {
-    if (tab !== 'equipment' || !currentItem) return null;
+    if (bookTab !== 'equipment' || !currentItem) return null;
     if (selectedStackOverride) return selectedStackOverride;
     return sameStacks[0] ?? (currentItem as EquipmentStack);
-  }, [tab, currentItem, selectedStackOverride, sameStacks]);
+  }, [bookTab, currentItem, selectedStackOverride, sameStacks]);
 
   const goPrev = () => {
     setSelectedStackOverride(null);
@@ -652,6 +674,15 @@ export default function InventoryPage() {
             <div className="w-full max-w-sm rounded-xl border border-purple-800/80 bg-zinc-900 p-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
               <p className="text-sm font-medium text-white">進化に使う5個を選んでください</p>
               <p className="mt-0.5 text-xs text-zinc-500">{evolveSelectModal.name} → {EQUIPMENT_GRADE_LABELS[evolveSelectModal.nextGrade as EquipmentGrade] ?? evolveSelectModal.nextGrade}</p>
+              {(() => {
+                const xpCost = costForEquipmentEvolve(evolveSelectModal.grade as EquipmentGrade);
+                return Number.isFinite(xpCost) && xpCost > 0 ? (
+                  <p className="mt-1 text-xs text-amber-400/90">進化に全共通XP <strong>{xpCost.toLocaleString()}</strong> 必要（所持: {evolutionPoints.toLocaleString()}）</p>
+                ) : null;
+              })()}
+              {evolveSelectModal.nextGrade === 'eternal' && (
+                <p className="mt-1 text-xs text-gold">エターナル素材を1個消費します。</p>
+              )}
               <ul className="mt-3 space-y-2">
                 {evolveSelectModal.stacks.map((s) => {
                   const key = `${s.level}:${s.effect_base}`;
@@ -694,7 +725,11 @@ export default function InventoryPage() {
                       .filter((c) => c.quantity > 0);
                     handleEvolve(evolveSelectModal.equipment_id, evolveSelectModal.grade, consume);
                   }}
-                  disabled={actionLoading !== null || evolveSelectModal.stacks.reduce((sum, st) => sum + (evolveSelectChosen[`${st.level}:${st.effect_base}`] ?? 0), 0) !== 5}
+                  disabled={
+                    actionLoading !== null
+                    || evolveSelectModal.stacks.reduce((sum, st) => sum + (evolveSelectChosen[`${st.level}:${st.effect_base}`] ?? 0), 0) !== 5
+                    || (() => { const c = costForEquipmentEvolve(evolveSelectModal.grade as EquipmentGrade); return Number.isFinite(c) && c > 0 && evolutionPoints < c; })()
+                  }
                   className="flex-1 rounded-lg border border-purple-700 bg-purple-900/50 py-2 text-sm font-medium text-purple-200 hover:bg-purple-800/50 disabled:opacity-50"
                 >
                   {actionLoading !== null ? '処理中...' : '進化する'}
@@ -742,9 +777,30 @@ export default function InventoryPage() {
           </div>
         )}
 
-        {/* 装備の本（アイテムの本は廃止） */}
-        <div className="mt-4">
-          <p className="rounded-lg border border-gold-subtle bg-zinc-900/80 px-4 py-2 text-sm font-medium text-gold">装備の本</p>
+        {/* 装備の本 | アイテムの本 */}
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={() => { setBookTab('equipment'); setPageIndex(0); }}
+            className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+              bookTab === 'equipment'
+                ? 'border-gold-subtle bg-[var(--gold)]/20 text-gold'
+                : 'border-zinc-600 bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800'
+            }`}
+          >
+            装備の本
+          </button>
+          <button
+            type="button"
+            onClick={() => { setBookTab('eventItems'); setPageIndex(0); }}
+            className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+              bookTab === 'eventItems'
+                ? 'border-gold-subtle bg-[var(--gold)]/20 text-gold'
+                : 'border-zinc-600 bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800'
+            }`}
+          >
+            アイテムの本
+          </button>
         </div>
 
         {loading ? (
@@ -752,13 +808,13 @@ export default function InventoryPage() {
         ) : currentList.length === 0 ? (
           <div className="mt-6 rounded-xl border border-gold-subtle bg-zinc-900/80 p-6">
             <p className="text-center text-zinc-500">
-              {tab === 'items' ? 'まだアイテムがありません。' : 'まだ装備がありません。'}
+              {bookTab === 'eventItems' ? 'アイテムの本に登録されているアイテムはありません。' : 'まだ装備がありません。'}
             </p>
           </div>
         ) : (
           <motion.div
             layout
-            key={tab}
+            key={bookTab}
             className="relative mt-6 overflow-hidden rounded-xl shadow-2xl"
             style={{
               background: 'linear-gradient(180deg, #0a0a0a 0%, #171717 15%, #27272a 50%, #171717 85%, #0a0a0a 100%)',
@@ -799,14 +855,14 @@ export default function InventoryPage() {
               <AnimatePresence mode="wait">
                 {currentItem && (
                   <motion.div
-                    key={tab === 'items' ? (currentItem as InventoryItem).id : `${(displayedEquipment as EquipmentStack)?.equipment_id}-${(displayedEquipment as EquipmentStack)?.grade}-${(displayedEquipment as EquipmentStack)?.level}-${(displayedEquipment as EquipmentStack)?.effect_base ?? 1}`}
+                    key={bookTab === 'eventItems' ? (currentItem as InventoryItem).id : `${(displayedEquipment as EquipmentStack)?.equipment_id}-${(displayedEquipment as EquipmentStack)?.grade}-${(displayedEquipment as EquipmentStack)?.level}-${(displayedEquipment as EquipmentStack)?.effect_base ?? 1}`}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
                     className="min-h-[280px] rounded-lg border border-gold-subtle bg-[var(--gold)]/10 p-4"
                   >
-                    {tab === 'items' ? (
+                    {bookTab === 'eventItems' ? (
                       <>
                         <h2 className="border-b border-gold-subtle pb-2 font-serif text-lg font-bold text-white">
                           {currentItem.name}
@@ -818,29 +874,29 @@ export default function InventoryPage() {
                           <span className="text-xs font-bold text-gold">所持数: {currentItem.quantity}</span>
                         </div>
                         <div className="mt-4 flex justify-center">
-                          <div className="relative h-32 w-32 overflow-hidden rounded-lg border-2 border-gold-subtle bg-zinc-800/80">
-                            <img
-                              src={`${GACHA_IMAGE_BASE}/${(currentItem as InventoryItem).id}.png`}
-                              alt={currentItem.name}
-                              className="h-full w-full object-contain"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                const fallback = e.currentTarget.nextElementSibling;
-                                if (fallback) (fallback as HTMLElement).style.display = 'flex';
-                              }}
-                            />
-                            <div
-                              className="hidden h-full w-full items-center justify-center bg-[var(--gold)]/10 text-4xl"
-                              aria-hidden
-                            >
-                              ?
-                            </div>
+                          <div className="flex h-20 w-full max-w-xs items-center justify-center rounded-lg border border-gold-subtle bg-zinc-800/80 px-4">
+                            <span className="font-medium text-white">{currentItem.name}</span>
                           </div>
                         </div>
                         <div className="mt-4 rounded border border-gold-subtle bg-zinc-900/80 p-3">
                           <p className="text-xs font-medium text-gold">効果</p>
                           <p className="mt-1 text-sm leading-relaxed text-white/95">{currentItem.effect}</p>
                         </div>
+                        {(currentItem as InventoryItem).id === 'xp_booster' && (currentItem as InventoryItem).quantity > 0 && (
+                          <div className="mt-4">
+                            <button
+                              type="button"
+                              onClick={() => handleUseItem('xp_booster')}
+                              disabled={actionLoading !== null}
+                              className="w-full rounded-lg border border-gold-subtle bg-[var(--gold)]/20 py-2 text-sm font-medium text-gold hover:bg-[var(--gold)]/30 disabled:opacity-50"
+                            >
+                              使う（30分間 獲得XP2倍）
+                            </button>
+                          </div>
+                        )}
+                        {(currentItem as InventoryItem).id === 'eternal_cross_fragment' && (
+                          <p className="mt-4 text-xs text-zinc-500">進化でエターナル素材に変換できます。進化画面でご利用ください。</p>
+                        )}
                       </>
                     ) : (
                       (() => {
@@ -850,7 +906,8 @@ export default function InventoryPage() {
                         const canLevelUp = evolutionPoints >= xpCost;
                         const nextGrade = nextEquipmentGrade(eq.grade as EquipmentGrade);
                         const totalSameGrade = totalByEquipGrade.get(`${eq.equipment_id}:${eq.grade}`) ?? 0;
-                        const canEvolve = nextGrade && totalSameGrade >= 5;
+                        const eternalMaterialCount = items.find((i) => i.id === 'eternal_material')?.quantity ?? 0;
+                        const canEvolve = nextGrade && totalSameGrade >= 5 && (nextGrade !== 'eternal' || eternalMaterialCount >= 1);
                         return (
                           <>
                             <h2 className="border-b border-gold-subtle pb-2 font-serif text-lg font-bold text-white">
@@ -915,7 +972,13 @@ export default function InventoryPage() {
                                   disabled={!canEvolve || actionLoading !== null}
                                   className="w-full rounded-lg border border-purple-700/60 bg-purple-900/40 py-2 text-sm text-purple-200 hover:bg-purple-800/50 disabled:opacity-50"
                                 >
-                                  5個で進化 → {EQUIPMENT_GRADE_LABELS[nextGrade]}（同レアリティ合計{totalSameGrade}個・使う5個を選べる）
+                                  5個で進化 → {EQUIPMENT_GRADE_LABELS[nextGrade]}
+                                  {(() => {
+                                    const xpCost = costForEquipmentEvolve(eq.grade as EquipmentGrade);
+                                    const xpText = Number.isFinite(xpCost) && xpCost > 0 ? `・進化に${xpCost.toLocaleString()} XP` : '';
+                                    if (nextGrade === 'eternal') return `（エターナル素材1個必要・所持: ${eternalMaterialCount}${xpText}）`;
+                                    return `（同レアリティ合計${totalSameGrade}個・使う5個を選べる${xpText}）`;
+                                  })()}
                                 </button>
                               )}
                               <button

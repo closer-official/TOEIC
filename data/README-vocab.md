@@ -1,63 +1,129 @@
-# 英単語データ（単語全国モード）
+# 単語モード（全国）用 単語リスト
 
-- **NGSL**: `data/default-vocab.json`（出題のメイン出典）
-- **TSL**: `data/tsl-vocab.json`（あれば NGSL と結合して出題。同一単語は意味をマージ）
+## 仕様概要
 
-## TSL を追加する
+- **出題形式**: 「単語[品詞]」で表示し、4択問題。
+- **4択の内訳**  
+  - **正答**: 1つ（意味）  
+  - **誤答**: 3つ  
+    - 誤答率が高い順にダミーから **2つ**  
+    - 残りダミー3つのうちから **ランダムに1つ**（毎回入れ替わり）
+- **データ形式**: 1行につき「単語・品詞・意味・ダミー1～5」の計8列。
 
-1. **TSL 用の JSON を用意する**  
-   `data/tsl-vocab.json` を次の形式で作成する（`default-vocab.json` と同じ形）:
-   ```json
-   [
-     { "word": "technical", "meanings": ["技術的な", "専門の"] }
-   ]
-   ```
-2. **配置**  
-   上記ファイルを `data/tsl-vocab.json` として保存する。
-3. **動作**  
-   `/api/vocab-default` は `default-vocab.json`（NGSL）と `tsl-vocab.json`（TSL）の両方を読み、単語ごとに意味をマージして返す。`tsl-vocab.json` が無い場合は NGSL のみ。
+---
 
-Excel から TSL 用 JSON を作る場合、第2引数で出力先を指定する:
-   ```bash
-   node scripts/excel-to-default-vocab.js data/TSLのExcel.xlsx data/tsl-vocab.json
-   ```
+## 登録の流れ（どのように登録して反映させるか）
 
-## 最新データへの差し替え（Excel → default-vocab.json）
+### 1. Excel の準備
 
-1. **Excel を `data/` に置く**  
-   例: `基礎英単語_TOEIC最適化_完成版.xlsx`
+次の列名で1行目をヘッダーにしてください。
 
-2. **変換を実行**  
-   ```bash
-   npm run vocab:from-excel
-   ```
-   または  
-   ```bash
-   node scripts/excel-to-default-vocab.js [Excelファイルパス]
-   ```
-   省略時は `data/基礎英単語_TOEIC最適化_完成版.xlsx` を読む。
+| 列 | 名前（いずれかで可） |
+|----|----------------------|
+| 1 | **単語** / word / 英単語 |
+| 2 | **品詞** / pos |
+| 3 | **意味** / 訳 / meaning |
+| 4 | **ダミー1** / dummy1 |
+| 5 | **ダミー2** / dummy2 |
+| 6 | **ダミー3** / dummy3 |
+| 7 | **ダミー4** / dummy4 |
+| 8 | **ダミー5** / dummy5 |
 
-3. **DB の管理者用単語を空にする（任意）**  
-   Supabase の `global_vocabulary` を空にして、出題を `default-vocab.json` だけにしたい場合:
-   ```bash
-   npx supabase db push
-   ```
-   または `supabase/migrations/20260306000000_clear_global_vocabulary.sql` を適用。
+例（1行目がヘッダー、2行目以降がデータ）:
 
-## 想定している Excel の列
-
-- **単語**: 列名が「単語」「word」「英単語」のいずれか
-- **意味**: 列名が「意味」「訳」「meaning」「translation」「意味1」「意味2」「translation_1」「translation_2」など。複数列は 1 単語の meanings 配列にまとまる（出題時はこのうちランダムに1つのみ使用。同単語の translation_1 と translation_2 は同時に出題しない）。
-- 品詞列は使わず、表示もしない。4択の正解・不正解は「意味の文言から推測した品詞」が同じになるように揃える。
-
-## 出力形式
-
-`default-vocab.json` は次の形の配列（品詞は出力しない）:
-
-```json
-[
-  { "word": "example", "meanings": ["例示する", "例である"] }
-]
+```
+単語    品詞  意味      ダミー1    ダミー2    ダミー3    ダミー4    ダミー5
+entry   名    記入項目  項目       登録       入力       ...
 ```
 
-`/api/vocab-default` はこのファイル（と DB の `global_vocabulary`）を結合して返す。
+- 品詞は表示用（名・動・形など任意）。未記入の場合は「名」として扱います。
+- 意味が正答、ダミー1～5が4択の誤答候補です。誤答3つはアプリ側で「誤答率上位2＋残りからランダム1」で選ばれます。
+
+---
+
+### 2. ファイル名と置き場所
+
+- **ファイル名**: `vocab.xlsx`（推奨。任意の名前でも可）
+- **置き場所**: プロジェクト直下の **`data/`** フォルダ内
+
+```
+closer/
+  data/
+    vocab.xlsx    ← ここに置く
+    vocab.json    ← スクリプト実行でここに出力される
+```
+
+別名で置く場合の例: `data/単語リスト.xlsx`
+
+---
+
+### 3. 反映手順（Excel → アプリで使うまで）
+
+1. **Excel を `data/` に置く**  
+   - 上記のとおり `data/vocab.xlsx`（または任意の名前）で保存。
+
+2. **変換スクリプトを実行する**  
+   プロジェクトルートで:
+
+   ```bash
+   npm run vocab:import
+   ```
+
+   または、ファイルパスを指定する場合:
+
+   ```bash
+   node scripts/excel-to-vocab.js data/vocab.xlsx data/vocab.json
+   ```
+
+   - 第1引数: 読む Excel のパス（省略時は `data/vocab.xlsx`）
+   - 第2引数: 出力する JSON のパス（省略時は `data/vocab.json`）
+
+3. **`data/vocab.json` が更新される**  
+   - 単語モード（全国）は、この **`vocab.json` だけ** を参照します。
+   - サーバーを起動し直すか、次のプレイから新しいリストが使われます。
+
+---
+
+## まとめ（登録と反映の対応表）
+
+| やること | 内容 |
+|----------|------|
+| **Excel の名前** | `vocab.xlsx`（推奨）または任意 |
+| **置く場所** | **`data/`** フォルダ内 |
+| **反映のしかた** | ターミナルで **`npm run vocab:import`** を実行 → `data/vocab.json` が更新される |
+| **アプリでの参照** | 単語モード（全国）は **`data/vocab.json`** のみ使用（旧 default-vocab.json 等は使用しない） |
+
+Excel を編集したら、その都度 `npm run vocab:import` を実行すれば、最新の内容が単語モードに反映されます。
+
+---
+
+## 単語→単語モード（英単語→英単語）用 — 別データ・混在なし
+
+単語モード（意味を選ぶ）と **単語→単語**（同じ意味の英単語を選ぶ）は **出題元が別** です。混在しません。
+
+| モード | Excel（入力） | 取り込みコマンド | 出力JSON（出題元） |
+|--------|----------------|------------------|---------------------|
+| 単語 全国 | `data/vocab.xlsx` | `npm run vocab:import` | `data/vocab.json` |
+| 単語→単語 全国 | `data/wordstowords.xlsx` | `npm run vocab-word:import` | `data/vocab-word.json` |
+
+### 単語→単語の登録手順
+
+1. **Excel を `data/` に置く**  
+   - ファイル名: **`wordstowords.xlsx`**（推奨。任意の名前でも可）  
+   - 列: **単語・品詞・意味（＝英同義語）・ダミー1～5**（単語モードと同じ列構成）
+
+2. **変換スクリプトを実行**  
+   プロジェクトルートで:
+
+   ```bash
+   npm run vocab-word:import
+   ```
+
+   または:
+
+   ```bash
+   node scripts/excel-to-vocab-word.js data/wordstowords.xlsx data/vocab-word.json
+   ```
+
+3. **`data/vocab-word.json` が更新される**  
+   - 単語→単語モード（全国）は **`vocab-word.json` のみ** を参照します。

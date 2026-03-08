@@ -416,3 +416,783 @@ select {
   50% { transform: translateY(-2px); }
 }
 
+/* ========== イベント共通UI（すごろく・タワー・一番くじで共有） ========== */
+.event-title-wrap {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+.event-title-gold {
+  background: linear-gradient(to bottom, #f9e69c, #b08d41);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.event-ticker-wrap {
+  overflow: hidden;
+  border-bottom: 1px solid rgb(63 63 70);
+  background: rgba(24, 24, 27, 0.9);
+  padding: 0.5rem 0;
+}
+.event-ticker-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 2rem;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(251, 191, 36, 0.9);
+  animation: event-ticker-scroll 28s linear infinite;
+}
+@keyframes event-ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.event-section {
+  border-radius: 1rem;
+  border: 1px solid rgb(63 63 70);
+  background: rgba(24, 24, 27, 0.8);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+.event-section-hero {
+  border-radius: 1rem;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: radial-gradient(ellipse at 50% 30%, rgba(69, 26, 3, 0.5) 0%, rgba(24, 24, 27, 0.95) 60%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 30px rgba(245, 158, 11, 0.08);
+}
+.event-btn-primary {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border-width: 2px;
+  border-color: rgba(217, 119, 6, 0.7);
+  background: linear-gradient(to bottom, rgba(217, 119, 6, 0.9), rgba(146, 64, 14, 0.95));
+  padding: 1rem 1.5rem;
+  font-weight: 700;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+.event-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(to bottom, rgba(245, 158, 11, 0.95), rgba(180, 83, 9, 0.95));
+}
+.event-btn-primary:disabled {
+  opacity: 0.5;
+}
+.event-btn-primary-sm {
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-color: rgba(217, 119, 6, 0.6);
+  background: linear-gradient(to bottom, rgba(217, 119, 6, 0.85), rgba(146, 64, 14, 0.9));
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.event-btn-primary-sm:hover:not(:disabled) {
+  background: linear-gradient(to bottom, rgba(245, 158, 11, 0.9), rgba(180, 83, 9, 0.9));
+}
+.event-btn-primary-sm:disabled {
+  opacity: 0.5;
+}
+.event-card-inner {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ========== すごろく：盤面・蛇行・和風 ========== */
+.sugoroku-bg {
+  background-color: #0f0d0a;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 20px, rgba(139, 69, 19, 0.06) 20px, rgba(139, 69, 19, 0.06) 21px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(139, 69, 19, 0.06) 20px, rgba(139, 69, 19, 0.06) 21px),
+    radial-gradient(ellipse 100% 80% at 50% 20%, rgba(180, 83, 9, 0.12) 0%, transparent 50%);
+}
+.sugoroku-board-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.5rem;
+  border-radius: 1.25rem;
+  border: 2px solid rgba(180, 83, 9, 0.5);
+  background: linear-gradient(145deg, rgba(30, 22, 12, 0.98) 0%, rgba(15, 10, 5, 0.98) 100%);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), 0 20px 40px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.sugoroku-board {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.35rem;
+  aspect-ratio: 6 / 6;
+}
+.sugoroku-space {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(120, 80, 40, 0.5);
+  background: rgba(40, 28, 16, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.sugoroku-space-num {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(180, 140, 80, 0.9);
+  line-height: 1;
+}
+.sugoroku-space-name {
+  margin-top: 0.15rem;
+  font-size: 0.6rem;
+  line-height: 1.15;
+  color: rgba(230, 210, 180, 0.95);
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.sugoroku-space-current {
+  transform: scale(1.05);
+  border-color: rgba(245, 158, 11, 0.9);
+  background: linear-gradient(165deg, rgba(120, 70, 20, 0.95) 0%, rgba(80, 45, 10, 0.95) 100%);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5), 0 4px 12px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 2;
+}
+.sugoroku-space-current .sugoroku-space-num { color: #fcd34d; }
+.sugoroku-space-current .sugoroku-space-name { color: #fef3c7; }
+.sugoroku-space-start { border-color: rgba(34, 139, 34, 0.6); background: rgba(20, 60, 30, 0.85); }
+.sugoroku-space-shop { border-color: rgba(201, 162, 39, 0.7); background: rgba(80, 55, 15, 0.9); }
+.sugoroku-space-hell { border-color: rgba(180, 50, 50, 0.6); background: rgba(60, 20, 20, 0.9); }
+.sugoroku-space-luxury { border-color: rgba(200, 160, 100, 0.5); background: rgba(70, 50, 25, 0.85); }
+.sugoroku-space-eternal { border-color: rgba(150, 120, 200, 0.5); background: rgba(40, 30, 55, 0.85); }
+.sugoroku-space-trap { border-color: rgba(100, 180, 100, 0.5); background: rgba(25, 50, 30, 0.85); }
+.sugoroku-space-gambling { border-color: rgba(220, 150, 80, 0.5); background: rgba(55, 40, 25, 0.85); }
+.sugoroku-space-last { border-color: rgba(220, 100, 100, 0.6); background: rgba(65, 25, 25, 0.9); }
+@keyframes sugoroku-dice-roll {
+  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  25% { transform: rotateX(90deg) rotateY(180deg) rotateZ(45deg); }
+  50% { transform: rotateX(180deg) rotateY(0deg) rotateZ(90deg); }
+  75% { transform: rotateX(270deg) rotateY(180deg) rotateZ(135deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+}
+.sugoroku-dice-rolling {
+  animation: sugoroku-dice-roll 0.5s ease-out;
+}
+
+/* 振れるサイコロ：3D立方体 */
+.sugoroku-dice-scene {
+  width: 100%;
+  height: 100%;
+  perspective: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sugoroku-dice-cube {
+  width: 4.5rem;
+  height: 4.5rem;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease-out;
+}
+.sugoroku-dice-cube-rolling {
+  animation: sugoroku-dice-cube-tumble 0.6s ease-in-out infinite;
+}
+@keyframes sugoroku-dice-cube-tumble {
+  0%, 100% { transform: rotateX(-15deg) rotateY(0deg) rotateZ(-5deg); }
+  25% { transform: rotateX(75deg) rotateY(90deg) rotateZ(10deg); }
+  50% { transform: rotateX(165deg) rotateY(180deg) rotateZ(-8deg); }
+  75% { transform: rotateX(255deg) rotateY(270deg) rotateZ(5deg); }
+}
+.sugoroku-dice-cube-face {
+  position: absolute;
+  width: 4.5rem;
+  height: 4.5rem;
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.2rem;
+  place-items: center;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(145deg, #f5f0e8 0%, #e8dfd0 50%, #d4c4a8 100%);
+  border: 2px solid rgba(139, 105, 20, 0.5);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.6),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.08);
+  backface-visibility: visible;
+}
+.sugoroku-dice-cube-face-front { transform: translateZ(2.25rem); }
+.sugoroku-dice-cube-face-back { transform: rotateY(180deg) translateZ(2.25rem); }
+.sugoroku-dice-cube-face-right { transform: rotateY(90deg) translateZ(2.25rem); }
+.sugoroku-dice-cube-face-left { transform: rotateY(-90deg) translateZ(2.25rem); }
+.sugoroku-dice-cube-face-top { transform: rotateX(90deg) translateZ(2.25rem); }
+.sugoroku-dice-cube-face-bottom { transform: rotateX(-90deg) translateZ(2.25rem); }
+.sugoroku-dice-dot {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: #1a1a1a;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.sugoroku-dice-dot-empty {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: transparent;
+}
+.sugoroku-toast {
+  animation: sugoroku-toast-in 0.3s ease-out;
+}
+@keyframes sugoroku-toast-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ========== 摩天楼：縦塔・階スケール・エレベーター ========== */
+.tower-bg {
+  background: linear-gradient(180deg, #0a0e14 0%, #0d1117 25%, #111827 50%, #0f172a 75%, #0c1222 100%);
+  min-height: 100%;
+}
+.tower-floor-scale {
+  position: sticky;
+  top: calc(5.5rem + env(safe-area-inset-top, 0px));
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.4) 100%);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-left: none;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+  font-variant-numeric: tabular-nums;
+}
+.tower-floor-scale-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(148, 163, 184, 0.9);
+}
+.tower-floor-scale-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(201, 162, 39, 0.4);
+}
+.tower-elevator-card {
+  border-radius: 1rem;
+  border-width: 1px;
+  padding: 1rem 1.25rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.tower-elevator-card:active:not(:disabled) { transform: scale(0.98); }
+.tower-elevator-vip {
+  border-color: rgba(201, 162, 39, 0.5);
+  background: linear-gradient(145deg, rgba(30, 28, 15, 0.95) 0%, rgba(20, 18, 10, 0.98) 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(201, 162, 39, 0.08);
+}
+.tower-elevator-vip:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 28px rgba(201, 162, 39, 0.12); }
+.tower-elevator-risk {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: linear-gradient(145deg, rgba(40, 25, 10, 0.95) 0%, rgba(25, 15, 5, 0.98) 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 16px rgba(245, 158, 11, 0.06);
+}
+.tower-elevator-risk:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 24px rgba(245, 158, 11, 0.1); }
+.tower-elevator-technical {
+  border-color: rgba(100, 116, 139, 0.5);
+  background: linear-gradient(145deg, rgba(25, 30, 45, 0.95) 0%, rgba(15, 20, 35, 0.98) 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.tower-elevator-technical:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(100, 116, 139, 0.15); }
+@keyframes tower-rise {
+  from { opacity: 0.6; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tower-rise-feedback {
+  animation: tower-rise 0.4s ease-out;
+}
+@keyframes tower-fall {
+  from { opacity: 0.8; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tower-fall-feedback {
+  animation: tower-fall 0.35s ease-out;
+}
+
+/* ========== 至高の1番くじ：利便性と高級感 ========== */
+.ichiban-title-wrap {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+.ichiban-title-gold {
+  background: linear-gradient(to bottom, #f9e69c, #b08d41);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@keyframes ichiban-ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ichiban-ticker-track {
+  animation: ichiban-ticker-scroll 25s linear infinite;
+}
+/* ========== VIP抽選箱：コンテナ・箱・チケット・パーティクル・タイトル ========== */
+.ichiban-lottery-container {
+  background: radial-gradient(circle at 50% 40%, #2c2c2c 0%, #1a1a1a 50%, #000 70%);
+  border-radius: 1rem;
+}
+.ichiban-lottery-box {
+  border: 2px solid #d4af37;
+  box-shadow:
+    0 0 20px rgba(212, 175, 55, 0.3),
+    inset 0 0 50px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.98) 0%, rgba(8, 8, 8, 0.99) 100%);
+  position: relative;
+}
+.ichiban-box-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #d4af37;
+  border-style: solid;
+  border-width: 0;
+  box-shadow:
+    0 0 10px rgba(212, 175, 55, 0.6),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.35),
+    inset -1px -1px 1px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 235, 200, 0.15) 0%, transparent 50%, rgba(0, 0, 0, 0.15) 100%);
+}
+.ichiban-box-corner-tl { top: 3px; left: 3px; border-top-width: 2px; border-left-width: 2px; }
+.ichiban-box-corner-tr { top: 3px; right: 3px; border-top-width: 2px; border-right-width: 2px; }
+.ichiban-box-corner-bl { bottom: 3px; left: 3px; border-bottom-width: 2px; border-left-width: 2px; }
+.ichiban-box-corner-br { bottom: 3px; right: 3px; border-bottom-width: 2px; border-right-width: 2px; }
+/* カジノチケット：縁ギザギザ（clip-path）＋ドロップシャドウ */
+.ichiban-ticket-casino {
+  position: absolute;
+  width: 24px;
+  height: 30px;
+  clip-path: polygon(
+    0 0, 100% 0, 100% 8%, 92% 12%, 100% 16%, 92% 20%, 100% 24%, 92% 28%, 100% 32%, 92% 36%, 100% 40%, 92% 44%, 100% 48%, 92% 52%, 100% 56%, 92% 60%, 100% 64%, 92% 68%, 100% 72%, 92% 76%, 100% 80%, 92% 84%, 100% 88%, 92% 92%, 100% 96%, 100% 100%, 0 100%
+  );
+  background: linear-gradient(155deg, #8b6914 0%, #c9a227 25%, #e8c547 50%, #c9a227 75%, #6b5310 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+.ichiban-ticket-casino::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 235, 180, 0.9), rgba(180, 140, 40, 0.6));
+  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
+}
+/* 一番上に来ているチケット1枚だけ：キラッと光る反射 */
+.ichiban-ticket-top {
+  position: relative;
+  z-index: 2;
+}
+.ichiban-ticket-top::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: ichiban-ticket-reflection 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes ichiban-ticket-reflection {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+/* 現在の箱：ゴールドグラデ＋黒縁取り */
+.ichiban-box-title {
+  background: linear-gradient(180deg, #f9e69c 0%, #d4af37 50%, #b08d41 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: none;
+}
+.ichiban-box-title-wrap {
+  filter: drop-shadow(0 0 1px #000) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
+}
+/* 残り枚数：カジノチップ刻印風の太いセリフ・力強いフォント */
+.ichiban-box-count {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: #d4af37;
+  text-shadow:
+    0 0 14px rgba(212, 175, 55, 0.5),
+    0 0 5px rgba(212, 175, 55, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    1px 0 0 rgba(0, 0, 0, 0.4),
+    -1px 0 0 rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+/* 「枚」：数字より小さく補助表示 */
+.ichiban-box-count-unit {
+  font-size: 0.8rem;
+  vertical-align: 0.2em;
+  color: #71717a;
+}
+/* 1枚＝100チップ：落ち着いたゴールド／シルバー・補足情報 */
+.ichiban-box-info {
+  color: #8a8578;
+}
+/* 金粉・光の粒が舞うパーティクル */
+.ichiban-particles {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+  overflow: visible;
+}
+.ichiban-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.7);
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
+  animation: ichiban-particle-float 8s ease-in-out infinite;
+}
+.ichiban-particle:nth-child(odd) {
+  animation-name: ichiban-particle-float-alt;
+  animation-duration: 10s;
+}
+@keyframes ichiban-particle-float {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  25% { transform: translate(5px, -8px) scale(1.2); opacity: 1; }
+  50% { transform: translate(-4px, -4px) scale(0.9); opacity: 0.7; }
+  75% { transform: translate(3px, -12px) scale(1.1); opacity: 0.9; }
+}
+@keyframes ichiban-particle-float-alt {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  33% { transform: translate(-6px, -6px) scale(1.1); opacity: 0.9; }
+  66% { transform: translate(4px, -10px) scale(0.95); opacity: 0.7; }
+}
+
+/* 箱：常時ゴールドの柔らかい光（テキストは常に読める） */
+.ichiban-box-glow {
+  filter: drop-shadow(0 0 10px rgba(218, 165, 32, 0.5));
+}
+/* ホログラム・デジタルチケット（虹色光沢） */
+.ichiban-ticket-hologram {
+  background: linear-gradient(
+    125deg,
+    rgba(255, 100, 100, 0.25) 0%,
+    rgba(255, 200, 100, 0.3) 15%,
+    rgba(255, 255, 150, 0.35) 30%,
+    rgba(150, 255, 200, 0.3) 45%,
+    rgba(100, 200, 255, 0.3) 60%,
+    rgba(200, 150, 255, 0.3) 75%,
+    rgba(255, 150, 200, 0.25) 90%,
+    rgba(255, 100, 100, 0.25) 100%
+  );
+  background-size: 200% 200%;
+  animation: ichiban-hologram-shine 4s ease-in-out infinite;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+@keyframes ichiban-hologram-shine {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+/* 景品：特等・A賞＝VIP プラチナゴールド・斜めシャイン・白枠 */
+.ichiban-card-vip {
+  position: relative;
+  border-radius: 1rem;
+  border: 3px solid #fff;
+  background: linear-gradient(135deg, #4b3500 0%, #d4af37 50%, #4b3500 100%);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+  overflow: hidden;
+}
+/* カード全体に薄く斜めの光が走るシャイン */
+.ichiban-card-vip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.12) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: ichiban-vip-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes ichiban-vip-shine {
+  0%, 100% { background-position: -200% center; }
+  50% { background-position: 200% center; }
+}
+.ichiban-card-vip > * {
+  position: relative;
+  z-index: 1;
+}
+/* 特等のみ：周囲にダイヤ・星の光の粒子 */
+.ichiban-card-grand-prize {
+  position: relative;
+}
+.ichiban-card-grand-prize .ichiban-prize-particles {
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+  z-index: 0;
+}
+.ichiban-prize-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  animation: ichiban-prize-particle-twinkle 2s ease-in-out infinite;
+}
+.ichiban-prize-particle:nth-child(1) { left: 8%; top: 12%; animation-delay: 0s; }
+.ichiban-prize-particle:nth-child(2) { right: 10%; top: 15%; animation-delay: 0.3s; }
+.ichiban-prize-particle:nth-child(3) { right: 8%; bottom: 20%; animation-delay: 0.6s; }
+.ichiban-prize-particle:nth-child(4) { left: 12%; bottom: 18%; animation-delay: 0.2s; }
+.ichiban-prize-particle:nth-child(5) { left: 50%; top: 4%; animation-delay: 0.5s; }
+.ichiban-prize-particle:nth-child(6) { right: 15%; top: 45%; animation-delay: 0.1s; }
+.ichiban-prize-particle:nth-child(7) { left: 6%; top: 50%; animation-delay: 0.4s; }
+@keyframes ichiban-prize-particle-twinkle {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* 景品：A賞・B+賞＝銀VIP（特賞と同じシャイン＋光の粒子・色だけ銀） */
+.ichiban-card-vip-silver {
+  position: relative;
+  border-radius: 1rem;
+  border: 3px solid #fff;
+  background: linear-gradient(135deg, #2a2a32 0%, #c0c0c8 50%, #2a2a32 100%);
+  box-shadow: 0 0 30px rgba(192, 192, 200, 0.5);
+  overflow: hidden;
+}
+.ichiban-card-vip-silver::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.15) 45%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.15) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: ichiban-vip-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+.ichiban-card-vip-silver > * {
+  position: relative;
+  z-index: 1;
+}
+/* A賞・B+賞も特賞同様の光の粒子 */
+.ichiban-card-vip-silver.ichiban-card-has-particles .ichiban-prize-particles {
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+  z-index: 0;
+}
+.ichiban-card-vip-silver .ichiban-prize-particle {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+}
+
+/* 景品：B-賞＝シルバー階層・宝石アイコン（VIPではない） */
+.ichiban-card-silver {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid rgba(192, 192, 192, 0.4);
+  background: linear-gradient(180deg, rgba(180, 180, 190, 0.15) 0%, rgba(100, 100, 110, 0.2) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+.ichiban-card-silver::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(135deg, rgba(220, 220, 230, 0.25) 0%, rgba(160, 160, 170, 0.15) 100%);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  pointer-events: none;
+}
+
+/* 景品：C・D賞＝ダークネイビー・控えめ・チップ風アイコン */
+.ichiban-card-standard {
+  position: relative;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 30, 0.8);
+  overflow: hidden;
+}
+.ichiban-card-standard::before {
+  content: '';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(circle at 30% 30%, rgba(80, 80, 90, 0.4), rgba(40, 40, 50, 0.6));
+  pointer-events: none;
+}
+
+/* 賞名：Cinzel・大サイズ・letter-spacing で高級感 */
+.ichiban-prize-label {
+  font-family: var(--font-cinzel), 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+/* 本数：小さなバッジ・背景に馴染む控えめ */
+.ichiban-prize-count-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 完売（全レアリティ共通）：グレー＋赤い封蝋風 SOLD OUT */
+.ichiban-stamp-ended {
+  position: relative;
+  filter: grayscale(1);
+  opacity: 0.88;
+}
+.ichiban-stamp-ended::after {
+  content: 'SOLD OUT';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: rgba(130, 20, 20, 0.92);
+  transform: rotate(-10deg);
+  text-shadow:
+    0 0 8px rgba(100, 15, 15, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+  filter: blur(0.3px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+/* 1枚引くボタン：文字は常に濃い茶 #3e2723、光は背景のみ */
+.ichiban-btn-draw {
+  position: relative;
+  color: #3e2723 !important;
+  font-weight: 700;
+}
+.ichiban-btn-draw::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.18) 52%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: ichiban-btn-shine-move 3.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.ichiban-btn-draw > span {
+  position: relative;
+  z-index: 1;
+}
+@keyframes ichiban-btn-shine-move {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.ichiban-prize-shine {
+  background: linear-gradient(105deg, transparent, rgba(255, 215, 0, 0.25), transparent);
+  background-size: 200% 100%;
+  animation: ichiban-btn-shine-move 3s ease-in-out infinite;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: #f9e69c;
+}
+/* めくりモーダル用 */
+.ichiban-ticket-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ichiban-ticket-inner.revealed { transform: rotateY(180deg); }
+.ichiban-ticket-back,
+.ichiban-ticket-front {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.ichiban-ticket-front { transform: rotateY(180deg); }
+@keyframes ichiban-reveal-glow {
+  0% { opacity: 0; filter: brightness(0.5); transform: scale(0.92); }
+  50% { opacity: 1; filter: brightness(1.4); transform: scale(1.02); }
+  100% { opacity: 1; filter: brightness(1); transform: scale(1); }
+}
+@keyframes ichiban-ticket-fly {
+  0% {
+    transform: translate(-50%, 35vh) scale(0.12);
+    opacity: 0.5;
+  }
+  60% { opacity: 1; }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+.ichiban-ticket-flying {
+  animation: ichiban-ticket-fly 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: center center;
+}
+

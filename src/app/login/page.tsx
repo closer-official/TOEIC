@@ -6,6 +6,21 @@ import Link from 'next/link';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
+/** アプリ（Capacitor）用の OAuth リダイレクト先。Supabase ダッシュボードにも同じ URL を登録すること */
+const APP_AUTH_CALLBACK_URL = 'com.toeic-sigma.shun://auth/callback';
+
+function getAuthRedirectUrl(): string {
+  // 実機ビルドではビルド時に NEXT_PUBLIC_CAPACITOR_APP=1 が入るので、runtime の Capacitor に依存しない
+  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_CAPACITOR_APP === '1') {
+    return APP_AUTH_CALLBACK_URL;
+  }
+  if (typeof window === 'undefined') return '';
+  if ((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) {
+    return APP_AUTH_CALLBACK_URL;
+  }
+  return `${window.location.origin}/api/auth/callback`;
+}
+
 const ANTIQUE_GOLD = '#C5A059';
 
 function LoginContent() {
@@ -37,7 +52,7 @@ function LoginContent() {
   const handleOAuthLogin = async (provider: 'google' | 'apple') => {
     if (!isSupabaseConfigured()) {
       setError(
-        'Supabase の設定がありません。Vercel の環境変数（NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY）を確認してください。'
+        'Supabase の設定がありません。Web は Vercel の環境変数、実機・iOS ビルドの場合はビルド前に .env.local に NEXT_PUBLIC_SUPABASE_URL と NEXT_PUBLIC_SUPABASE_ANON_KEY を設定してから npm run build:ios を実行してください。'
       );
       return;
     }
@@ -47,7 +62,7 @@ function LoginContent() {
       const { error: err } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: getAuthRedirectUrl(),
         },
       });
       if (err) throw err;
@@ -60,7 +75,7 @@ function LoginContent() {
   const handleGuestLogin = async () => {
     if (!isSupabaseConfigured()) {
       setError(
-        'Supabase の設定がありません。Vercel の環境変数（NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY）を確認してください。'
+        'Supabase の設定がありません。Web は Vercel の環境変数、実機・iOS ビルドの場合はビルド前に .env.local に NEXT_PUBLIC_SUPABASE_URL と NEXT_PUBLIC_SUPABASE_ANON_KEY を設定してから npm run build:ios を実行してください。'
       );
       return;
     }

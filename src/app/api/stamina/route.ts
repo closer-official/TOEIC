@@ -6,6 +6,7 @@ import {
   getMaxStamina,
   STAMINA_MAX_FREE,
   STAMINA_CONSUME,
+  isValidStaminaConsumeAmount,
   type SubscriptionTier,
 } from '@/lib/stamina';
 
@@ -13,7 +14,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 async function getStaminaProfile(supabase: ReturnType<typeof createServerClient>, userId: string) {
-  const fullCols = 'stamina_count, last_stamina_at, is_subscriber, evolution_wrong_penalty, evolution_season_carry_wrong_penalty, subscription_tier';
+  const fullCols = 'stamina_count, last_stamina_at, is_subscriber, evolution_wrong_penalty, evolution_season_carry_wrong_penalty, subscription_tier, stamina_infinity_ends_at';
   const { data, error } = await supabase
     .from('profiles')
     .select(fullCols)
@@ -32,12 +33,13 @@ async function getStaminaProfile(supabase: ReturnType<typeof createServerClient>
       subscriptionTier: (rawTier === 'pro' || rawTier === 'ultra' ? rawTier : isSubscriber ? 'pro' : 'free') as SubscriptionTier,
       evolutionStaminaBonus: 0,
       recoverySpeedMultiplier,
+      staminaInfinityEndsAt: (data as { stamina_infinity_ends_at?: string | null }).stamina_infinity_ends_at ?? null,
     };
   }
 
   const { data: minimal, error: minimalErr } = await supabase
     .from('profiles')
-    .select('stamina_count, last_stamina_at')
+    .select('stamina_count, last_stamina_at, stamina_infinity_ends_at')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -50,6 +52,7 @@ async function getStaminaProfile(supabase: ReturnType<typeof createServerClient>
     subscriptionTier: 'free' as SubscriptionTier,
     evolutionStaminaBonus: 0,
     recoverySpeedMultiplier: 1,
+    staminaInfinityEndsAt: (minimal as { stamina_infinity_ends_at?: string | null }).stamina_infinity_ends_at ?? null,
   };
 }
 
@@ -75,9 +78,10 @@ async function getGuildStaminaBonus(supabase: ReturnType<typeof createServerClie
   }
 }
 
-/** GET: 現在スタミナ・最大・次回復時刻（ms） */
-export async function GET() {
+/** GET: 現在スタミナ・最大・次回復時刻（ms）。?offline=1 で offlineMeta を付与（オフライン時ローカル計算用） */
+export async function GET(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
+  const wantOfflineMeta = req.nextUrl.searchParams.get('offline') === '1';
   try {
     const cookieStore = await cookies();
 
@@ -133,12 +137,22 @@ export async function GET() {
       Math.floor((24 * 60 * 60 * 1000) / maxStamina) / mult
     );
 
-    return NextResponse.json({
+    const payload: Record<string, unknown> = {
       stamina,
       maxStamina,
       nextRecoveryAt: nextRecoveryAt ?? null,
       recoveryIntervalMs: nextRecoveryAt != null ? recoveryIntervalMs : null,
-    });
+    };
+    if (wantOfflineMeta && profile) {
+      payload.offlineMeta = {
+        staminaCount: profile.staminaCount,
+        lastStaminaAt: profile.lastStaminaAt,
+        subscriptionTier: profile.subscriptionTier,
+        evolutionStaminaBonus: totalStaminaBonus,
+        recoverySpeedMultiplier: profile.recoverySpeedMultiplier ?? 1,
+      };
+    }
+    return NextResponse.json(payload);
   } catch (err) {
     console.error('[stamina] GET error:', err);
     return NextResponse.json(
@@ -189,8 +203,10 @@ export async function POST(req: NextRequest) {
     if (!profile) {
       return NextResponse.json({
         error: 'スタミナ情報を取得できませんでした',
+        code: 'profile_fetch_failed',
         stamina: STAMINA_MAX_FREE,
         maxStamina: STAMINA_MAX_FREE,
+        message: 'プロフィールまたは購読情報を取得できませんでした。ログアウトして再ログインするか、/api/profile/subscription-status で購読状態を確認してください。',
       }, { status: 502 });
     }
 
@@ -205,7 +221,22 @@ export async function POST(req: NextRequest) {
       profile.recoverySpeedMultiplier ?? 1
     );
 
-    if (stamina < STAMINA_CONSUME) {
+    const infinityEndsAt = (profile as { staminaInfinityEndsAt?: string | null }).staminaInfinityEndsAt ?? null;
+    const hasStaminaInfinity = infinityEndsAt && new Date(infinityEndsAt) > new Date();
+
+    if (hasStaminaInfinity) {
+      return NextResponse.json({
+        ok: true,
+        stamina,
+        maxStamina,
+        staminaInfinityActive: true,
+      });
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const amount = isValidStaminaConsumeAmount((body as { amount?: number })?.amount) ? (body as { amount: number }).amount : STAMINA_CONSUME;
+
+    if (stamina < amount) {
       return NextResponse.json(
         {
           error: 'スタミナが足りません',
@@ -217,7 +248,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newCount = stamina - STAMINA_CONSUME;
+    const newCount = stamina - amount;
     const now = new Date().toISOString();
 
     const { error: updateError } = await supabase
@@ -238,6 +269,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       stamina: newCount,
       maxStamina,
+      consumed: amount,
     });
   } catch (err) {
     console.error('[stamina] POST error:', err);

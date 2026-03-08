@@ -2,9 +2,11 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { costForNextLevel, correctTimeMultiplier, SEASON_BRANCHES, type EvolutionBranch } from '@/lib/evolution';
+import { getGuildXpBoosterMultiplier } from '@/lib/guild-xp-booster';
+import { getXpMultiplierForStamina } from '@/lib/stamina';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -238,7 +240,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { score, action, mode: gameMode, epMult } = body as { score?: number; action?: string; branch?: Branch; mode?: string; epMult?: number };
+    const { score, action, mode: gameMode, epMult, staminaAmount } = body as { score?: number; action?: string; branch?: Branch; mode?: string; epMult?: number; staminaAmount?: number };
 
     if (action === 'upgrade') {
       const { branch } = body as { branch?: Branch };
@@ -317,12 +319,15 @@ export async function POST(req: NextRequest) {
 
     const p = profile as { evolution_points?: number; evolution_correct_time?: number; evolution_season_carry_correct_time?: number } | null;
     const xpMult = correctTimeMultiplier(p?.evolution_correct_time ?? 0, p?.evolution_season_carry_correct_time ?? 0);
-    const totalAdded = Math.floor(score * rate * mult * xpMult);
+    const staminaXpMult = getXpMultiplierForStamina(Number(staminaAmount) || 5);
+    const totalAdded = Math.floor(score * rate * mult * xpMult * staminaXpMult);
     if (totalAdded <= 0) {
       return NextResponse.json({ ok: true, added: 0, addedCommon: 0, addedGuild: 0 });
     }
-    const addCommon = Math.floor((totalAdded * 2) / 3);
-    const addGuild = totalAdded - addCommon;
+    const boosterMult = await getGuildXpBoosterMultiplier(supabase, user.id);
+    const totalAddedWithBooster = totalAdded * boosterMult;
+    const addCommon = Math.floor((totalAddedWithBooster * 2) / 3);
+    const addGuild = totalAddedWithBooster - addCommon;
 
     const currentCommon = (profile as { evolution_points?: number } | null)?.evolution_points ?? 0;
     const currentGuild = (profile as { guild_xp?: number } | null)?.guild_xp ?? 0;
@@ -372,7 +377,7 @@ export async function POST(req: NextRequest) {
         }
         return NextResponse.json({ error: upsertErr.message }, { status: 500 });
       }
-      return NextResponse.json({ ok: true, added: totalAdded, addedCommon: addCommon, addedGuild: addGuild, points: newCommon });
+      return NextResponse.json({ ok: true, added: totalAddedWithBooster, addedCommon: addCommon, addedGuild: addGuild, points: newCommon });
     }
 
     const { error: updateErr } = await supabase
@@ -391,7 +396,7 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json({ error: updateErr.message }, { status: 500 });
     }
-    return NextResponse.json({ ok: true, added: totalAdded, addedCommon: addCommon, addedGuild: addGuild, points: newCommon });
+    return NextResponse.json({ ok: true, added: totalAddedWithBooster, addedCommon: addCommon, addedGuild: addGuild, points: newCommon });
   } catch (err) {
     console.error('[evolution] POST error:', err);
     return NextResponse.json({ error: 'サーバーエラー' }, { status: 500 });

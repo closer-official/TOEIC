@@ -12,4 +12,4 @@ export interface GameQuestion {
   difficulty?: string;
 }
 
-export type GameMode = 'part5-national' | 'part5-forYou' | 'part5-tournament' | 'vocab-national' | 'vocab-forYou' | 'vocab-tournament';
+export type GameMode = 'part5-national' | 'part5-forYou' | 'part5-tournament' | 'vocab-national' | 'vocab-forYou' | 'vocab-tournament' | 'vocab-word-national';

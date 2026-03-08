@@ -35,6 +35,7 @@ type Membership = {
 
 type Member = {
   user_id: string;
+  username?: string;
   role: string;
   donated_xp: number;
   questions_this_week: number;
@@ -91,6 +92,19 @@ export default function GuildPage() {
 
   useEffect(() => {
     fetchGuild();
+  }, [fetchGuild]);
+
+  // 取引でギルドXP交換したあとなど、画面に戻ったときに最新の所持ギルドXPを反映
+  useEffect(() => {
+    const onFocus = () => fetchGuild();
+    if (typeof window === 'undefined') return;
+    window.addEventListener('focus', onFocus);
+    const onVisibility = () => { if (document.visibilityState === 'visible') fetchGuild(); };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [fetchGuild]);
 
   useEffect(() => {
@@ -292,7 +306,7 @@ function GuildDashboard({
       {guild.emblem_url ? (
         <img src={guild.emblem_url} alt="" className="w-14 h-14 rounded-lg object-cover bg-zinc-800" />
       ) : (
-        <div className="w-14 h-14 rounded-lg bg-[var(--gold)]/20 flex items-center justify-center text-2xl">🏰</div>
+        <div className="w-14 h-14 rounded-lg bg-zinc-800 border border-gold-subtle/40 flex items-center justify-center text-xl font-bold text-zinc-500" title="ギルドアイコン未設定">{(guild.name || 'G').charAt(0)}</div>
       )}
       <div className="flex-1 min-w-0">
         <h2 className="text-lg font-bold text-white truncate">{guild.name}</h2>
@@ -491,7 +505,7 @@ function SettingsTab({
         {guild.emblem_url ? (
           <img src={guild.emblem_url} alt="" className="w-14 h-14 rounded-lg object-cover bg-zinc-800" />
         ) : (
-          <div className="w-14 h-14 rounded-lg bg-[var(--gold)]/20 flex items-center justify-center text-2xl">🏰</div>
+          <div className="w-14 h-14 rounded-lg bg-zinc-800 border border-gold-subtle/40 flex items-center justify-center text-xl font-bold text-zinc-500" title="ギルドアイコン未設定">{(guild.name || 'G').charAt(0)}</div>
         )}
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-bold text-white truncate">{guild.name}</h2>
@@ -631,7 +645,7 @@ function MainAreaActivityAndChat({ setMsg }: { setMsg: (m: { type: 'ok' | 'err';
   );
 }
 
-type JoinRequest = { id: string; user_id: string; status: string; created_at: string };
+type JoinRequest = { id: string; user_id: string; username?: string; status: string; created_at: string };
 
 function MembersTab({
   members,
@@ -708,7 +722,7 @@ function MembersTab({
           <ul className="space-y-2">
             {joinRequests.map((r) => (
               <li key={r.id} className="flex items-center justify-between rounded-lg border border-gold-subtle bg-zinc-800/80 px-3 py-2">
-                <span className="text-zinc-300 text-sm">ID: {r.user_id.slice(0, 8)}…</span>
+                <span className="text-zinc-300 text-sm">{r.username ?? `ID: ${r.user_id.slice(0, 8)}…`}</span>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -739,7 +753,7 @@ function MembersTab({
           {sorted.map((m, i) => (
             <li key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gold-subtle bg-zinc-800/80 px-3 py-2">
               <span className="text-white text-sm">
-                #{i + 1} {roleLabel(m.role)} <span className="text-zinc-500">(ID: {m.user_id.slice(0, 8)}…)</span>
+                #{i + 1} {roleLabel(m.role)} <span className="text-zinc-300">{m.username ?? `ID: ${m.user_id.slice(0, 8)}…`}</span>
               </span>
               <span className="text-gold text-sm">
                 寄付XP {m.donated_xp.toLocaleString()} · 今週 {m.questions_this_week}問
@@ -907,7 +921,7 @@ function GuildRankingTab({ myGuildId }: { myGuildId: string | null }) {
                 {g.emblem_url?.trim() ? (
                   <img src={g.emblem_url} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover bg-zinc-800" />
                 ) : (
-                  <div className="h-10 w-10 shrink-0 rounded-lg bg-[var(--gold)]/20 flex items-center justify-center text-lg">🏰</div>
+                  <div className="h-10 w-10 shrink-0 rounded-lg bg-zinc-800 border border-gold-subtle/40 flex items-center justify-center text-sm font-bold text-zinc-500">{(g.name || 'G').charAt(0)}</div>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="text-white font-medium truncate">{g.name}</p>
@@ -1103,7 +1117,7 @@ function SearchTab({
             {g.emblem_url?.trim() ? (
               <img src={g.emblem_url} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover bg-zinc-800" />
             ) : (
-              <div className="h-10 w-10 shrink-0 rounded-lg bg-[var(--gold)]/20 flex items-center justify-center text-lg">🏰</div>
+              <div className="h-10 w-10 shrink-0 rounded-lg bg-zinc-800 border border-gold-subtle/40 flex items-center justify-center text-sm font-bold text-zinc-500">{(g.name || 'G').charAt(0)}</div>
             )}
             <div className="min-w-0 flex-1">
               <p className="font-medium text-white">{g.name}</p>
@@ -1138,9 +1152,9 @@ function SearchTab({
           <h3 className="text-sm font-medium text-zinc-400 mt-6">ギルドを新規作成</h3>
           <p className="text-sm text-zinc-500">
             リーダーとしてギルドを設立するには <span className="font-bold text-gold">{GUILD_CREATE_XP_COST.toLocaleString()} ギルドXP</span> 必要です。
-            {userGuildXp !== null && (
-              <span className="ml-1">所持: <span className="font-medium text-white">{userGuildXp.toLocaleString()}</span> ギルドXP</span>
-            )}
+            <span className="ml-1">
+              所持: <span className="font-medium text-white">{userGuildXp !== null ? userGuildXp.toLocaleString() : '---'}</span> ギルドXP
+            </span>
           </p>
           <div className="space-y-3">
             <div>

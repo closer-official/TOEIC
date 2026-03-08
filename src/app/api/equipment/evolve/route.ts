@@ -1,10 +1,10 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { nextEquipmentGrade, equipmentEffectMultiplier, timeDecayRateMultiplier, GACHA_EQUIPMENT } from '@/lib/equipment-items';
+import { nextEquipmentGrade, equipmentEffectMultiplier, timeDecayRateMultiplier, costForEquipmentEvolve, GACHA_EQUIPMENT } from '@/lib/equipment-items';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -70,6 +70,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         error: `同じ装備・同じレアリティが5個必要です（${equipment_id} ${grade}: 所持${total}個）`,
       }, { status: 400 });
+    }
+
+    // レジェンダリー→エターナル進化時はエターナル素材を1個所持しているか先に確認
+    if (next === 'eternal') {
+      const { data: invRows } = await supabase
+        .from('user_inventory')
+        .select('id, quantity')
+        .eq('user_id', user.id)
+        .eq('item_id', 'eternal_material')
+        .order('id', { ascending: true });
+      const totalMaterial = (invRows ?? []).reduce((s, r) => s + (r.quantity ?? 0), 0);
+      if (totalMaterial < 1) {
+        return NextResponse.json({
+          error: 'レジェンダリー→エターナル進化にはエターナル素材が1個必要です。エターナルのかけら10個で1個作成できます。',
+        }, { status: 400 });
+      }
+      // 1個消費: 先頭の行から減らす（1なら削除、2以上なら-1）
+      let toDeduct = 1;
+      for (const inv of invRows ?? []) {
+        if (toDeduct <= 0) break;
+        const q = inv.quantity ?? 0;
+        if (q <= toDeduct) {
+          await supabase.from('user_inventory').delete().eq('id', inv.id);
+          toDeduct -= q;
+        } else {
+          await supabase.from('user_inventory').update({ quantity: q - toDeduct }).eq('id', inv.id);
+          toDeduct = 0;
+        }
+      }
+    }
+
+    // 進化に必要な全共通XPをチェック・消費（素材チェックの後に実行して、不足でXPだけ減らさないようにする）
+    const xpCost = costForEquipmentEvolve(grade as 'common' | 'normal' | 'rare' | 'epic' | 'legendary' | 'eternal');
+    if (Number.isFinite(xpCost) && xpCost > 0) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('evolution_points')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const points = Math.max(0, (profile as { evolution_points?: number } | null)?.evolution_points ?? 0);
+      if (points < xpCost) {
+        return NextResponse.json({
+          error: `全共通XPが足りません（進化に${xpCost}必要、所持${points}）`,
+        }, { status: 400 });
+      }
+      const now = new Date().toISOString();
+      await supabase
+        .from('profiles')
+        .update({ evolution_points: points - xpCost, updated_at: now })
+        .eq('user_id', user.id);
     }
 
     const eqDef = GACHA_EQUIPMENT.find((e) => e.id === equipment_id);

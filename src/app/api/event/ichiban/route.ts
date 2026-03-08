@@ -2,9 +2,11 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEvent } from '@/lib/weekly-events';
+import { getMaxStamina, type SubscriptionTier } from '@/lib/stamina';
+import { getGuildXpBoosterMultiplier } from '@/lib/guild-xp-booster';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -87,15 +89,16 @@ async function getBoxState(
   return { remainingCount, remainingByPrize };
 }
 
-/** GET: 現在の箱の状態（残り枚数・賞別残り）。未認証でも取得可 */
-export async function GET() {
+/** GET: 現在の箱の状態（残り枚数・賞別残り）。未認証でも取得可。?preview=1 で今週でなくても表示可 */
+export async function GET(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
+    const isPreview = req.nextUrl.searchParams.get('preview') === '1' || req.nextUrl.searchParams.get('dev') === '1';
     const cookieStore = await cookies();
     const supabase = createSupabase(cookieStore);
 
     const current = getCurrentEvent();
-    if (current.id !== 'ichiban') {
+    if (current.id !== 'ichiban' && !isPreview) {
       return NextResponse.json({ error: '今週は至高の1番くじではありません' }, { status: 404 });
     }
 
@@ -143,45 +146,54 @@ async function grantPrize(
 
   switch (prizeType) {
     case 'a': {
-      const { data: p } = await supabase.from('profiles').select('evolution_points').eq('user_id', userId).maybeSingle();
-      const cur = (p as { evolution_points?: number } | null)?.evolution_points ?? 0;
+      const { data: p } = await supabase.from('profiles').select('gems').eq('user_id', userId).maybeSingle();
+      const cur = (p as { gems?: number } | null)?.gems ?? 0;
       const { error: e } = await supabase
         .from('profiles')
-        .update({ evolution_points: cur + 10000, updated_at: now })
+        .update({ gems: cur + 10000, updated_at: now })
         .eq('user_id', userId);
       if (e) return { error: e.message };
       break;
     }
     case 'b_plus': {
-      const { data: p } = await supabase.from('profiles').select('evolution_points').eq('user_id', userId).maybeSingle();
-      const cur = (p as { evolution_points?: number } | null)?.evolution_points ?? 0;
+      // XPブースター：使用するとギルド全体の獲得XPが30分間2倍。アイテムを1個付与。
+      const { error: invErr } = await supabase.from('user_inventory').insert({
+        user_id: userId,
+        item_id: 'xp_booster',
+        quantity: 1,
+      });
+      if (invErr) return { error: invErr.message };
+      break;
+    }
+    case 'b_minus': {
+      // スタミナ・インフィニティ30分：効果時間中はスタミナ消費なしでプレイ可能。スタミナ全回復＋終了時刻を設定。
+      const { data: p } = await supabase
+        .from('profiles')
+        .select('stamina_count, last_stamina_at, subscription_tier, is_subscriber')
+        .eq('user_id', userId)
+        .maybeSingle();
+      const raw = p as { subscription_tier?: string | null; is_subscriber?: boolean } | null;
+      const tier: SubscriptionTier = raw?.subscription_tier === 'ultra' ? 'ultra' : raw?.subscription_tier === 'pro' ? 'pro' : raw?.is_subscriber ? 'pro' : 'free';
+      let maxStamina = getMaxStamina(tier);
+      const { data: member } = await supabase.from('guild_members').select('guild_id').eq('user_id', userId).maybeSingle();
+      if (member?.guild_id) {
+        const { data: guild } = await supabase.from('guilds').select('lab_stamina_lv').eq('id', (member as { guild_id: string }).guild_id).maybeSingle();
+        const labLv = (guild as { lab_stamina_lv?: number } | null)?.lab_stamina_lv ?? 0;
+        maxStamina += labLv * 5;
+      }
+      const endsAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
       const { error: e } = await supabase
         .from('profiles')
-        .update({ evolution_points: cur + 5000, updated_at: now })
+        .update({
+          stamina_count: maxStamina,
+          last_stamina_at: now,
+          stamina_infinity_ends_at: endsAt,
+          updated_at: now,
+        })
         .eq('user_id', userId);
       if (e) return { error: e.message };
       break;
     }
-    case 'b_minus':
-      // スタミナ・インフィニティ30分: 簡易実装でスタミナ全回復＋evolution_points で代用 or 別カラム。ここではスタミナ全回復扱い（last_stamina_at を now にし、stamina_count を max に）
-      {
-        const { data: p } = await supabase
-          .from('profiles')
-          .select('stamina_count, last_stamina_at')
-          .eq('user_id', userId)
-          .maybeSingle();
-        const maxStamina = 10; // 簡易
-        const { error: e } = await supabase
-          .from('profiles')
-          .update({
-            stamina_count: maxStamina,
-            last_stamina_at: now,
-            updated_at: now,
-          })
-          .eq('user_id', userId);
-        if (e) return { error: e.message };
-      }
-      break;
     case 'c': {
       const { data: p } = await supabase.from('profiles').select('paid_gacha_ticket_pulls').eq('user_id', userId).maybeSingle();
       const cur = (p as { paid_gacha_ticket_pulls?: number } | null)?.paid_gacha_ticket_pulls ?? 0;
@@ -205,11 +217,13 @@ async function grantPrize(
     case 'd': {
       const giveXp = Math.random() < 0.5;
       if (giveXp) {
+        const mult = await getGuildXpBoosterMultiplier(supabase, userId);
+        const xpGain = 500 * mult;
         const { data: p } = await supabase.from('profiles').select('evolution_points').eq('user_id', userId).maybeSingle();
         const cur = (p as { evolution_points?: number } | null)?.evolution_points ?? 0;
         const { error: e } = await supabase
           .from('profiles')
-          .update({ evolution_points: cur + 500, updated_at: now })
+          .update({ evolution_points: cur + xpGain, updated_at: now })
           .eq('user_id', userId);
         if (e) return { error: e.message };
       } else {
@@ -244,12 +258,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    const isPreview = body?.preview === true;
     const current = getCurrentEvent();
-    if (current.id !== 'ichiban') {
+    if (current.id !== 'ichiban' && !isPreview) {
       return NextResponse.json({ error: '今週は至高の1番くじではありません' }, { status: 404 });
     }
 
-    const body = await req.json().catch(() => ({}));
     const action = body?.action === 'all' ? 'all' : 'one';
 
     const boxId = await getOrCreateCurrentBoxId(supabase);

@@ -1,0 +1,3002 @@
+[
+  {
+    "word": "free",
+    "pos": "形容詞",
+    "meaning": "complimentary",
+    "dummies": [
+      "mandatory",
+      "expensive",
+      "optional",
+      "defective",
+      "limited"
+    ]
+  },
+  {
+    "word": "buy",
+    "pos": "動詞",
+    "meaning": "purchase",
+    "dummies": [
+      "sell",
+      "rent",
+      "refund",
+      "donate",
+      "borrow"
+    ]
+  },
+  {
+    "word": "fix",
+    "pos": "動詞",
+    "meaning": "repair",
+    "dummies": [
+      "damage",
+      "break",
+      "replace",
+      "demolish",
+      "destroy"
+    ]
+  },
+  {
+    "word": "choose",
+    "pos": "動詞",
+    "meaning": "select",
+    "dummies": [
+      "reject",
+      "refuse",
+      "ignore",
+      "deny",
+      "dismiss"
+    ]
+  },
+  {
+    "word": "help",
+    "pos": "動詞",
+    "meaning": "assist",
+    "dummies": [
+      "hinder",
+      "disturb",
+      "prevent",
+      "interrupt",
+      "block"
+    ]
+  },
+  {
+    "word": "look for",
+    "pos": "動詞句",
+    "meaning": "seek",
+    "dummies": [
+      "hide",
+      "ignore",
+      "lose",
+      "forget",
+      "drop"
+    ]
+  },
+  {
+    "word": "ask",
+    "pos": "動詞",
+    "meaning": "inquire",
+    "dummies": [
+      "reply",
+      "answer",
+      "respond",
+      "state",
+      "declare"
+    ]
+  },
+  {
+    "word": "show",
+    "pos": "動詞",
+    "meaning": "display",
+    "dummies": [
+      "conceal",
+      "hide",
+      "cover",
+      "wrap",
+      "obscure"
+    ]
+  },
+  {
+    "word": "build",
+    "pos": "動詞",
+    "meaning": "construct",
+    "dummies": [
+      "demolish",
+      "destroy",
+      "ruin",
+      "collapse",
+      "tear down"
+    ]
+  },
+  {
+    "word": "keep",
+    "pos": "動詞",
+    "meaning": "retain",
+    "dummies": [
+      "discard",
+      "release",
+      "abandon",
+      "eliminate",
+      "throw away"
+    ]
+  },
+  {
+    "word": "give",
+    "pos": "動詞",
+    "meaning": "provide",
+    "dummies": [
+      "take",
+      "receive",
+      "acquire",
+      "deprive",
+      "steal"
+    ]
+  },
+  {
+    "word": "change",
+    "pos": "動詞",
+    "meaning": "modify",
+    "dummies": [
+      "maintain",
+      "preserve",
+      "sustain",
+      "remain",
+      "keep"
+    ]
+  },
+  {
+    "word": "meet",
+    "pos": "動詞",
+    "meaning": "gather",
+    "dummies": [
+      "scatter",
+      "disperse",
+      "divide",
+      "separate",
+      "isolate"
+    ]
+  },
+  {
+    "word": "start",
+    "pos": "動詞",
+    "meaning": "commence",
+    "dummies": [
+      "finish",
+      "conclude",
+      "terminate",
+      "complete",
+      "end"
+    ]
+  },
+  {
+    "word": "stop",
+    "pos": "動詞",
+    "meaning": "cease",
+    "dummies": [
+      "continue",
+      "resume",
+      "proceed",
+      "persist",
+      "extend"
+    ]
+  },
+  {
+    "word": "require",
+    "pos": "動詞",
+    "meaning": "demand",
+    "dummies": [
+      "offer",
+      "supply",
+      "present",
+      "provide",
+      "grant"
+    ]
+  },
+  {
+    "word": "use",
+    "pos": "動詞",
+    "meaning": "utilize",
+    "dummies": [
+      "waste",
+      "ignore",
+      "misuse",
+      "avoid",
+      "neglect"
+    ]
+  },
+  {
+    "word": "join",
+    "pos": "動詞",
+    "meaning": "participate",
+    "dummies": [
+      "leave",
+      "quit",
+      "resign",
+      "depart",
+      "withdraw"
+    ]
+  },
+  {
+    "word": "send",
+    "pos": "動詞",
+    "meaning": "dispatch",
+    "dummies": [
+      "receive",
+      "obtain",
+      "acquire",
+      "collect",
+      "keep"
+    ]
+  },
+  {
+    "word": "tell",
+    "pos": "動詞",
+    "meaning": "notify",
+    "dummies": [
+      "listen",
+      "hear",
+      "conceal",
+      "hide",
+      "ask"
+    ]
+  },
+  {
+    "word": "work together",
+    "pos": "動詞句",
+    "meaning": "collaborate",
+    "dummies": [
+      "compete",
+      "argue",
+      "conflict",
+      "oppose",
+      "disagree"
+    ]
+  },
+  {
+    "word": "handle",
+    "pos": "動詞",
+    "meaning": "deal with",
+    "dummies": [
+      "ignore",
+      "neglect",
+      "avoid",
+      "escape",
+      "drop"
+    ]
+  },
+  {
+    "word": "look over",
+    "pos": "動詞句",
+    "meaning": "review",
+    "dummies": [
+      "overlook",
+      "ignore",
+      "forget",
+      "miss",
+      "discard"
+    ]
+  },
+  {
+    "word": "hand in",
+    "pos": "動詞句",
+    "meaning": "submit",
+    "dummies": [
+      "distribute",
+      "hand out",
+      "keep",
+      "hide",
+      "return"
+    ]
+  },
+  {
+    "word": "put off",
+    "pos": "動詞句",
+    "meaning": "postpone",
+    "dummies": [
+      "expedite",
+      "accelerate",
+      "advance",
+      "hurry",
+      "perform"
+    ]
+  },
+  {
+    "word": "right away",
+    "pos": "副詞句",
+    "meaning": "immediately",
+    "dummies": [
+      "eventually",
+      "later",
+      "gradually",
+      "slowly",
+      "sometimes"
+    ]
+  },
+  {
+    "word": "at no cost",
+    "pos": "副詞句",
+    "meaning": "free of charge",
+    "dummies": [
+      "extremely expensive",
+      "highly priced",
+      "for a fee",
+      "overcharged",
+      "costly"
+    ]
+  },
+  {
+    "word": "out of date",
+    "pos": "形容詞句",
+    "meaning": "obsolete",
+    "dummies": [
+      "state of the art",
+      "brand new",
+      "modern",
+      "up to date",
+      "current"
+    ]
+  },
+  {
+    "word": "make sure",
+    "pos": "動詞句",
+    "meaning": "ensure",
+    "dummies": [
+      "doubt",
+      "guess",
+      "wonder",
+      "assume",
+      "forget"
+    ]
+  },
+  {
+    "word": "set up",
+    "pos": "動詞句",
+    "meaning": "establish",
+    "dummies": [
+      "destroy",
+      "demolish",
+      "ruin",
+      "dismantle",
+      "break"
+    ]
+  },
+  {
+    "word": "find out",
+    "pos": "動詞句",
+    "meaning": "discover",
+    "dummies": [
+      "conceal",
+      "cover",
+      "hide",
+      "ignore",
+      "miss"
+    ]
+  },
+  {
+    "word": "carry out",
+    "pos": "動詞句",
+    "meaning": "execute",
+    "dummies": [
+      "cancel",
+      "call off",
+      "abort",
+      "stop",
+      "drop"
+    ]
+  },
+  {
+    "word": "think about",
+    "pos": "動詞句",
+    "meaning": "consider",
+    "dummies": [
+      "ignore",
+      "forget",
+      "neglect",
+      "overlook",
+      "skip"
+    ]
+  },
+  {
+    "word": "rely on",
+    "pos": "動詞句",
+    "meaning": "depend on",
+    "dummies": [
+      "doubt",
+      "suspect",
+      "distrust",
+      "ignore",
+      "reject"
+    ]
+  },
+  {
+    "word": "go up",
+    "pos": "動詞句",
+    "meaning": "increase",
+    "dummies": [
+      "decrease",
+      "decline",
+      "drop",
+      "fall",
+      "plunge"
+    ]
+  },
+  {
+    "word": "go down",
+    "pos": "動詞句",
+    "meaning": "decrease",
+    "dummies": [
+      "increase",
+      "rise",
+      "soar",
+      "climb",
+      "boost"
+    ]
+  },
+  {
+    "word": "rule",
+    "pos": "名詞",
+    "meaning": "regulation",
+    "dummies": [
+      "suggestion",
+      "advice",
+      "proposal",
+      "option",
+      "choice"
+    ]
+  },
+  {
+    "word": "chance",
+    "pos": "名詞",
+    "meaning": "opportunity",
+    "dummies": [
+      "disadvantage",
+      "obstacle",
+      "barrier",
+      "restriction",
+      "limitation"
+    ]
+  },
+  {
+    "word": "money",
+    "pos": "名詞",
+    "meaning": "fund",
+    "dummies": [
+      "debt",
+      "liability",
+      "deficit",
+      "penalty",
+      "expense"
+    ]
+  },
+  {
+    "word": "yearly",
+    "pos": "副詞",
+    "meaning": "annually",
+    "dummies": [
+      "daily",
+      "weekly",
+      "monthly",
+      "rarely",
+      "occasionally"
+    ]
+  },
+  {
+    "word": "basic",
+    "pos": "形容詞",
+    "meaning": "fundamental",
+    "dummies": [
+      "advanced",
+      "complex",
+      "complicated",
+      "sophisticated",
+      "detailed"
+    ]
+  },
+  {
+    "word": "enough",
+    "pos": "形容詞",
+    "meaning": "sufficient",
+    "dummies": [
+      "lacking",
+      "short",
+      "scarce",
+      "deficient",
+      "empty"
+    ]
+  },
+  {
+    "word": "exact",
+    "pos": "形容詞",
+    "meaning": "precise",
+    "dummies": [
+      "vague",
+      "ambiguous",
+      "rough",
+      "broad",
+      "incorrect"
+    ]
+  },
+  {
+    "word": "main",
+    "pos": "形容詞",
+    "meaning": "primary",
+    "dummies": [
+      "secondary",
+      "minor",
+      "trivial",
+      "slight",
+      "marginal"
+    ]
+  },
+  {
+    "word": "normal",
+    "pos": "形容詞",
+    "meaning": "typical",
+    "dummies": [
+      "unusual",
+      "rare",
+      "strange",
+      "extraordinary",
+      "weird"
+    ]
+  },
+  {
+    "word": "prior to",
+    "pos": "前置詞句",
+    "meaning": "before",
+    "dummies": [
+      "after",
+      "during",
+      "within",
+      "following",
+      "behind"
+    ]
+  },
+  {
+    "word": "because of",
+    "pos": "前置詞句",
+    "meaning": "due to",
+    "dummies": [
+      "in spite of",
+      "regardless of",
+      "instead of",
+      "aside from",
+      "except for"
+    ]
+  },
+  {
+    "word": "in charge of",
+    "pos": "前置詞句",
+    "meaning": "responsible for",
+    "dummies": [
+      "dependent on",
+      "opposed to",
+      "unaware of",
+      "absent from",
+      "exempt from"
+    ]
+  },
+  {
+    "word": "figure out",
+    "pos": "動詞句",
+    "meaning": "understand",
+    "dummies": [
+      "confuse",
+      "misunderstand",
+      "complicate",
+      "ignore",
+      "forget"
+    ]
+  },
+  {
+    "word": "get back to",
+    "pos": "動詞句",
+    "meaning": "reply to",
+    "dummies": [
+      "ignore",
+      "forward to",
+      "delete",
+      "lose",
+      "pass on"
+    ]
+  },
+  {
+    "word": "call off",
+    "pos": "動詞句",
+    "meaning": "cancel",
+    "dummies": [
+      "postpone",
+      "initiate",
+      "execute",
+      "approve",
+      "resume"
+    ]
+  },
+  {
+    "word": "turn down",
+    "pos": "動詞句",
+    "meaning": "reject",
+    "dummies": [
+      "accept",
+      "elevate",
+      "confirm",
+      "submit",
+      "admit"
+    ]
+  },
+  {
+    "word": "look into",
+    "pos": "動詞句",
+    "meaning": "investigate",
+    "dummies": [
+      "ignore",
+      "overlook",
+      "abandon",
+      "discard",
+      "conceal"
+    ]
+  },
+  {
+    "word": "bring up",
+    "pos": "動詞句",
+    "meaning": "raise",
+    "dummies": [
+      "lower",
+      "drop",
+      "dismiss",
+      "hide",
+      "bury"
+    ]
+  },
+  {
+    "word": "point out",
+    "pos": "動詞句",
+    "meaning": "indicate",
+    "dummies": [
+      "obscure",
+      "confuse",
+      "mislead",
+      "deny",
+      "hide"
+    ]
+  },
+  {
+    "word": "account for",
+    "pos": "動詞句",
+    "meaning": "explain",
+    "dummies": [
+      "confuse",
+      "guess",
+      "forget",
+      "mistake",
+      "omit"
+    ]
+  },
+  {
+    "word": "turn out",
+    "pos": "動詞句",
+    "meaning": "prove",
+    "dummies": [
+      "fail",
+      "hide",
+      "deny",
+      "cover",
+      "guess"
+    ]
+  },
+  {
+    "word": "rule out",
+    "pos": "動詞句",
+    "meaning": "exclude",
+    "dummies": [
+      "include",
+      "welcome",
+      "invite",
+      "accept",
+      "involve"
+    ]
+  },
+  {
+    "word": "leave out",
+    "pos": "動詞句",
+    "meaning": "omit",
+    "dummies": [
+      "insert",
+      "add",
+      "attach",
+      "include",
+      "contain"
+    ]
+  },
+  {
+    "word": "sort out",
+    "pos": "動詞句",
+    "meaning": "resolve",
+    "dummies": [
+      "complicate",
+      "confuse",
+      "delay",
+      "interrupt",
+      "disturb"
+    ]
+  },
+  {
+    "word": "fill out",
+    "pos": "動詞句",
+    "meaning": "complete",
+    "dummies": [
+      "empty",
+      "erase",
+      "delete",
+      "break",
+      "tear"
+    ]
+  },
+  {
+    "word": "pass out",
+    "pos": "動詞句",
+    "meaning": "distribute",
+    "dummies": [
+      "collect",
+      "gather",
+      "keep",
+      "retain",
+      "hide"
+    ]
+  },
+  {
+    "word": "drop by",
+    "pos": "動詞句",
+    "meaning": "visit",
+    "dummies": [
+      "avoid",
+      "bypass",
+      "escape",
+      "skip",
+      "miss"
+    ]
+  },
+  {
+    "word": "go over",
+    "pos": "動詞句",
+    "meaning": "examine",
+    "dummies": [
+      "ignore",
+      "bypass",
+      "forget",
+      "skip",
+      "discard"
+    ]
+  },
+  {
+    "word": "draw up",
+    "pos": "動詞句",
+    "meaning": "draft",
+    "dummies": [
+      "erase",
+      "destroy",
+      "cancel",
+      "break",
+      "drop"
+    ]
+  },
+  {
+    "word": "back up",
+    "pos": "動詞句",
+    "meaning": "support",
+    "dummies": [
+      "oppose",
+      "attack",
+      "reject",
+      "deny",
+      "refuse"
+    ]
+  },
+  {
+    "word": "break down",
+    "pos": "動詞句",
+    "meaning": "malfunction",
+    "dummies": [
+      "operate",
+      "succeed",
+      "progress",
+      "advance",
+      "run"
+    ]
+  },
+  {
+    "word": "step down",
+    "pos": "動詞句",
+    "meaning": "resign",
+    "dummies": [
+      "join",
+      "enter",
+      "apply",
+      "hire",
+      "recruit"
+    ]
+  },
+  {
+    "word": "take over",
+    "pos": "動詞句",
+    "meaning": "assume",
+    "dummies": [
+      "abandon",
+      "reject",
+      "leave",
+      "drop",
+      "quit"
+    ]
+  },
+  {
+    "word": "wrap up",
+    "pos": "動詞句",
+    "meaning": "conclude",
+    "dummies": [
+      "start",
+      "begin",
+      "initiate",
+      "commence",
+      "open"
+    ]
+  },
+  {
+    "word": "look forward to",
+    "pos": "動詞句",
+    "meaning": "anticipate",
+    "dummies": [
+      "regret",
+      "fear",
+      "forget",
+      "ignore",
+      "miss"
+    ]
+  },
+  {
+    "word": "keep up with",
+    "pos": "動詞句",
+    "meaning": "maintain",
+    "dummies": [
+      "lose",
+      "drop",
+      "fail",
+      "miss",
+      "abandon"
+    ]
+  },
+  {
+    "word": "cut down on",
+    "pos": "動詞句",
+    "meaning": "reduce",
+    "dummies": [
+      "increase",
+      "expand",
+      "extend",
+      "raise",
+      "boost"
+    ]
+  },
+  {
+    "word": "sign up for",
+    "pos": "動詞句",
+    "meaning": "register",
+    "dummies": [
+      "resign",
+      "quit",
+      "leave",
+      "drop",
+      "cancel"
+    ]
+  },
+  {
+    "word": "take advantage of",
+    "pos": "動詞句",
+    "meaning": "utilize",
+    "dummies": [
+      "waste",
+      "ignore",
+      "ruin",
+      "destroy",
+      "miss"
+    ]
+  },
+  {
+    "word": "stand for",
+    "pos": "動詞句",
+    "meaning": "represent",
+    "dummies": [
+      "oppose",
+      "deny",
+      "reject",
+      "hide",
+      "cover"
+    ]
+  },
+  {
+    "word": "show up",
+    "pos": "動詞句",
+    "meaning": "arrive",
+    "dummies": [
+      "leave",
+      "depart",
+      "exit",
+      "hide",
+      "escape"
+    ]
+  },
+  {
+    "word": "get over",
+    "pos": "動詞句",
+    "meaning": "overcome",
+    "dummies": [
+      "fail",
+      "surrender",
+      "yield",
+      "lose",
+      "drop"
+    ]
+  },
+  {
+    "word": "famous",
+    "pos": "形容詞",
+    "meaning": "renowned",
+    "dummies": [
+      "unknown",
+      "obscure",
+      "anonymous",
+      "hidden",
+      "strange"
+    ]
+  },
+  {
+    "word": "mandatory",
+    "pos": "形容詞",
+    "meaning": "compulsory",
+    "dummies": [
+      "optional",
+      "voluntary",
+      "flexible",
+      "free",
+      "casual"
+    ]
+  },
+  {
+    "word": "numerous",
+    "pos": "形容詞",
+    "meaning": "multiple",
+    "dummies": [
+      "few",
+      "scarce",
+      "rare",
+      "single",
+      "limited"
+    ]
+  },
+  {
+    "word": "feasible",
+    "pos": "形容詞",
+    "meaning": "viable",
+    "dummies": [
+      "impossible",
+      "unlikely",
+      "unrealistic",
+      "absurd",
+      "useless"
+    ]
+  },
+  {
+    "word": "entire",
+    "pos": "形容詞",
+    "meaning": "whole",
+    "dummies": [
+      "partial",
+      "broken",
+      "limited",
+      "restricted",
+      "split"
+    ]
+  },
+  {
+    "word": "complicated",
+    "pos": "形容詞",
+    "meaning": "complex",
+    "dummies": [
+      "simple",
+      "easy",
+      "plain",
+      "clear",
+      "basic"
+    ]
+  },
+  {
+    "word": "crucial",
+    "pos": "形容詞",
+    "meaning": "essential",
+    "dummies": [
+      "trivial",
+      "minor",
+      "slight",
+      "optional",
+      "extra"
+    ]
+  },
+  {
+    "word": "exceptional",
+    "pos": "形容詞",
+    "meaning": "outstanding",
+    "dummies": [
+      "average",
+      "normal",
+      "ordinary",
+      "common",
+      "typical"
+    ]
+  },
+  {
+    "word": "objective",
+    "pos": "名詞",
+    "meaning": "goal",
+    "dummies": [
+      "obstacle",
+      "barrier",
+      "mistake",
+      "error",
+      "trouble"
+    ]
+  },
+  {
+    "word": "consequence",
+    "pos": "名詞",
+    "meaning": "result",
+    "dummies": [
+      "cause",
+      "reason",
+      "origin",
+      "source",
+      "beginning"
+    ]
+  },
+  {
+    "word": "advantage",
+    "pos": "名詞",
+    "meaning": "benefit",
+    "dummies": [
+      "drawback",
+      "flaw",
+      "defect",
+      "loss",
+      "penalty"
+    ]
+  },
+  {
+    "word": "flaw",
+    "pos": "名詞",
+    "meaning": "defect",
+    "dummies": [
+      "perfection",
+      "strength",
+      "merit",
+      "success",
+      "quality"
+    ]
+  },
+  {
+    "word": "trait",
+    "pos": "名詞",
+    "meaning": "characteristic",
+    "dummies": [
+      "exception",
+      "error",
+      "mistake",
+      "difference",
+      "opposite"
+    ]
+  },
+  {
+    "word": "initially",
+    "pos": "副詞",
+    "meaning": "originally",
+    "dummies": [
+      "finally",
+      "eventually",
+      "lately",
+      "recently",
+      "later"
+    ]
+  },
+  {
+    "word": "currently",
+    "pos": "副詞",
+    "meaning": "presently",
+    "dummies": [
+      "previously",
+      "formerly",
+      "soon",
+      "later",
+      "tomorrow"
+    ]
+  },
+  {
+    "word": "lately",
+    "pos": "副詞",
+    "meaning": "recently",
+    "dummies": [
+      "rarely",
+      "later",
+      "early",
+      "eventually",
+      "completely"
+    ]
+  },
+  {
+    "word": "occasionally",
+    "pos": "副詞",
+    "meaning": "sometimes",
+    "dummies": [
+      "always",
+      "constantly",
+      "never",
+      "continuously",
+      "regularly"
+    ]
+  },
+  {
+    "word": "roughly",
+    "pos": "副詞",
+    "meaning": "approximately",
+    "dummies": [
+      "exactly",
+      "precisely",
+      "definitely",
+      "certainly",
+      "completely"
+    ]
+  },
+  {
+    "word": "practically",
+    "pos": "副詞",
+    "meaning": "virtually",
+    "dummies": [
+      "hardly",
+      "rarely",
+      "exactly",
+      "purely",
+      "barely"
+    ]
+  },
+  {
+    "word": "solely",
+    "pos": "副詞",
+    "meaning": "exclusively",
+    "dummies": [
+      "jointly",
+      "partially",
+      "mostly",
+      "widely",
+      "publicly"
+    ]
+  },
+  {
+    "word": "wealthy",
+    "pos": "形容詞",
+    "meaning": "affluent",
+    "dummies": [
+      "poor",
+      "bankrupt",
+      "needy",
+      "broke",
+      "impoverished"
+    ]
+  },
+  {
+    "word": "vendor",
+    "pos": "名詞",
+    "meaning": "supplier",
+    "dummies": [
+      "customer",
+      "buyer",
+      "client",
+      "consumer",
+      "shopper"
+    ]
+  },
+  {
+    "word": "appraisal",
+    "pos": "名詞",
+    "meaning": "evaluation",
+    "dummies": [
+      "apology",
+      "approval",
+      "appeal",
+      "appearance",
+      "application"
+    ]
+  },
+  {
+    "word": "modification",
+    "pos": "名詞",
+    "meaning": "alteration",
+    "dummies": [
+      "motivation",
+      "modernization",
+      "model",
+      "motion",
+      "moment"
+    ]
+  },
+  {
+    "word": "merchandise",
+    "pos": "名詞",
+    "meaning": "goods",
+    "dummies": [
+      "merchant",
+      "mechanism",
+      "medicine",
+      "memory",
+      "method"
+    ]
+  },
+  {
+    "word": "workforce",
+    "pos": "名詞",
+    "meaning": "employees",
+    "dummies": [
+      "workplace",
+      "workshop",
+      "workload",
+      "workout",
+      "workflow"
+    ]
+  },
+  {
+    "word": "venue",
+    "pos": "名詞",
+    "meaning": "location",
+    "dummies": [
+      "revenue",
+      "venture",
+      "vehicle",
+      "version",
+      "vendor"
+    ]
+  },
+  {
+    "word": "itinerary",
+    "pos": "名詞",
+    "meaning": "schedule",
+    "dummies": [
+      "item",
+      "identity",
+      "investor",
+      "industry",
+      "inventory"
+    ]
+  },
+  {
+    "word": "inquiry",
+    "pos": "名詞",
+    "meaning": "question",
+    "dummies": [
+      "injury",
+      "ink",
+      "income",
+      "insight",
+      "instruction"
+    ]
+  },
+  {
+    "word": "patron",
+    "pos": "名詞",
+    "meaning": "customer",
+    "dummies": [
+      "pattern",
+      "passion",
+      "payment",
+      "patient",
+      "parcel"
+    ]
+  },
+  {
+    "word": "authorization",
+    "pos": "名詞",
+    "meaning": "permission",
+    "dummies": [
+      "author",
+      "authority",
+      "audience",
+      "audio",
+      "auction"
+    ]
+  },
+  {
+    "word": "vendor",
+    "pos": "名詞",
+    "meaning": "supplier",
+    "dummies": [
+      "venture",
+      "vehicle",
+      "venue",
+      "version",
+      "veteran"
+    ]
+  },
+  {
+    "word": "constraint",
+    "pos": "名詞",
+    "meaning": "restriction",
+    "dummies": [
+      "construction",
+      "contrast",
+      "contract",
+      "contribution",
+      "concentration"
+    ]
+  },
+  {
+    "word": "discrepancy",
+    "pos": "名詞",
+    "meaning": "inconsistency",
+    "dummies": [
+      "discretion",
+      "discovery",
+      "discount",
+      "discussion",
+      "display"
+    ]
+  },
+  {
+    "word": "proximity",
+    "pos": "名詞",
+    "meaning": "closeness",
+    "dummies": [
+      "property",
+      "proposal",
+      "proportion",
+      "profit",
+      "process"
+    ]
+  },
+  {
+    "word": "liability",
+    "pos": "名詞",
+    "meaning": "responsibility",
+    "dummies": [
+      "liberty",
+      "library",
+      "license",
+      "limitation",
+      "liquid"
+    ]
+  },
+  {
+    "word": "shortcoming",
+    "pos": "名詞",
+    "meaning": "flaw",
+    "dummies": [
+      "shortcut",
+      "shortage",
+      "shore",
+      "shower",
+      "shoulder"
+    ]
+  },
+  {
+    "word": "overview",
+    "pos": "名詞",
+    "meaning": "summary",
+    "dummies": [
+      "oversight",
+      "overtime",
+      "overhead",
+      "overseas",
+      "outlook"
+    ]
+  },
+  {
+    "word": "credential",
+    "pos": "名詞",
+    "meaning": "qualification",
+    "dummies": [
+      "credit",
+      "creation",
+      "creativity",
+      "criticism",
+      "crisis"
+    ]
+  },
+  {
+    "word": "milestone",
+    "pos": "名詞",
+    "meaning": "landmark",
+    "dummies": [
+      "mileage",
+      "mill",
+      "million",
+      "mineral",
+      "mixture"
+    ]
+  },
+  {
+    "word": "synopsis",
+    "pos": "名詞",
+    "meaning": "summary",
+    "dummies": [
+      "symptom",
+      "system",
+      "synergy",
+      "symbol",
+      "surgery"
+    ]
+  },
+  {
+    "word": "remedy",
+    "pos": "名詞",
+    "meaning": "solution",
+    "dummies": [
+      "reminder",
+      "remark",
+      "remnant",
+      "removal",
+      "rental"
+    ]
+  },
+  {
+    "word": "compensation",
+    "pos": "名詞",
+    "meaning": "remuneration",
+    "dummies": [
+      "competition",
+      "complaint",
+      "completion",
+      "compliance",
+      "complication"
+    ]
+  },
+  {
+    "word": "outage",
+    "pos": "名詞",
+    "meaning": "power failure",
+    "dummies": [
+      "outlet",
+      "outlook",
+      "output",
+      "outreach",
+      "outfit"
+    ]
+  },
+  {
+    "word": "substitute",
+    "pos": "名詞",
+    "meaning": "replacement",
+    "dummies": [
+      "substance",
+      "subsidy",
+      "suburb",
+      "subject",
+      "subscription"
+    ]
+  },
+  {
+    "word": "flaw",
+    "pos": "名詞",
+    "meaning": "defect",
+    "dummies": [
+      "flow",
+      "flower",
+      "flour",
+      "flavor",
+      "fleet"
+    ]
+  },
+  {
+    "word": "endorsement",
+    "pos": "名詞",
+    "meaning": "approval",
+    "dummies": [
+      "endurance",
+      "enemy",
+      "energy",
+      "engine",
+      "enterprise"
+    ]
+  },
+  {
+    "word": "objective",
+    "pos": "名詞",
+    "meaning": "goal",
+    "dummies": [
+      "objection",
+      "obligation",
+      "observation",
+      "obstacle",
+      "occasion"
+    ]
+  },
+  {
+    "word": "procedure",
+    "pos": "名詞",
+    "meaning": "process",
+    "dummies": [
+      "proceeds",
+      "production",
+      "profession",
+      "profit",
+      "progress"
+    ]
+  },
+  {
+    "word": "regulation",
+    "pos": "名詞",
+    "meaning": "rule",
+    "dummies": [
+      "region",
+      "registration",
+      "relation",
+      "religion",
+      "reliance"
+    ]
+  },
+  {
+    "word": "characteristic",
+    "pos": "名詞",
+    "meaning": "feature",
+    "dummies": [
+      "character",
+      "charity",
+      "charm",
+      "chart",
+      "chase"
+    ]
+  },
+  {
+    "word": "collaboration",
+    "pos": "名詞",
+    "meaning": "cooperation",
+    "dummies": [
+      "collection",
+      "college",
+      "collision",
+      "color",
+      "column"
+    ]
+  },
+  {
+    "word": "consequence",
+    "pos": "名詞",
+    "meaning": "result",
+    "dummies": [
+      "consensus",
+      "conservation",
+      "consideration",
+      "consignment",
+      "constitution"
+    ]
+  },
+  {
+    "word": "dimension",
+    "pos": "名詞",
+    "meaning": "size",
+    "dummies": [
+      "dining",
+      "dinner",
+      "diploma",
+      "directory",
+      "direction"
+    ]
+  },
+  {
+    "word": "evidence",
+    "pos": "名詞",
+    "meaning": "proof",
+    "dummies": [
+      "event",
+      "evening",
+      "everyday",
+      "evolution",
+      "exam"
+    ]
+  },
+  {
+    "word": "foundation",
+    "pos": "名詞",
+    "meaning": "basis",
+    "dummies": [
+      "founder",
+      "fountain",
+      "fraction",
+      "fragment",
+      "frame"
+    ]
+  },
+  {
+    "word": "indication",
+    "pos": "名詞",
+    "meaning": "sign",
+    "dummies": [
+      "index",
+      "individual",
+      "industry",
+      "infant",
+      "infection"
+    ]
+  },
+  {
+    "word": "initiative",
+    "pos": "名詞",
+    "meaning": "plan",
+    "dummies": [
+      "initial",
+      "injury",
+      "ink",
+      "innocence",
+      "input"
+    ]
+  },
+  {
+    "word": "legislation",
+    "pos": "名詞",
+    "meaning": "law",
+    "dummies": [
+      "legislator",
+      "leg",
+      "leisure",
+      "length",
+      "lesson"
+    ]
+  },
+  {
+    "word": "margin",
+    "pos": "名詞",
+    "meaning": "profit",
+    "dummies": [
+      "mark",
+      "market",
+      "marriage",
+      "mask",
+      "mass"
+    ]
+  },
+  {
+    "word": "notion",
+    "pos": "名詞",
+    "meaning": "idea",
+    "dummies": [
+      "notice",
+      "novel",
+      "november",
+      "number",
+      "nurse"
+    ]
+  },
+  {
+    "word": "obligation",
+    "pos": "名詞",
+    "meaning": "duty",
+    "dummies": [
+      "observation",
+      "obstacle",
+      "occasion",
+      "occupation",
+      "occurrence"
+    ]
+  },
+  {
+    "word": "perspective",
+    "pos": "名詞",
+    "meaning": "viewpoint",
+    "dummies": [
+      "permission",
+      "permit",
+      "personnel",
+      "personality",
+      "pessimism"
+    ]
+  },
+  {
+    "word": "priority",
+    "pos": "名詞",
+    "meaning": "preference",
+    "dummies": [
+      "price",
+      "pride",
+      "prison",
+      "privacy",
+      "prize"
+    ]
+  },
+  {
+    "word": "proportion",
+    "pos": "名詞",
+    "meaning": "ratio",
+    "dummies": [
+      "proposal",
+      "prospect",
+      "protection",
+      "protein",
+      "protest"
+    ]
+  },
+  {
+    "word": "recognition",
+    "pos": "名詞",
+    "meaning": "acknowledgment",
+    "dummies": [
+      "recommendation",
+      "record",
+      "recovery",
+      "reduction",
+      "reference"
+    ]
+  },
+  {
+    "word": "resolution",
+    "pos": "名詞",
+    "meaning": "decision",
+    "dummies": [
+      "resource",
+      "respect",
+      "response",
+      "responsibility",
+      "restriction"
+    ]
+  },
+  {
+    "word": "revision",
+    "pos": "名詞",
+    "meaning": "alteration",
+    "dummies": [
+      "review",
+      "revenue",
+      "reward",
+      "rhythm",
+      "rice"
+    ]
+  },
+  {
+    "word": "strategy",
+    "pos": "名詞",
+    "meaning": "plan",
+    "dummies": [
+      "stream",
+      "strength",
+      "stress",
+      "strike",
+      "string"
+    ]
+  },
+  {
+    "word": "transition",
+    "pos": "名詞",
+    "meaning": "change",
+    "dummies": [
+      "translation",
+      "transportation",
+      "trap",
+      "travel",
+      "treatment"
+    ]
+  },
+  {
+    "word": "wealth",
+    "pos": "名詞",
+    "meaning": "abundance",
+    "dummies": [
+      "weather",
+      "weapon",
+      "wedding",
+      "weekend",
+      "weight"
+    ]
+  },
+  {
+    "word": "yield",
+    "pos": "名詞",
+    "meaning": "output",
+    "dummies": [
+      "year",
+      "yesterday",
+      "youth",
+      "yard",
+      "yacht"
+    ]
+  },
+  {
+    "word": "prior to",
+    "pos": "前置詞句",
+    "meaning": "before",
+    "dummies": [
+      "after",
+      "during",
+      "within",
+      "behind",
+      "beyond"
+    ]
+  },
+  {
+    "word": "regardless of",
+    "pos": "前置詞句",
+    "meaning": "despite",
+    "dummies": [
+      "because",
+      "concerning",
+      "regarding",
+      "including",
+      "except"
+    ]
+  },
+  {
+    "word": "with regard to",
+    "pos": "前置詞句",
+    "meaning": "concerning",
+    "dummies": [
+      "excluding",
+      "ignoring",
+      "forgetting",
+      "avoiding",
+      "missing"
+    ]
+  },
+  {
+    "word": "in accordance with",
+    "pos": "前置詞句",
+    "meaning": "following",
+    "dummies": [
+      "violating",
+      "ignoring",
+      "opposing",
+      "rejecting",
+      "breaking"
+    ]
+  },
+  {
+    "word": "by means of",
+    "pos": "前置詞句",
+    "meaning": "using",
+    "dummies": [
+      "avoiding",
+      "losing",
+      "dropping",
+      "wasting",
+      "ignoring"
+    ]
+  },
+  {
+    "word": "aside from",
+    "pos": "前置詞句",
+    "meaning": "except",
+    "dummies": [
+      "including",
+      "containing",
+      "involving",
+      "adding",
+      "bringing"
+    ]
+  },
+  {
+    "word": "in conjunction with",
+    "pos": "前置詞句",
+    "meaning": "alongside",
+    "dummies": [
+      "against",
+      "without",
+      "unlike",
+      "besides",
+      "beyond"
+    ]
+  },
+  {
+    "word": "with the exception of",
+    "pos": "前置詞句",
+    "meaning": "excluding",
+    "dummies": [
+      "including",
+      "adding",
+      "involving",
+      "containing",
+      "embracing"
+    ]
+  },
+  {
+    "word": "in the event of",
+    "pos": "前置詞句",
+    "meaning": "if",
+    "dummies": [
+      "unless",
+      "although",
+      "because",
+      "since",
+      "though"
+    ]
+  },
+  {
+    "word": "out of the question",
+    "pos": "形容詞句",
+    "meaning": "impossible",
+    "dummies": [
+      "feasible",
+      "likely",
+      "possible",
+      "probable",
+      "viable"
+    ]
+  },
+  {
+    "word": "up to date",
+    "pos": "形容詞句",
+    "meaning": "latest",
+    "dummies": [
+      "obsolete",
+      "outdated",
+      "old",
+      "ancient",
+      "past"
+    ]
+  },
+  {
+    "word": "out of order",
+    "pos": "形容詞句",
+    "meaning": "broken",
+    "dummies": [
+      "functional",
+      "working",
+      "repaired",
+      "operational",
+      "active"
+    ]
+  },
+  {
+    "word": "state of the art",
+    "pos": "形容詞句",
+    "meaning": "modern",
+    "dummies": [
+      "traditional",
+      "classic",
+      "historic",
+      "obsolete",
+      "antique"
+    ]
+  },
+  {
+    "word": "in the pipeline",
+    "pos": "形容詞句",
+    "meaning": "underway",
+    "dummies": [
+      "finished",
+      "completed",
+      "done",
+      "canceled",
+      "abandoned"
+    ]
+  },
+  {
+    "word": "up in the air",
+    "pos": "形容詞句",
+    "meaning": "undecided",
+    "dummies": [
+      "certain",
+      "definite",
+      "resolved",
+      "fixed",
+      "settled"
+    ]
+  },
+  {
+    "word": "out of stock",
+    "pos": "形容詞句",
+    "meaning": "unavailable",
+    "dummies": [
+      "available",
+      "abundant",
+      "plentiful",
+      "sufficient",
+      "ready"
+    ]
+  },
+  {
+    "word": "on schedule",
+    "pos": "副詞句",
+    "meaning": "punctually",
+    "dummies": [
+      "late",
+      "early",
+      "delayed",
+      "postponed",
+      "slowly"
+    ]
+  },
+  {
+    "word": "behind schedule",
+    "pos": "副詞句",
+    "meaning": "late",
+    "dummies": [
+      "early",
+      "punctually",
+      "promptly",
+      "quickly",
+      "immediately"
+    ]
+  },
+  {
+    "word": "ahead of schedule",
+    "pos": "副詞句",
+    "meaning": "early",
+    "dummies": [
+      "late",
+      "delayed",
+      "punctually",
+      "slowly",
+      "behind"
+    ]
+  },
+  {
+    "word": "in advance",
+    "pos": "副詞句",
+    "meaning": "beforehand",
+    "dummies": [
+      "afterward",
+      "later",
+      "eventually",
+      "currently",
+      "presently"
+    ]
+  },
+  {
+    "word": "on purpose",
+    "pos": "副詞句",
+    "meaning": "intentionally",
+    "dummies": [
+      "accidentally",
+      "randomly",
+      "mistakenly",
+      "suddenly",
+      "unexpectedly"
+    ]
+  },
+  {
+    "word": "at times",
+    "pos": "副詞句",
+    "meaning": "sometimes",
+    "dummies": [
+      "always",
+      "never",
+      "constantly",
+      "frequently",
+      "regularly"
+    ]
+  },
+  {
+    "word": "for the time being",
+    "pos": "副詞句",
+    "meaning": "temporarily",
+    "dummies": [
+      "permanently",
+      "forever",
+      "always",
+      "constantly",
+      "eternally"
+    ]
+  },
+  {
+    "word": "in bulk",
+    "pos": "副詞句",
+    "meaning": "massively",
+    "dummies": [
+      "slightly",
+      "barely",
+      "hardly",
+      "individually",
+      "partially"
+    ]
+  },
+  {
+    "word": "in a row",
+    "pos": "副詞句",
+    "meaning": "consecutively",
+    "dummies": [
+      "randomly",
+      "separately",
+      "individually",
+      "rarely",
+      "occasionally"
+    ]
+  },
+  {
+    "word": "on the contrary",
+    "pos": "副詞句",
+    "meaning": "instead",
+    "dummies": [
+      "similarly",
+      "likewise",
+      "equally",
+      "additionally",
+      "also"
+    ]
+  },
+  {
+    "word": "as a rule",
+    "pos": "副詞句",
+    "meaning": "generally",
+    "dummies": [
+      "rarely",
+      "never",
+      "sometimes",
+      "occasionally",
+      "barely"
+    ]
+  },
+  {
+    "word": "on the spot",
+    "pos": "副詞句",
+    "meaning": "immediately",
+    "dummies": [
+      "later",
+      "eventually",
+      "gradually",
+      "slowly",
+      "someday"
+    ]
+  },
+  {
+    "word": "in the long run",
+    "pos": "副詞句",
+    "meaning": "ultimately",
+    "dummies": [
+      "initially",
+      "currently",
+      "presently",
+      "firstly",
+      "recently"
+    ]
+  },
+  {
+    "word": "in the meantime",
+    "pos": "副詞句",
+    "meaning": "meanwhile",
+    "dummies": [
+      "afterward",
+      "later",
+      "before",
+      "soon",
+      "next"
+    ]
+  },
+  {
+    "word": "by no means",
+    "pos": "副詞句",
+    "meaning": "never",
+    "dummies": [
+      "always",
+      "definitely",
+      "certainly",
+      "absolutely",
+      "surely"
+    ]
+  },
+  {
+    "word": "in writing",
+    "pos": "副詞句",
+    "meaning": "written",
+    "dummies": [
+      "spoken",
+      "verbal",
+      "oral",
+      "vocal",
+      "silent"
+    ]
+  },
+  {
+    "word": "without a doubt",
+    "pos": "副詞句",
+    "meaning": "certainly",
+    "dummies": [
+      "possibly",
+      "perhaps",
+      "maybe",
+      "unlikely",
+      "doubtfully"
+    ]
+  },
+  {
+    "word": "as a matter of fact",
+    "pos": "副詞句",
+    "meaning": "actually",
+    "dummies": [
+      "falsely",
+      "wrongly",
+      "incorrectly",
+      "mistakenly",
+      "poorly"
+    ]
+  },
+  {
+    "word": "in any case",
+    "pos": "副詞句",
+    "meaning": "anyway",
+    "dummies": [
+      "never",
+      "nowhere",
+      "seldom",
+      "hardly",
+      "scarcely"
+    ]
+  },
+  {
+    "word": "around the clock",
+    "pos": "副詞句",
+    "meaning": "continuously",
+    "dummies": [
+      "intermittently",
+      "rarely",
+      "briefly",
+      "temporarily",
+      "partially"
+    ]
+  },
+  {
+    "word": "across the board",
+    "pos": "副詞句",
+    "meaning": "universally",
+    "dummies": [
+      "locally",
+      "partially",
+      "narrowly",
+      "individually",
+      "specifically"
+    ]
+  },
+  {
+    "word": "on a regular basis",
+    "pos": "副詞句",
+    "meaning": "regularly",
+    "dummies": [
+      "rarely",
+      "seldom",
+      "never",
+      "occasionally",
+      "hardly"
+    ]
+  },
+  {
+    "word": "out of the blue",
+    "pos": "副詞句",
+    "meaning": "unexpectedly",
+    "dummies": [
+      "predictably",
+      "expectedly",
+      "naturally",
+      "normally",
+      "typically"
+    ]
+  },
+  {
+    "word": "in no time",
+    "pos": "副詞句",
+    "meaning": "quickly",
+    "dummies": [
+      "slowly",
+      "gradually",
+      "eventually",
+      "later",
+      "delayed"
+    ]
+  },
+  {
+    "word": "by and large",
+    "pos": "副詞句",
+    "meaning": "mostly",
+    "dummies": [
+      "rarely",
+      "never",
+      "barely",
+      "scarcely",
+      "hardly"
+    ]
+  },
+  {
+    "word": "at first glance",
+    "pos": "副詞句",
+    "meaning": "initially",
+    "dummies": [
+      "finally",
+      "ultimately",
+      "eventually",
+      "lastly",
+      "consequently"
+    ]
+  },
+  {
+    "word": "without fail",
+    "pos": "副詞句",
+    "meaning": "always",
+    "dummies": [
+      "never",
+      "rarely",
+      "sometimes",
+      "occasionally",
+      "seldom"
+    ]
+  },
+  {
+    "word": "in practice",
+    "pos": "副詞句",
+    "meaning": "actually",
+    "dummies": [
+      "theoretically",
+      "conceptually",
+      "ideally",
+      "falsely",
+      "virtually"
+    ]
+  },
+  {
+    "word": "behind closed doors",
+    "pos": "副詞句",
+    "meaning": "secretly",
+    "dummies": [
+      "publicly",
+      "openly",
+      "widely",
+      "visibly",
+      "transparently"
+    ]
+  },
+  {
+    "word": "hand in hand",
+    "pos": "副詞句",
+    "meaning": "together",
+    "dummies": [
+      "separately",
+      "individually",
+      "independently",
+      "alone",
+      "apart"
+    ]
+  },
+  {
+    "word": "by the book",
+    "pos": "副詞句",
+    "meaning": "strictly",
+    "dummies": [
+      "loosely",
+      "freely",
+      "flexibly",
+      "casually",
+      "carelessly"
+    ]
+  },
+  {
+    "word": "off the record",
+    "pos": "副詞句",
+    "meaning": "unofficially",
+    "dummies": [
+      "formally",
+      "officially",
+      "publicly",
+      "legally",
+      "openly"
+    ]
+  },
+  {
+    "word": "in a nutshell",
+    "pos": "副詞句",
+    "meaning": "briefly",
+    "dummies": [
+      "lengthily",
+      "fully",
+      "completely",
+      "entirely",
+      "thoroughly"
+    ]
+  },
+  {
+    "word": "at the end of the day",
+    "pos": "副詞句",
+    "meaning": "ultimately",
+    "dummies": [
+      "initially",
+      "firstly",
+      "beginning",
+      "starting",
+      "originally"
+    ]
+  },
+  {
+    "word": "around the clock",
+    "pos": "副詞句",
+    "meaning": "continuously",
+    "dummies": [
+      "intermittently",
+      "rarely",
+      "briefly",
+      "temporarily",
+      "partially"
+    ]
+  },
+  {
+    "word": "across the board",
+    "pos": "副詞句",
+    "meaning": "universally",
+    "dummies": [
+      "locally",
+      "partially",
+      "narrowly",
+      "individually",
+      "specifically"
+    ]
+  },
+  {
+    "word": "on a regular basis",
+    "pos": "副詞句",
+    "meaning": "regularly",
+    "dummies": [
+      "rarely",
+      "seldom",
+      "never",
+      "occasionally",
+      "hardly"
+    ]
+  },
+  {
+    "word": "out of the blue",
+    "pos": "副詞句",
+    "meaning": "unexpectedly",
+    "dummies": [
+      "predictably",
+      "expectedly",
+      "naturally",
+      "normally",
+      "typically"
+    ]
+  },
+  {
+    "word": "in no time",
+    "pos": "副詞句",
+    "meaning": "quickly",
+    "dummies": [
+      "slowly",
+      "gradually",
+      "eventually",
+      "later",
+      "delayed"
+    ]
+  },
+  {
+    "word": "by and large",
+    "pos": "副詞句",
+    "meaning": "mostly",
+    "dummies": [
+      "rarely",
+      "never",
+      "barely",
+      "scarcely",
+      "hardly"
+    ]
+  },
+  {
+    "word": "to the best of my knowledge",
+    "pos": "副詞句",
+    "meaning": "as far as I know",
+    "dummies": [
+      "definitely",
+      "certainly",
+      "undoubtedly",
+      "absolutely",
+      "surely"
+    ]
+  },
+  {
+    "word": "at first glance",
+    "pos": "副詞句",
+    "meaning": "initially",
+    "dummies": [
+      "finally",
+      "ultimately",
+      "eventually",
+      "lastly",
+      "consequently"
+    ]
+  },
+  {
+    "word": "without fail",
+    "pos": "副詞句",
+    "meaning": "always",
+    "dummies": [
+      "never",
+      "rarely",
+      "sometimes",
+      "occasionally",
+      "seldom"
+    ]
+  },
+  {
+    "word": "by definition",
+    "pos": "副詞句",
+    "meaning": "inherently",
+    "dummies": [
+      "accidentally",
+      "incidentally",
+      "unexpectedly",
+      "surprisingly",
+      "strangely"
+    ]
+  },
+  {
+    "word": "in practice",
+    "pos": "副詞句",
+    "meaning": "actually",
+    "dummies": [
+      "theoretically",
+      "conceptually",
+      "ideally",
+      "falsely",
+      "virtually"
+    ]
+  },
+  {
+    "word": "with the naked eye",
+    "pos": "副詞句",
+    "meaning": "visibly",
+    "dummies": [
+      "invisibly",
+      "blindly",
+      "obscurely",
+      "hidden",
+      "concealed"
+    ]
+  },
+  {
+    "word": "behind closed doors",
+    "pos": "副詞句",
+    "meaning": "secretly",
+    "dummies": [
+      "publicly",
+      "openly",
+      "widely",
+      "visibly",
+      "transparently"
+    ]
+  },
+  {
+    "word": "hand in hand",
+    "pos": "副詞句",
+    "meaning": "together",
+    "dummies": [
+      "separately",
+      "individually",
+      "independently",
+      "alone",
+      "apart"
+    ]
+  },
+  {
+    "word": "in the pipeline",
+    "pos": "副詞句",
+    "meaning": "underway",
+    "dummies": [
+      "finished",
+      "completed",
+      "done",
+      "canceled",
+      "abandoned"
+    ]
+  },
+  {
+    "word": "back to square one",
+    "pos": "副詞句",
+    "meaning": "restarting",
+    "dummies": [
+      "finishing",
+      "completing",
+      "concluding",
+      "ending",
+      "terminating"
+    ]
+  },
+  {
+    "word": "at a premium",
+    "pos": "副詞句",
+    "meaning": "expensively",
+    "dummies": [
+      "cheaply",
+      "affordably",
+      "reasonably",
+      "inexpensively",
+      "freely"
+    ]
+  },
+  {
+    "word": "down the road",
+    "pos": "副詞句",
+    "meaning": "eventually",
+    "dummies": [
+      "immediately",
+      "instantly",
+      "currently",
+      "presently",
+      "now"
+    ]
+  },
+  {
+    "word": "on the same page",
+    "pos": "副詞句",
+    "meaning": "agreeing",
+    "dummies": [
+      "disagreeing",
+      "arguing",
+      "conflicting",
+      "opposing",
+      "differing"
+    ]
+  },
+  {
+    "word": "up in the air",
+    "pos": "副詞句",
+    "meaning": "undecided",
+    "dummies": [
+      "certain",
+      "definite",
+      "resolved",
+      "fixed",
+      "settled"
+    ]
+  },
+  {
+    "word": "by the book",
+    "pos": "副詞句",
+    "meaning": "strictly",
+    "dummies": [
+      "loosely",
+      "freely",
+      "flexibly",
+      "casually",
+      "carelessly"
+    ]
+  },
+  {
+    "word": "in the loop",
+    "pos": "副詞句",
+    "meaning": "informed",
+    "dummies": [
+      "unaware",
+      "ignorant",
+      "clueless",
+      "blind",
+      "oblivious"
+    ]
+  },
+  {
+    "word": "behind the curve",
+    "pos": "副詞句",
+    "meaning": "outdated",
+    "dummies": [
+      "advanced",
+      "modern",
+      "innovative",
+      "leading",
+      "pioneering"
+    ]
+  },
+  {
+    "word": "off the record",
+    "pos": "副詞句",
+    "meaning": "unofficially",
+    "dummies": [
+      "formally",
+      "officially",
+      "publicly",
+      "legally",
+      "openly"
+    ]
+  },
+  {
+    "word": "in a nutshell",
+    "pos": "副詞句",
+    "meaning": "briefly",
+    "dummies": [
+      "lengthily",
+      "fully",
+      "completely",
+      "entirely",
+      "thoroughly"
+    ]
+  },
+  {
+    "word": "on the back burner",
+    "pos": "副詞句",
+    "meaning": "postponed",
+    "dummies": [
+      "prioritized",
+      "expedited",
+      "accelerated",
+      "advanced",
+      "hurried"
+    ]
+  },
+  {
+    "word": "at the end of the day",
+    "pos": "副詞句",
+    "meaning": "ultimately",
+    "dummies": [
+      "initially",
+      "firstly",
+      "beginning",
+      "starting",
+      "originally"
+    ]
+  },
+  {
+    "word": "in black and white",
+    "pos": "副詞句",
+    "meaning": "written",
+    "dummies": [
+      "spoken",
+      "verbal",
+      "oral",
+      "vocal",
+      "silent"
+    ]
+  },
+  {
+    "word": "on short notice",
+    "pos": "副詞句",
+    "meaning": "abruptly",
+    "dummies": [
+      "gradually",
+      "slowly",
+      "eventually",
+      "predictably",
+      "expectedly"
+    ]
+  },
+  {
+    "word": "back to back",
+    "pos": "副詞句",
+    "meaning": "consecutively",
+    "dummies": [
+      "randomly",
+      "separately",
+      "individually",
+      "rarely",
+      "occasionally"
+    ]
+  },
+  {
+    "word": "in an effort to",
+    "pos": "副詞句",
+    "meaning": "attempting",
+    "dummies": [
+      "failing",
+      "avoiding",
+      "ignoring",
+      "neglecting",
+      "rejecting"
+    ]
+  },
+  {
+    "word": "right around the corner",
+    "pos": "形容詞句",
+    "meaning": "imminent",
+    "dummies": [
+      "distant",
+      "remote",
+      "far",
+      "unlikely",
+      "impossible"
+    ]
+  },
+  {
+    "word": "in a timely manner",
+    "pos": "副詞句",
+    "meaning": "promptly",
+    "dummies": [
+      "late",
+      "delayed",
+      "tardily",
+      "slowly",
+      "sluggishly"
+    ]
+  },
+  {
+    "word": "at odds with",
+    "pos": "形容詞句",
+    "meaning": "disagreeing",
+    "dummies": [
+      "agreeing",
+      "harmonious",
+      "compatible",
+      "consistent",
+      "matching"
+    ]
+  },
+  {
+    "word": "under the weather",
+    "pos": "形容詞句",
+    "meaning": "unwell",
+    "dummies": [
+      "healthy",
+      "fit",
+      "strong",
+      "robust",
+      "vigorous"
+    ]
+  },
+  {
+    "word": "up to par",
+    "pos": "形容詞句",
+    "meaning": "satisfactory",
+    "dummies": [
+      "deficient",
+      "lacking",
+      "inadequate",
+      "substandard",
+      "poor"
+    ]
+  },
+  {
+    "word": "at stake",
+    "pos": "形容詞句",
+    "meaning": "at risk",
+    "dummies": [
+      "safe",
+      "secure",
+      "protected",
+      "guaranteed",
+      "certain"
+    ]
+  },
+  {
+    "word": "in lieu of",
+    "pos": "前置詞句",
+    "meaning": "instead of",
+    "dummies": [
+      "including",
+      "adding",
+      "involving",
+      "containing",
+      "embracing"
+    ]
+  },
+  {
+    "word": "ahead of time",
+    "pos": "副詞句",
+    "meaning": "beforehand",
+    "dummies": [
+      "afterward",
+      "later",
+      "eventually",
+      "currently",
+      "presently"
+    ]
+  },
+  {
+    "word": "in the red",
+    "pos": "形容詞句",
+    "meaning": "in debt",
+    "dummies": [
+      "profitable",
+      "wealthy",
+      "affluent",
+      "rich",
+      "lucrative"
+    ]
+  },
+  {
+    "word": "out of the box",
+    "pos": "形容詞句",
+    "meaning": "innovative",
+    "dummies": [
+      "conventional",
+      "traditional",
+      "typical",
+      "ordinary",
+      "standard"
+    ]
+  },
+  {
+    "word": "out of hand",
+    "pos": "形容詞句",
+    "meaning": "uncontrollable",
+    "dummies": [
+      "manageable",
+      "controllable",
+      "tame",
+      "docile",
+      "obedient"
+    ]
+  },
+  {
+    "word": "from time to time",
+    "pos": "副詞句",
+    "meaning": "occasionally",
+    "dummies": [
+      "always",
+      "never",
+      "constantly",
+      "continuously",
+      "regularly"
+    ]
+  },
+  {
+    "word": "abide by",
+    "pos": "動詞句",
+    "meaning": "obey",
+    "dummies": [
+      "ignore",
+      "disobey",
+      "violate",
+      "break",
+      "reject"
+    ]
+  },
+  {
+    "word": "account for",
+    "pos": "動詞句",
+    "meaning": "explain",
+    "dummies": [
+      "confuse",
+      "guess",
+      "forget",
+      "mistake",
+      "omit"
+    ]
+  },
+  {
+    "word": "adhere to",
+    "pos": "動詞句",
+    "meaning": "follow",
+    "dummies": [
+      "violate",
+      "ignore",
+      "oppose",
+      "reject",
+      "break"
+    ]
+  },
+  {
+    "word": "allow for",
+    "pos": "動詞句",
+    "meaning": "consider",
+    "dummies": [
+      "ignore",
+      "forget",
+      "neglect",
+      "overlook",
+      "skip"
+    ]
+  },
+  {
+    "word": "bank on",
+    "pos": "動詞句",
+    "meaning": "rely on",
+    "dummies": [
+      "doubt",
+      "suspect",
+      "distrust",
+      "ignore",
+      "reject"
+    ]
+  },
+  {
+    "word": "bring about",
+    "pos": "動詞句",
+    "meaning": "cause",
+    "dummies": [
+      "prevent",
+      "stop",
+      "hinder",
+      "block",
+      "avoid"
+    ]
+  },
+  {
+    "word": "call off",
+    "pos": "動詞句",
+    "meaning": "cancel",
+    "dummies": [
+      "postpone",
+      "initiate",
+      "execute",
+      "approve",
+      "resume"
+    ]
+  }
+]

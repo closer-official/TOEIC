@@ -89,13 +89,13 @@ export async function POST(req: NextRequest) {
     const sellerCurrentGems = Math.max(0, (sellerProfile as { gems?: number })?.gems ?? 0);
     const now = new Date().toISOString();
 
-    // 購入者: ジェム減少
+    // 購入者: チップ減少
     await adminSupabase
       .from('profiles')
       .update({ gems: buyerGems - price, updated_at: now })
       .eq('user_id', user.id);
 
-    // 販売者: ジェム増加（9割）
+    // 販売者: チップ増加（9割）
     await adminSupabase
       .from('profiles')
       .update({ gems: sellerCurrentGems + sellerGems, updated_at: now })

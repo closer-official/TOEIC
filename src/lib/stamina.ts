@@ -14,8 +14,31 @@ export function getMaxStamina(tier: SubscriptionTier): number {
   }
 }
 
-/** 1プレイあたりの消費量 */
+/** 1プレイあたりの消費量（デフォルト・従来互換） */
 export const STAMINA_CONSUME = 5;
+
+/** 選択可能な消費量（5刻み・最大25） */
+export const STAMINA_CONSUME_OPTIONS = [5, 10, 15, 20, 25] as const;
+export const STAMINA_CONSUME_MAX = 25;
+
+/** 消費スタミナに対するXP倍率（傾斜）。5→1.0、まとめ消費で効率ダウン。スコアは等倍のまま。 */
+const XP_MULT_BY_STAMINA: Record<number, number> = {
+  5: 1.0,
+  10: 1.9,
+  15: 2.7,
+  20: 3.4,
+  25: 4.0,
+};
+
+export function getXpMultiplierForStamina(amount: number): number {
+  const n = Number(amount);
+  if (Number.isFinite(n) && XP_MULT_BY_STAMINA[n] != null) return XP_MULT_BY_STAMINA[n];
+  return XP_MULT_BY_STAMINA[STAMINA_CONSUME] ?? 1;
+}
+
+export function isValidStaminaConsumeAmount(amount: unknown): amount is 5 | 10 | 15 | 20 | 25 {
+  return typeof amount === 'number' && STAMINA_CONSUME_OPTIONS.includes(amount as 5 | 10 | 15 | 20 | 25);
+}
 /** 0→Max回復に要する時間（24時間）ms */
 const RECOVERY_FULL_MS = 24 * 60 * 60 * 1000;
 const MIN_RECOVERY_INTERVAL_MS = 60 * 1000;

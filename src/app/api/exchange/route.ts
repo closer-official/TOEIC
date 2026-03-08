@@ -15,7 +15,7 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 /** 1 XP = 0.01 チップ（100 XP = 1 チップ） */
 const GEMS_PER_XP = 0.01;
 
-/** GET: レート（一律 1 XP = 0.01 チップ）、ユーザーのXP・ジェム、出品一覧 */
+/** GET: レート（一律 1 XP = 0.01 チップ）、ユーザーのXP・チップ、出品一覧 */
 export async function GET(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     // レートは一律 1 全共通XP = 0.01 チップ（スナップショット不要）
     const gemsPerEx = GEMS_PER_XP;
 
-    // ユーザーの全共通XP・ギルドXP・ジェム（ジェム交換に使えるのは全共通XPのみ）
+    // ユーザーの全共通XP・ギルドXP・チップ（チップ交換に使えるのは全共通XPのみ）
     let userEx = 0;
     let userGuildXp = 0;
     let userGems = 0;
@@ -73,7 +73,6 @@ export async function GET(req: NextRequest) {
       .from('marketplace_listings')
       .select('id, seller_id, item_type, item_id, quantity, price_gems, item_name, item_rarity, created_at, equipment_grade, equipment_level, effect_base')
       .eq('status', 'active')
-      .neq('seller_id', user.id)
       .order('created_at', { ascending: false })
       .limit(100);
 
@@ -133,6 +132,7 @@ export async function GET(req: NextRequest) {
       userEx,
       userGuildXp,
       userGems,
+      currentUserId: user.id,
       listings,
       myListings,
       myInventory,

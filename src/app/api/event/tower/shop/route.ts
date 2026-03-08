@@ -5,7 +5,7 @@ import { getCurrentEvent, getCurrentWeekIndex } from '@/lib/weekly-events';
 import { TOWER_ITEMS, type TowerItemId } from '@/lib/tower-event';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -38,11 +38,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }
 
-    if (getCurrentEvent().id !== 'tower') {
+    const body = await req.json().catch(() => ({}));
+    const isPreview = body?.preview === true;
+    if (getCurrentEvent().id !== 'tower' && !isPreview) {
       return NextResponse.json({ error: '今週は摩天楼のタワーではありません' }, { status: 404 });
     }
 
-    const body = await req.json().catch(() => ({}));
     const itemId = (['golden_oil', 'shock_mat', 'master_key'] as const).includes(body?.itemId)
       ? (body.itemId as TowerItemId)
       : null;

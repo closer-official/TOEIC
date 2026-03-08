@@ -91,6 +91,23 @@ for (const name of configFiles) {
   if (existsSync(src)) cpSync(src, join(tempDir, name));
 }
 
+// 実機ビルドで Supabase が動くように .env.local の必須変数をチェック
+const envLocalPath = join(tempDir, ".env.local");
+if (existsSync(envLocalPath)) {
+  const { readFileSync } = require("fs");
+  const content = readFileSync(envLocalPath, "utf8");
+  if (!content.includes("NEXT_PUBLIC_SUPABASE_URL") || !content.includes("NEXT_PUBLIC_SUPABASE_ANON_KEY")) {
+    console.error("\n[ERROR] .env.local に NEXT_PUBLIC_SUPABASE_URL と NEXT_PUBLIC_SUPABASE_ANON_KEY を設定してください。");
+    console.error("実機でログインするにはビルド時にこれらの値がバンドルに含まれる必要があります。\n");
+    process.exit(1);
+  }
+} else {
+  console.error("\n[ERROR] .env.local がありません。プロジェクト直下に .env.local を作成し、");
+  console.error("NEXT_PUBLIC_SUPABASE_URL と NEXT_PUBLIC_SUPABASE_ANON_KEY を設定してから npm run build:ios を実行してください。");
+  console.error("（Supabase ダッシュボードの Settings > API から取得できます）\n");
+  process.exit(1);
+}
+
 console.log("Installing dependencies in temp...");
 execSync("npm ci", { cwd: tempDir, stdio: "inherit", shell: true });
 
@@ -99,7 +116,12 @@ execSync(
   "npx next build",
   {
     cwd: tempDir,
-    env: { ...process.env, BUILD_IOS: "1", NEXT_PUBLIC_API_ORIGIN: "https://shun.closer-official.com" },
+    env: {
+      ...process.env,
+      BUILD_IOS: "1",
+      NEXT_PUBLIC_API_ORIGIN: "https://shun.closer-official.com",
+      NEXT_PUBLIC_CAPACITOR_APP: "1",
+    },
     stdio: "inherit",
     shell: true,
   }

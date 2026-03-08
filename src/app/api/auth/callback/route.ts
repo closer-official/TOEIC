@@ -2,11 +2,10 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-/** 静的エクスポート（iOS ビルド）時はこのルートは 404 を返す。Next が page data 収集するために必要。 */
-export const dynamic = 'force-static';
+/** 必ず動的実行にし、リダイレクト先を「実際のリクエストのオリジン」で組み立てる。
+ * force-static だとビルド時の request.url（localhost）が使われ、本番で localhost に飛ぶ不具合の原因になる。 */
+export const dynamic = 'force-dynamic';
 
-// 認証コールバックは必ず実行時リクエストの URL でリダイレクトする必要がある。
-// force-static にするとビルド時の request.url（localhost）が使われ、本番で localhost に飛ぶ不具合の原因になる。
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
@@ -17,7 +16,6 @@ function safeNext(next: string | null, requestUrl: string): string {
   if (!raw || raw === '') return fallback;
   try {
     const base = new URL(requestUrl);
-    // 相対パス（/ 始まりで // でない）
     if (raw.startsWith('/') && !raw.startsWith('//')) {
       const path = raw.split('?')[0];
       if (path.includes('//')) return fallback;
@@ -31,8 +29,8 @@ function safeNext(next: string | null, requestUrl: string): string {
   }
 }
 
+/** Web 用 OAuth コールバック。code をセッションに交換し cookie をセットしてリダイレクトする。 */
 export async function GET(request: Request) {
-  if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const next = safeNext(searchParams.get('next'), request.url);

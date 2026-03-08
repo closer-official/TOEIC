@@ -25,7 +25,7 @@
 
 | 箇所 | 内容 |
 |------|------|
-| **取引レート用スナップショット** | `exchange_daily_snapshots` テーブルはあるが、**前日のジェム総量・EX総量をINSERTする処理がどこにもない**。未投入時は `prevGems=10000`, `prevEx=100000` でフォールバック。日次で集計してINSERTするcron・Edge Function・スクリプトの実装が必要。 |
+| **取引レート用スナップショット** | `exchange_daily_snapshots` テーブルはあるが、**前日のチップ総量・EX総量をINSERTする処理がどこにもない**。未投入時は `prevGems=10000`, `prevEx=100000` でフォールバック。日次で集計してINSERTするcron・Edge Function・スクリプトの実装が必要。 |
 | **問題生成パイプライン** | `scripts/pipeline.ts` と GitHub Actions（daily/weekly）で Supabase に問題を追加する仕組みはある。**OPENAI_API_KEY 等の設定と実行**が本番で行われているか要確認。 |
 
 ---

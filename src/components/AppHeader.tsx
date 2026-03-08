@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useHeaderStats } from '@/lib/header-stats-context';
+import { useOffline } from '@/lib/offline-context';
 import { StaminaGauge } from '@/components/StaminaGauge';
 import { GemButton } from '@/components/GemButton';
 
@@ -13,6 +14,8 @@ type Props = {
 
 export function AppHeader({ backHref }: Props) {
   const { user } = useHeaderStats();
+  const { pendingRunsCount, syncPendingRuns, isOnline } = useOffline();
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -75,7 +78,22 @@ export function AppHeader({ backHref }: Props) {
           </Link>
         )}
       </div>
-      <div className="flex flex-1 items-center justify-end gap-4">
+      <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
+        {pendingRunsCount > 0 && (
+          <button
+            type="button"
+            disabled={!isOnline || syncing}
+            onClick={async () => {
+              setSyncing(true);
+              await syncPendingRuns();
+              setSyncing(false);
+            }}
+            className="rounded-lg border border-amber-600 bg-amber-500/20 px-2 py-1.5 text-xs font-medium text-amber-400 hover:bg-amber-500/30 disabled:opacity-50 sm:px-3 sm:py-2 sm:text-sm"
+            title="オフラインでプレイした結果を送信"
+          >
+            {syncing ? '送信中…' : `未送信 ${pendingRunsCount} 件を送信`}
+          </button>
+        )}
         <StaminaGauge />
         <GemButton />
       </div>

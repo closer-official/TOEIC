@@ -9,7 +9,7 @@ import { OnboardingModal, type OnboardingForm } from '@/components/OnboardingMod
 import { AppHeader } from '@/components/AppHeader';
 import { HomeSideButtons, HomeNavInline, hasSideNavItems } from '@/components/HomeSideButtons';
 import { BottomNav } from '@/components/BottomNav';
-import { IconPart5, IconVocab, IconEvent, IconTournament } from '@/components/ModeIcons';
+import { IconPart5, IconVocab, IconEvent } from '@/components/ModeIcons';
 import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
 const SWIPE_THRESHOLD = 50;
@@ -242,20 +242,20 @@ export default function HomePage() {
                       <span className="text-xs text-zinc-400">数千語からランダム出題</span>
                     </div>
                   </Link>
-                  <Link href="/event" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="イベント">
+                  <Link href="/event" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="イベント・大会">
                     <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconEvent className="w-10 h-10" /></span>
                     <div className="min-w-0 flex-1">
-                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>イベント</span>
+                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>イベント・大会</span>
                       <span className="mt-1 block border-b border-white/30 pb-1.5" style={{ borderColor: 'rgba(255,255,255,0.3)' }} />
-                      <span className="text-xs text-zinc-400">週替わりイベントで特別報酬</span>
+                      <span className="text-xs text-zinc-400">週替わりイベントと日曜大会</span>
                     </div>
                   </Link>
-                  <Link href="/tournament" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="大会">
-                    <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconTournament className="w-10 h-10" /></span>
+                  <Link href="/game?mode=vocab-word-national" className="touch-target group flex items-center gap-3 rounded-xl border py-4 pl-4 pr-5 text-left transition-all active:opacity-90 sm:py-5 brass-card" aria-label="単語→単語">
+                    <span className="shrink-0 text-gold group-hover:text-gold-bright transition-colors" aria-hidden><IconVocab className="w-10 h-10" /></span>
                     <div className="min-w-0 flex-1">
-                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>大会</span>
+                      <span className="block font-semibold text-white sm:text-lg group-hover:text-[#D4AF37]/95" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>単語→単語</span>
                       <span className="mt-1 block border-b border-white/30 pb-1.5" style={{ borderColor: 'rgba(255,255,255,0.3)' }} />
-                      <span className="text-xs text-zinc-400">ランキングで競おう</span>
+                      <span className="text-xs text-zinc-400">英単語で同じ意味の英単語を選ぶ</span>
                     </div>
                   </Link>
                 </div>

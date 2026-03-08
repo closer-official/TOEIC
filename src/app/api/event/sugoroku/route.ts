@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEvent, getCurrentWeekIndex } from '@/lib/weekly-events';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -62,15 +62,21 @@ export async function GET(req: NextRequest) {
       trap_guard?: boolean;
       golden_dice_count?: number;
       shop_multiplier?: number;
+      last_daily_dice_date?: string | null;
     } | null;
+
+    /** 今日の日付（JST）YYYY-MM-DD */
+    const todayJst = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('gems')
+      .select('gems, evolution_points')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    let gems = Math.floor(Number((profile as { gems?: number })?.gems ?? 0));
+    const prof = profile as { gems?: number; evolution_points?: number } | null;
+    let gems = Math.floor(Number(prof?.gems ?? 0));
+    const commonXp = Math.max(0, Math.floor(Number(prof?.evolution_points ?? 0)));
 
     // 週が変わっていたら: 進行リセット or 新規、借金免除
     if (!row || (row.event_week_index ?? 0) !== weekIndex) {
@@ -86,13 +92,14 @@ export async function GET(req: NextRequest) {
         user_id: user.id,
         event_week_index: weekIndex,
         position: 1,
-        dice_count: 3, // ログインボーナス
+        dice_count: 3, // 初回＝その日の毎日ログインボーナス
         lap_count: 0,
         fragments: 0,
         event_xp: 0,
         trap_guard: false,
         golden_dice_count: 0,
         shop_multiplier: null,
+        last_daily_dice_date: todayJst,
         updated_at: now,
       };
       await supabase.from('sugoroku_progress').upsert(initial, { onConflict: 'user_id' });
@@ -102,6 +109,7 @@ export async function GET(req: NextRequest) {
         lapCount: 0,
         fragments: 0,
         eventXp: 0,
+        commonXp,
         trapGuard: false,
         goldenDiceCount: 0,
         gems,
@@ -110,12 +118,29 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // 毎日ログインで通常サイコロ3個付与（同日は1回だけ）
+    let diceCount = row.dice_count ?? 0;
+    const lastDaily = row.last_daily_dice_date ?? null;
+    if (!lastDaily || lastDaily < todayJst) {
+      diceCount = Math.max(0, diceCount) + 3;
+      await supabase
+        .from('sugoroku_progress')
+        .update({
+          dice_count: diceCount,
+          last_daily_dice_date: todayJst,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', user.id)
+        .eq('event_week_index', weekIndex);
+    }
+
     return NextResponse.json({
       position: row.position ?? 1,
-      diceCount: row.dice_count ?? 0,
+      diceCount,
       lapCount: row.lap_count ?? 0,
       fragments: row.fragments ?? 0,
       eventXp: row.event_xp ?? 0,
+      commonXp,
       trapGuard: Boolean(row.trap_guard),
       goldenDiceCount: row.golden_dice_count ?? 0,
       gems,

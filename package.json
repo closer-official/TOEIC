@@ -17,9 +17,12 @@
     "gen": "tsx scripts/generate-questions.ts",
     "validate": "tsx scripts/validate-questions.ts",
     "pipeline": "tsx scripts/pipeline.ts",
-    "vocab:from-excel": "node scripts/excel-to-default-vocab.js"
+    "vocab:from-excel": "node scripts/excel-to-default-vocab.js",
+    "vocab:import": "node scripts/excel-to-vocab.js",
+    "vocab-word:import": "node scripts/excel-to-vocab-word.js"
   },
   "dependencies": {
+    "@capacitor/app": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
     "@stripe/react-stripe-js": "^3.7.0",

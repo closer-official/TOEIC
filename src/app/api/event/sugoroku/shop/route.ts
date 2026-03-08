@@ -4,18 +4,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEvent, getCurrentWeekIndex } from '@/lib/weekly-events';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
-/** 基本価格（時価の基準）。0.5〜2.5倍で変動 */
+/** 基本価格。通常サイコロは固定100チップ、他は時価0.5〜2.5倍 */
 const BASE_PRICES = {
   dice: 100,
   golden_dice: 300,
   xp_overdrive: 300,
   stamina_infinity: 300,
 } as const;
+
+/** 通常サイコロは常に100チップ（時価変動なし） */
+const DICE_FIXED_PRICE = 100;
 
 export type ShopItemId = keyof typeof BASE_PRICES;
 
@@ -93,7 +96,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/** POST: 購入。body: { itemId: ShopItemId, quantity?: number }。ジェムはマイナスまで可能（借金） */
+/** POST: 購入。body: { itemId: ShopItemId, quantity?: number }。チップはマイナスまで可能（借金） */
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
@@ -141,8 +144,8 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     const mult = Number((progress as { shop_multiplier?: number })?.shop_multiplier ?? 1);
-    const basePrice = BASE_PRICES[itemId as ShopItemId];
-    const totalCost = Math.round(basePrice * mult) * quantity;
+    const basePrice = itemId === 'dice' ? DICE_FIXED_PRICE : BASE_PRICES[itemId as ShopItemId];
+    const totalCost = (itemId === 'dice' ? DICE_FIXED_PRICE : Math.round(basePrice * mult)) * quantity;
 
     const { data: profile } = await supabase
       .from('profiles')

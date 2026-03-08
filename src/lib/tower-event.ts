@@ -4,7 +4,7 @@
 
 export type TowerElevatorId = 'vip' | 'risk' | 'technical';
 
-/** VIP専用機: G(n) ジェム, 100%成功。Risk: G(n)*0.5, 60〜80%→高層で減衰。Technical: G(n)*0.2, 30%成功、失敗で階層XPリセット */
+/** VIP専用機: G(n) チップ, 100%成功。Risk: G(n)*0.5, 60〜80%→高層で減衰。Technical: G(n)*0.2, 30%成功、失敗で階層XPリセット */
 export const TOWER_ELEVATORS: Record<
   TowerElevatorId,
   { id: TowerElevatorId; name: string; nameEn: string; costRate: number; baseSuccessPct: number | null; failPenalty: string }

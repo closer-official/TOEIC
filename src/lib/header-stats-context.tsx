@@ -21,8 +21,15 @@ export type HeaderStats = {
   stamina: number;
   maxStamina: number;
   nextRecoveryAt: number | null;
-  /** 1スタミナ回復までの間隔（ms）。満タン時は null */
   recoveryIntervalMs: number | null;
+  /** オフライン用メタ（?offline=1 で取得時） */
+  offlineMeta?: {
+    staminaCount: number;
+    lastStaminaAt: string | null;
+    subscriptionTier: string;
+    evolutionStaminaBonus: number;
+    recoverySpeedMultiplier: number;
+  };
 };
 
 export type HeaderUser = {
@@ -91,7 +98,7 @@ export function HeaderStatsProvider({ children }: { children: ReactNode }) {
 
   const fetchStats = useCallback(async () => {
     const [staminaRes, gemsRes] = await Promise.all([
-      fetch('/api/stamina', { credentials: 'include' }),
+      fetch('/api/stamina?offline=1', { credentials: 'include' }),
       fetch('/api/gems', { credentials: 'include' }),
     ]);
     const staminaJson = staminaRes.ok ? await staminaRes.json().catch(() => null) : null;
@@ -102,9 +109,10 @@ export function HeaderStatsProvider({ children }: { children: ReactNode }) {
       maxStamina: staminaJson?.maxStamina ?? 50,
       nextRecoveryAt: staminaJson?.nextRecoveryAt ?? null,
       recoveryIntervalMs: staminaJson?.recoveryIntervalMs ?? null,
+      ...(staminaJson?.offlineMeta && { offlineMeta: staminaJson.offlineMeta }),
     };
     setStats(next);
-    saveToStorage(next);
+    if (staminaRes.ok) saveToStorage({ ...next, offlineMeta: undefined });
   }, []);
 
   const fetchUser = useCallback(async (uid: string, avatarUrl: string | null): Promise<HeaderUser> => {

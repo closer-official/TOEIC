@@ -4,15 +4,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEvent, getCurrentWeekIndex } from '@/lib/weekly-events';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
-/** 10 Event XP → 1 ジェム */
+/** 10 全共通XP → 1 チップ */
 const XP_PER_GEM = 10;
 
-/** POST: イベントXPをジェムに換金。body: { amount } (ジェム数。amount*10 のXPを消費) */
+/** POST: 全共通XPをチップに換金。body: { amount } (チップ数。amount*10 の全共通XPを消費) */
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
@@ -52,44 +52,35 @@ export async function POST(req: NextRequest) {
     }
 
     const xpCost = amount * XP_PER_GEM;
-    const weekIndex = getCurrentWeekIndex();
-
-    const { data: progress } = await supabase
-      .from('sugoroku_progress')
-      .select('event_xp')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    const eventXp = (progress as { event_xp?: number })?.event_xp ?? 0;
-    if (eventXp < xpCost) {
-      return NextResponse.json({
-        error: `イベントXPが足りません（必要: ${xpCost}、所持: ${eventXp}）`,
-      }, { status: 400 });
-    }
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('gems')
+      .select('gems, evolution_points')
       .eq('user_id', user.id)
       .maybeSingle();
-    const currentGems = Math.floor(Number((profile as { gems?: number })?.gems ?? 0));
+    const prof = profile as { gems?: number; evolution_points?: number } | null;
+    const currentCommonXp = Math.max(0, Math.floor(Number(prof?.evolution_points ?? 0)));
+    if (currentCommonXp < xpCost) {
+      return NextResponse.json({
+        error: `全共通XPが足りません（必要: ${xpCost}、所持: ${currentCommonXp}）`,
+      }, { status: 400 });
+    }
+
+    const currentGems = Math.floor(Number(prof?.gems ?? 0));
     const newGems = currentGems + amount;
-    const newEventXp = eventXp - xpCost;
+    const newCommonXp = currentCommonXp - xpCost;
     const now = new Date().toISOString();
 
     await supabase
-      .from('sugoroku_progress')
-      .update({ event_xp: newEventXp, updated_at: now })
-      .eq('user_id', user.id);
-    await supabase
       .from('profiles')
-      .update({ gems: newGems, updated_at: now })
+      .update({ gems: newGems, evolution_points: newCommonXp, updated_at: now })
       .eq('user_id', user.id);
 
     return NextResponse.json({
       ok: true,
       spentXp: xpCost,
       receivedGems: amount,
-      newEventXp,
+      newCommonXp,
       newGems,
     });
   } catch (err) {

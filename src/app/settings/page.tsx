@@ -17,6 +17,7 @@ type ProfileForm = {
   target_toeic_score: string;
   next_exam_date: string;
   referrer_id: string;
+  account_id: string;
 };
 
 const initialProfile: ProfileForm = {
@@ -26,6 +27,7 @@ const initialProfile: ProfileForm = {
   target_toeic_score: '',
   next_exam_date: '',
   referrer_id: '',
+  account_id: '',
 };
 
 export default function SettingsPage() {
@@ -79,6 +81,7 @@ export default function SettingsPage() {
             target_toeic_score: d.target_toeic_score != null ? String(d.target_toeic_score) : '',
             next_exam_date: d.next_exam_date ?? '',
             referrer_id: d.referrer_id ?? '',
+            account_id: d.account_id ?? '',
           });
         }
       })
@@ -101,6 +104,22 @@ export default function SettingsPage() {
         .catch(() => {});
     }
   }, [session]);
+
+  const refetchProfile = useCallback(async () => {
+    const r = await fetch('/api/profile', { credentials: 'include' });
+    const d = r.ok ? await r.json() : null;
+    if (d) {
+      setProfile({
+        avatar_url: d.avatar_url ?? '',
+        username: d.username ?? '',
+        current_toeic_score: d.current_toeic_score != null ? String(d.current_toeic_score) : '',
+        target_toeic_score: d.target_toeic_score != null ? String(d.target_toeic_score) : '',
+        next_exam_date: d.next_exam_date ?? '',
+        referrer_id: d.referrer_id ?? '',
+        account_id: d.account_id ?? '',
+      });
+    }
+  }, []);
 
   const saveProfile = useCallback(async () => {
     if (session === 'loading' || !session || typeof session !== 'object') return;
@@ -313,11 +332,49 @@ export default function SettingsPage() {
                       className="mt-1 w-full rounded-lg border border-gold-subtle bg-zinc-800 px-3 py-2 text-sm text-white focus:border-[var(--gold)]/60 focus:outline-none"
                     />
                   </label>
+                  <div className="rounded-lg border border-gold-subtle bg-zinc-800/50 px-3 py-2">
+                    <span className="block text-xs text-zinc-500">自分の紹介者ID（共有用）</span>
+                    {profile.account_id ? (
+                      <>
+                        <div className="mt-1 flex items-center gap-2">
+                          <code className="flex-1 text-sm font-medium text-gold">{profile.account_id}</code>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void navigator.clipboard.writeText(profile.account_id);
+                              setProfileMsg({ type: 'ok', text: 'コピーしました' });
+                              setTimeout(() => setProfileMsg(null), 2000);
+                            }}
+                            className="shrink-0 rounded border border-gold-subtle bg-[var(--gold)]/20 px-2 py-1 text-xs text-gold hover:bg-[var(--gold)]/30"
+                          >
+                            コピー
+                          </button>
+                        </div>
+                        <p className="mt-1 text-xs text-zinc-500">このIDを紹介者コードとして入力しても有効です</p>
+                      </>
+                    ) : (
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span className="text-sm text-zinc-400">ID未発行</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfileLoading(true);
+                            refetchProfile().finally(() => setProfileLoading(false));
+                          }}
+                          disabled={profileLoading}
+                          className="rounded border border-gold-subtle bg-[var(--gold)]/20 px-2 py-1 text-xs text-gold hover:bg-[var(--gold)]/30 disabled:opacity-50"
+                        >
+                          {profileLoading ? '取得中…' : 'IDを取得'}
+                        </button>
+                        <span className="text-xs text-zinc-500">（DBに account_id カラムが必要です）</span>
+                      </div>
+                    )}
+                  </div>
                   <label className="block">
                     <span className="block text-xs text-zinc-500">紹介者コード</span>
                     <input
                       type="text"
-                      placeholder="紹介者のコード"
+                      placeholder="紹介者のコード（en-xxxxx または users/ のID）"
                       value={profile.referrer_id}
                       onChange={(e) => setProfile((p) => ({ ...p, referrer_id: e.target.value }))}
                       className="mt-1 w-full rounded-lg border border-gold-subtle bg-zinc-800 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:border-[var(--gold)]/60 focus:outline-none"

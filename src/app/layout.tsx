@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display, Cinzel } from "next/font/google";
 import { HeaderStatsProvider } from "@/lib/header-stats-context";
 import { BgmProvider } from "@/lib/bgm-context";
+import { OfflineProvider } from "@/lib/offline-context";
+import { OfflineDownloadScreen } from "@/components/OfflineDownloadScreen";
+import { AppAuthCallbackListener } from "@/components/AppAuthCallbackListener";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +19,12 @@ const geistMono = Geist_Mono({
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
   display: "swap",
 });
@@ -73,7 +82,7 @@ export default function RootLayout({
   return (
     <html lang="ja" data-api-origin={apiOrigin}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased min-h-[100dvh] overscroll-none bg-zinc-950 text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${cinzel.variable} antialiased min-h-[100dvh] overscroll-none bg-zinc-950 text-white`}
       >
         {apiOrigin ? (
           <script
@@ -83,9 +92,13 @@ export default function RootLayout({
           />
         ) : null}
         <HeaderStatsProvider>
-          <BgmProvider>
-            {children}
-          </BgmProvider>
+          <OfflineProvider>
+            <BgmProvider>
+              <AppAuthCallbackListener />
+              {children}
+              <OfflineDownloadScreen />
+            </BgmProvider>
+          </OfflineProvider>
         </HeaderStatsProvider>
       </body>
     </html>

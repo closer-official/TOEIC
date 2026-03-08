@@ -46,6 +46,7 @@ type ExchangeData = {
   userEx: number;
   userGuildXp?: number;
   userGems: number;
+  currentUserId?: string;
   listings: ListingRow[];
   myListings: (ListingRow & { seller_id?: string })[];
   myInventory: {
@@ -71,10 +72,12 @@ export default function ExchangePage() {
   const [rarityFilter, setRarityFilter] = useState('');
   const [buyLoading, setBuyLoading] = useState<string | null>(null);
   const [cancelLoading, setCancelLoading] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
     setError(null);
+    setCancelError(null);
     const params = new URLSearchParams();
     if (nameFilter) params.set('name', nameFilter);
     if (rarityFilter) params.set('rarity', rarityFilter);
@@ -162,9 +165,18 @@ export default function ExchangePage() {
   };
 
   const handleCancel = async (listingId: string) => {
+    setCancelError(null);
     setCancelLoading(listingId);
-    await fetch(`/api/exchange/listings/${listingId}`, { method: 'DELETE' });
+    const res = await fetch(`/api/exchange/listings/${listingId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    const json = await res.json().catch(() => ({}));
     setCancelLoading(null);
+    if (!res.ok) {
+      setCancelError((json.error as string) ?? '取り消しに失敗しました');
+      return;
+    }
     load();
   };
 
@@ -213,7 +225,7 @@ export default function ExchangePage() {
           <>
             {tab === 'exchange' && data && (
               <div className="mt-6 space-y-4">
-                {/* 全共通XP → ジェム（ギルドXPはジェム交換に使用不可） */}
+                {/* 全共通XP → チップ（ギルドXPはチップ交換に使用不可） */}
                 <div className="rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
                   <p className="text-sm text-zinc-400">
                     1 全共通XP = <span className="font-bold text-gold">{data.gemsPerEx.toFixed(4)}</span> チップ
@@ -222,7 +234,7 @@ export default function ExchangePage() {
                     1 XP = 0.01 チップ（100 XP = 1 チップ）で固定です。
                   </p>
                   <p className="mt-2 text-sm text-zinc-400">
-                    所持: 全共通XP <span className="font-bold">{data.userEx}</span> / ギルドXP <span className="font-bold">{data.userGuildXp ?? 0}</span> / チップ <span className="font-bold">{data.userGems}</span>
+                    所持: 全共通XP <span className="font-bold">{(data.userEx ?? 0).toLocaleString()}</span> / ギルドXP <span className="font-bold">{(data.userGuildXp ?? 0).toLocaleString()}</span> / チップ <span className="font-bold">{(data.userGems ?? 0).toLocaleString()}</span>
                   </p>
                   <p className="mt-1 text-xs text-amber-400/90">※ギルドXPはチップとの交換には使用できません。</p>
                 </div>
@@ -301,6 +313,9 @@ export default function ExchangePage() {
             {tab === 'exchange' && data && data.myListings.length > 0 && (
               <div className="mt-6 rounded-xl border border-gold-subtle bg-zinc-900/80 p-4">
                 <h3 className="text-sm font-medium text-zinc-400">出品中の装備（装備ページから出品）</h3>
+                {cancelError && (
+                  <p className="mt-2 text-sm text-red-400">{cancelError}</p>
+                )}
                 <ul className="mt-2 space-y-2">
                   {data.myListings.map((l) => (
                     <li
@@ -353,6 +368,7 @@ export default function ExchangePage() {
                 ) : (
                   <ul className="space-y-4">
                     {data.listings.filter((l) => l.item_type === 'equipment').map((l) => {
+                      const isOwn = data.currentUserId && l.seller_id === data.currentUserId;
                       const def = GACHA_EQUIPMENT.find((e) => e.id === l.item_id);
                       const grade = (l.equipment_grade ?? 'common') as EquipmentGrade;
                       const level = typeof l.equipment_level === 'number' ? l.equipment_level : 0;
@@ -377,21 +393,25 @@ export default function ExchangePage() {
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
-                              <p className="font-medium text-white">{l.item_name}</p>
+                              <p className="font-medium text-white">{l.item_name}{isOwn ? <span className="ml-2 text-xs text-zinc-400">（自分の出品）</span> : null}</p>
                               <p className="mt-1 text-xs text-zinc-400">{gradeLevelLine}</p>
                               {effectText && (
                                 <p className="mt-1.5 text-sm text-zinc-300">{effectText}</p>
                               )}
                               <p className="mt-2 text-sm font-bold text-gold">{l.price_gems} チップ</p>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleBuy(l.id)}
-                              disabled={buyLoading === l.id || (data.userGems < l.price_gems)}
-                              className="shrink-0 rounded-lg border border-gold-subtle bg-[var(--gold)]/20 px-4 py-2 text-sm font-medium text-gold disabled:opacity-50"
-                            >
-                              {buyLoading === l.id ? '処理中…' : '購入'}
-                            </button>
+                            {isOwn ? (
+                              <span className="shrink-0 rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-sm text-zinc-400">自分の出品</span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleBuy(l.id)}
+                                disabled={buyLoading === l.id || (data.userGems < l.price_gems)}
+                                className="shrink-0 rounded-lg border border-gold-subtle bg-[var(--gold)]/20 px-4 py-2 text-sm font-medium text-gold disabled:opacity-50"
+                              >
+                                {buyLoading === l.id ? '処理中…' : '購入'}
+                              </button>
+                            )}
                           </div>
                         </li>
                       );
