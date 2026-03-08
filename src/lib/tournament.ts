@@ -1,25 +1,29 @@
 import { GACHA_EQUIPMENT } from '@/lib/equipment-items';
 
-/** 今週の日曜（JST）の日付文字列 YYYY-MM-DD。大会の週識別に使用。 */
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** 現在時刻を JST として解釈したときの (曜日 0-6, 時 0-23) を返す。端末のタイムゾーンに依存しない。 */
+function getJstDayAndHour(now: Date): { day: number; hours: number } {
+  const t = new Date(now.getTime() + JST_OFFSET_MS);
+  return { day: t.getUTCDay(), hours: t.getUTCHours() };
+}
+
+/** 今週の日曜（JST）の日付文字列 YYYY-MM-DD。大会の週識別に使用。端末タイムゾーンに依存しない。 */
 export function getCurrentWeekSunday(): string {
   const now = new Date();
-  const jstOffset = 9 * 60;
-  const jst = new Date(now.getTime() + (jstOffset - now.getTimezoneOffset()) * 60 * 1000);
-  const day = jst.getDay();
-  const sundayOffset = day === 0 ? 0 : day;
-  const sunday = new Date(jst);
-  sunday.setDate(jst.getDate() - sundayOffset);
+  const t = new Date(now.getTime() + JST_OFFSET_MS);
+  const day = t.getUTCDay();
+  const y = t.getUTCFullYear();
+  const m = t.getUTCMonth();
+  const d = t.getUTCDate();
+  const sunday = new Date(Date.UTC(y, m, d - day, 0, 0, 0, 0));
   return sunday.toISOString().slice(0, 10);
 }
 
-/** 日曜 12:00 JST 〜 23:00 JST のうちかどうか */
+/** 日曜 12:00 JST 〜 23:00 JST のうちかどうか。端末のタイムゾーンに依存せず JST で判定。 */
 export function isTournamentWindowNow(): boolean {
-  const now = new Date();
-  const jstOffset = 9 * 60;
-  const jst = new Date(now.getTime() + (jstOffset - now.getTimezoneOffset()) * 60 * 1000);
-  const day = jst.getDay();
+  const { day, hours } = getJstDayAndHour(new Date());
   if (day !== 0) return false;
-  const hours = jst.getHours();
   return hours >= 12 && hours < 23;
 }
 

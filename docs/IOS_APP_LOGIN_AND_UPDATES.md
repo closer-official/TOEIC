@@ -197,6 +197,17 @@ OAuth（Google / Apple ログイン）の `redirectTo` が **Web の URL**（例
 - **それでも戻らない場合**  
   認証画面が **アプリ内ブラウザ** ではなく **Safari** で開くようにすると、リダイレクトでアプリに戻りやすくなることがあります。その場合は、OAuth の開始 URL を Safari で開く「Safariで開いてログイン」のようなボタンを別途用意する方法があります。
 
+### ゲストログイン・ログインが実機で変わらないとき
+
+- **実装の変更（今回）**  
+  実機では Supabase のセッションを **Capacitor の Preferences**（ネイティブストレージ）に保存するようにしています。WebView の localStorage だけではフルリロード後にセッションが消えるためです。
+- **反映手順を必ず踏む**  
+  1. Mac で `git pull` → `npm install` → **`npm run build:ios`** → **`npx cap sync ios`**  
+  2. Xcode で **Product → Clean Build Folder** のあと、実機に再インストール（Run）  
+  3. **実機で一度アプリを削除**してから、Xcode から再度インストールすると古いストレージが消え、確実に新挙動になります。
+- **Supabase で匿名ログインを有効にする**  
+  Dashboard → **Authentication** → **Providers** で **Anonymous** を有効にしてください。オフだとゲストログインが失敗します。
+
 ### 動作の流れ（アプリ内完結）
 
 1. ユーザーがアプリで「Google でログイン」などをタップ
