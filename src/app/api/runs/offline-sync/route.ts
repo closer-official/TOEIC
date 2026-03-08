@@ -1,15 +1,12 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { computeCurrentStamina, getMaxStamina, isValidStaminaConsumeAmount } from '@/lib/stamina';
 import { addEvolutionXp } from '@/lib/evolution-add-xp';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 type SubscriptionTier = 'free' | 'pro' | 'ultra';
+type ApiSupabase = Awaited<ReturnType<typeof createApiSupabaseClient>>;
 
-async function getStaminaProfile(supabase: ReturnType<typeof createServerClient>, userId: string) {
+async function getStaminaProfile(supabase: ApiSupabase, userId: string) {
   const fullCols = 'stamina_count, last_stamina_at, is_subscriber, evolution_wrong_penalty, evolution_season_carry_wrong_penalty, subscription_tier, stamina_infinity_ends_at';
   const { data, error } = await supabase.from('profiles').select(fullCols).eq('user_id', userId).maybeSingle();
   if (!error && data) {
@@ -39,7 +36,7 @@ async function getStaminaProfile(supabase: ReturnType<typeof createServerClient>
   };
 }
 
-async function getGuildStaminaBonus(supabase: ReturnType<typeof createServerClient>, userId: string): Promise<number> {
+async function getGuildStaminaBonus(supabase: ApiSupabase, userId: string): Promise<number> {
   try {
     const { data: member } = await supabase.from('guild_members').select('guild_id').eq('user_id', userId).maybeSingle();
     if (!member) return 0;
@@ -67,21 +64,8 @@ type OfflineRunItem = {
 /** POST: オフラインで溜めた run を一括同期。冪等。body: { runs: OfflineRunItem[] } */
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
-  const cookieStore = await cookies();
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (cookiesToSet) => {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
-        } catch {
-          // ignore
-        }
-      },
-    },
-  });
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const supabase = await createApiSupabaseClient();
+  const { user, authError } = await getApiUser(supabase);
   if (authError || !user) {
     return NextResponse.json({ error: 'not_logged_in', message: 'ログインしてください' }, { status: 401 });
   }

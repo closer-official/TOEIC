@@ -1,27 +1,13 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/app/api/admin/auth';
 import { createAdminSupabaseClient } from '@/lib/supabase/server';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+import { createApiSupabaseClient } from '@/lib/api-auth';
 
 /** GET: 掲示板（運営からの連絡）を取得。認証不要。全ユーザーが閲覧可能。 */
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {
-          // read-only
-        },
-      },
-    });
+    const supabase = await createApiSupabaseClient();
 
     const { data, error } = await supabase
       .from('announcements')

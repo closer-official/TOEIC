@@ -1,26 +1,14 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { createApiSupabaseClient } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-static';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 /** GET: ランキング上位20件（単語+Part5 合計得点）。ホーム画面の下スクロール用。runs_best_per_user ビューでベスト1件のみ取得するため更新が反映される。 */
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {},
-      },
-    });
+    const supabase = await createApiSupabaseClient();
 
     const part5Res = await supabase
       .from('runs_best_per_user')

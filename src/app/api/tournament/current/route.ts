@@ -1,19 +1,11 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getCurrentWeekSunday, parseTournamentRules } from '@/lib/tournament';
+import { createApiSupabaseClient } from '@/lib/api-auth';
 
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
-      {
-        cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} },
-      }
-    );
+    const supabase = await createApiSupabaseClient();
     const startDate = getCurrentWeekSunday();
     const { data: row, error } = await supabase
       .from('tournament_weeks')

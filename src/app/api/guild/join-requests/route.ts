@@ -1,12 +1,8 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-static';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 /** ギルド最大人数: 10 + lab_score_lv * 2（上限なし） */
 function maxGuildMembers(labScoreLv: number): number {
@@ -17,28 +13,8 @@ function maxGuildMembers(labScoreLv: number): number {
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // ignore
-          }
-        },
-      },
-    });
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
 
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
@@ -101,28 +77,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // ignore
-          }
-        },
-      },
-    });
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
 
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });

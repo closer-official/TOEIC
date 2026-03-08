@@ -1,20 +1,14 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentWeekSunday, isTournamentWindowNow } from '@/lib/tournament';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   if (!isTournamentWindowNow()) {
     return NextResponse.json({ error: '大会の受付時間外です（日曜 12:00〜23:00 JST）' }, { status: 403 });
   }
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
-  );
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const supabase = await createApiSupabaseClient();
+  const { user, authError } = await getApiUser(supabase);
   if (authError || !user) {
     return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
   }

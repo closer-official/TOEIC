@@ -1,36 +1,15 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 /** POST: 1プレイ終了時。Cookie のセッションで RLS を通して同じ DB に保存する。
  * body: { userId, score, totalTimeMs, game_mode?, survival_rank?, checkpoints? }
  */
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
-  const cookieStore = await cookies();
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch {
-          // ignore
-        }
-      },
-    },
-  });
-
-  const { data: { session } } = await supabase.auth.getSession();
-  const uid = session?.user?.id;
+  const supabase = await createApiSupabaseClient();
+  const { user } = await getApiUser(supabase);
+  const uid = user?.id ?? null;
   if (!uid) {
     return NextResponse.json({ error: 'not_logged_in', message: 'ランキングに記録するにはログインしてください。' }, { status: 401 });
   }
@@ -83,15 +62,7 @@ export async function POST(req: NextRequest) {
 /** GET: 全国ランキング（旧形式・単一モード混在）。combined API を推奨。 */
 export async function GET(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
-  const cookieStore = await cookies();
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll() {},
-    },
-  });
+  const supabase = await createApiSupabaseClient();
   const limit = Math.min(100, Math.max(10, parseInt(req.nextUrl.searchParams.get('limit') ?? '20', 10)));
   const { data, error } = await supabase
     .from('runs')

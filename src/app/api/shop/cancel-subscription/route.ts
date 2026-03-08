@@ -1,13 +1,10 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-static';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 /** POST: サブスクを翌月末で解約（cancel_at_period_end = true） */
@@ -18,20 +15,8 @@ export async function POST() {
   }
 
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {},
-      },
-    });
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }

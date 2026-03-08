@@ -1,9 +1,5 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+import { createApiSupabaseClient } from '@/lib/api-auth';
 
 /** 今週の月曜 0:00 JST と 日曜 23:59:59.999 JST を UTC の ISO 文字列で返す */
 function getCurrentWeekRangeJST(): { start: string; end: string } {
@@ -27,15 +23,7 @@ function getCurrentWeekRangeJST(): { start: string; end: string } {
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {},
-      },
-    });
+    const supabase = await createApiSupabaseClient();
 
     const { start: weekStart, end: weekEnd } = getCurrentWeekRangeJST();
 

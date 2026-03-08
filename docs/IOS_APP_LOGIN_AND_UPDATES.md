@@ -263,3 +263,17 @@ OAuth（Google / Apple ログイン）の `redirectTo` が **Web の URL**（例
 
 - 条文の追加・差し替えは、`src/app/terms/page.tsx` と `src/app/privacy/page.tsx` の **`isApp`** で分岐を増やせば対応できます。
 - 完全に別ページにしたい場合は、例として `/terms-app` と `/privacy-app` を用意し、アプリ内のリンクだけそこに向ける方法もあります。
+
+---
+
+## 4. 実機でデータが読めない・ショップ・学習記録・ギルド・大会・イベントが表示されない場合
+
+アプリ（Capacitor）では Cookie がウェブと同様に送られないことがあるため、**API は Cookie に加えて `Authorization: Bearer <token>` でも認証**しています。
+
+- **確認すること**
+  - ログイン・ゲストログイン後に `app_api_bearer_token`（localStorage）や Supabase のセッションがブリッジで保存されているか。
+  - `layout.tsx` の fetch ラップで、`/api/*` リクエストに `Authorization: Bearer` が付与されているか（`NEXT_PUBLIC_API_ORIGIN` 設定時）。
+  - 各 API ルートが **api-auth**（`createApiSupabaseClient` + `getApiUser`）を使っており、Cookie だけでなく Bearer からユーザーを取得しているか。
+- **修正の目安**
+  - 実機でだけ「データが空」「401」になる場合は、その API を **api-auth に統一**（`createServerClient` + `cookies()` をやめ、`createApiSupabaseClient` と `getApiUser` に置き換え）すると解消することがあります。
+  - 認証不要の読み取り専用 API（掲示板・ランキング・大会ルールなど）も、実機から同じオリジンで読むために `createApiSupabaseClient()` でクライアントを作成しておくとよい。

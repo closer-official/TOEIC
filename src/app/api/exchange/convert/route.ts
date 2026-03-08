@@ -1,13 +1,11 @@
-import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
 /** 1 XP = 0.01 チップ（100 XP = 1 チップ） */
@@ -17,22 +15,8 @@ const GEMS_PER_XP = 0.01;
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {
-          // ignore
-        },
-      },
-    });
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
 
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });

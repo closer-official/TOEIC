@@ -1,41 +1,19 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEvent } from '@/lib/weekly-events';
 import { getMaxStamina, type SubscriptionTier } from '@/lib/stamina';
 import { getGuildXpBoosterMultiplier } from '@/lib/guild-xp-booster';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-dynamic';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 const GEM_PER_TICKET = 100;
 const PRIZE_TYPES = ['grand_prize', 'a', 'b_plus', 'b_minus', 'c', 'd_plus', 'd'] as const;
 type PrizeType = (typeof PRIZE_TYPES)[number];
 
-function createSupabase(cookieStore: Awaited<ReturnType<typeof cookies>>) {
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch {
-          // ignore
-        }
-      },
-    },
-  });
-}
-
 /** 現在の箱IDを取得（未抽選が1枚以上あるうちで最も古い箱）。なければ1箱作成して返す */
-async function getOrCreateCurrentBoxId(supabase: ReturnType<typeof createServerClient>): Promise<string | null> {
+async function getOrCreateCurrentBoxId(supabase: SupabaseClient): Promise<string | null> {
   const { data: tickets } = await supabase
     .from('kuji_tickets')
     .select('box_id')
@@ -63,7 +41,7 @@ async function getOrCreateCurrentBoxId(supabase: ReturnType<typeof createServerC
 
 /** 箱の残り枚数・賞別残りを取得 */
 async function getBoxState(
-  supabase: ReturnType<typeof createServerClient>,
+  supabase: SupabaseClient,
   boxId: string
 ): Promise<{ remainingCount: number; remainingByPrize: Record<PrizeType, number> }> {
   const { data: tickets } = await supabase
@@ -94,8 +72,7 @@ export async function GET(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
     const isPreview = req.nextUrl.searchParams.get('preview') === '1' || req.nextUrl.searchParams.get('dev') === '1';
-    const cookieStore = await cookies();
-    const supabase = createSupabase(cookieStore);
+    const supabase = await createApiSupabaseClient();
 
     const current = getCurrentEvent();
     if (current.id !== 'ichiban' && !isPreview) {
@@ -121,7 +98,7 @@ export async function GET(req: NextRequest) {
 
 /** 景品を1つ付与 */
 async function grantPrize(
-  supabase: ReturnType<typeof createServerClient>,
+  supabase: SupabaseClient,
   userId: string,
   prizeType: PrizeType,
   isLastOne: boolean,
@@ -247,13 +224,8 @@ async function grantPrize(
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const cookieStore = await cookies();
-    const supabase = createSupabase(cookieStore);
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }

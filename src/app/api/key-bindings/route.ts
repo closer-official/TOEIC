@@ -1,6 +1,5 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-static';
@@ -20,15 +19,7 @@ type KeyBindings = {
 };
 
 async function getSupabase() {
-  const cookieStore = await cookies();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: () => {},
-    },
-  });
+  return createApiSupabaseClient();
 }
 
 /** GET: 自分のキーバインドを取得 */
@@ -36,7 +27,7 @@ export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
     const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { user, authError } = await getApiUser(supabase);
     if (authError || !user) {
       return NextResponse.json(DEFAULT_BINDINGS);
     }
@@ -67,7 +58,7 @@ export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
     const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { user, authError } = await getApiUser(supabase);
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }
