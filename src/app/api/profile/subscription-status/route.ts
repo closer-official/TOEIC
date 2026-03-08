@@ -15,7 +15,7 @@ export async function GET() {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('user_id, is_subscriber, subscription_tier, gems')
+      .select('user_id, is_subscriber, subscription_tier, gems, apple_subscription_expires_at')
       .eq('user_id', user.id)
       .single();
 
@@ -23,10 +23,16 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    let subscription_tier = profile?.subscription_tier ?? null;
+    const appleExpires = (profile as { apple_subscription_expires_at?: string | null })?.apple_subscription_expires_at;
+    if (appleExpires && subscription_tier && new Date(appleExpires) <= new Date()) {
+      subscription_tier = null;
+    }
+
     return NextResponse.json({
       user_id: profile?.user_id,
-      is_subscriber: profile?.is_subscriber ?? false,
-      subscription_tier: profile?.subscription_tier ?? null,
+      is_subscriber: subscription_tier === 'pro' || subscription_tier === 'ultra',
+      subscription_tier,
       gems: profile?.gems ?? 0,
     });
   } catch (e) {

@@ -10,6 +10,14 @@ import { Roulette } from '@/components/Roulette';
 import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 import { EmbeddedCheckoutModal } from '@/components/EmbeddedCheckoutModal';
 import Image from 'next/image';
+import {
+  useIsAppStore,
+  useAppleIapProducts,
+  purchaseAppleChip,
+  purchaseAppleSubscription,
+  restoreApplePurchases,
+  openAppleSubscriptionManagement,
+} from '@/lib/shop-apple-iap';
 
 type SessionUser = { id: string; avatarUrl: string | null };
 type GachaState = {
@@ -265,7 +273,13 @@ function ShopPageContent() {
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [embedPackId, setEmbedPackId] = useState<string | null>(null);
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier | null>(null);
+  const [iapChipLoading, setIapChipLoading] = useState<string | null>(null);
+  const [iapSubLoading, setIapSubLoading] = useState<string | null>(null);
+  const [iapRestoreLoading, setIapRestoreLoading] = useState(false);
   const searchParams = useSearchParams();
+
+  const isAppStore = useIsAppStore();
+  const { chipProducts, subProducts, loading: iapProductsLoading, error: iapProductsError } = useAppleIapProducts();
 
   const fetchSubscriptionStatus = () => {
     fetch('/api/profile/subscription-status', { credentials: 'include' })
@@ -634,7 +648,9 @@ function ShopPageContent() {
           {/* CHIP REQUISITION：サイバー・カジノ資産調達 */}
           <section className="mt-8">
             <h2 className="text-xs font-medium uppercase tracking-[0.25em] text-[#C5A059]/90" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>CHIP REQUISITION</h2>
-            <p className="mt-1 text-xs text-zinc-500">スタミナ切れの際にショップで補充できます。Web版はStripeで決済します。</p>
+            <p className="mt-1 text-xs text-zinc-500">
+              {isAppStore ? 'App Store ではアプリ内課金（30%上乗せ価格）でチップを購入できます。' : 'スタミナ切れの際にショップで補充できます。Web版はStripeで決済します。'}
+            </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="text-xs text-zinc-400">所持チップでスタミナ回復:</span>
               <button
@@ -682,41 +698,138 @@ function ShopPageContent() {
                 {chipCheckoutError}
               </p>
             )}
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {CHIP_PACKS.map((pack) => {
-                const isHighTier = pack.chips >= 7000;
-                return (
-                  <button
-                    key={pack.id}
-                    type="button"
-                    disabled={!!embedPackId}
-                    onClick={() => {
-                      setChipCheckoutError(null);
-                      setEmbedPackId(pack.id);
-                    }}
-                    className={`shop-chip-card group relative flex flex-col rounded-xl border border-[rgba(197,160,89,0.4)] p-4 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${isHighTier ? 'shop-chip-card-high' : ''}`}
-                    style={{
-                      borderWidth: '0.5px',
-                      background: isHighTier ? 'linear-gradient(180deg, rgba(20,8,5,0.98) 0%, #0d0503 100%)' : 'rgba(17,17,17,0.95)',
-                    }}
-                  >
-                    <div className="relative z-10 h-14 mb-3 flex items-center justify-center">
-                      <CasinoChipStack chips={pack.chips} />
-                    </div>
-                    <span className="relative z-10 block text-base font-bold tabular-nums text-[#F0F0F0]" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
-                      {pack.chips.toLocaleString()} チップ
-                    </span>
-                    <span className="relative z-10 block text-[10px] uppercase tracking-wider text-zinc-500">{pack.label}</span>
-                    <span
-                      className="relative z-10 mt-3 block w-full rounded border border-[#C5A059]/50 bg-[#111111] py-2.5 text-center text-sm font-semibold tabular-nums text-[#C5A059] transition hover:bg-[#1a1a1a]"
-                      style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
+            {isAppStore && iapProductsError && (
+              <p className="mt-2 text-sm text-amber-400">{iapProductsError}</p>
+            )}
+            {isAppStore ? (
+              <>
+                {iapProductsLoading ? (
+                  <p className="mt-4 text-sm text-zinc-500">商品を読み込み中…</p>
+                ) : (
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {chipProducts.map((product) => {
+                      const isHighTier = product.chips >= 7000;
+                      const loading = iapChipLoading === product.productIdentifier;
+                      return (
+                        <button
+                          key={product.productIdentifier}
+                          type="button"
+                          disabled={!!iapChipLoading}
+                          onClick={async () => {
+                            setChipCheckoutError(null);
+                            setIapChipLoading(product.productIdentifier);
+                            try {
+                              const result = await purchaseAppleChip(product.productIdentifier);
+                              if ('error' in result) {
+                                setChipCheckoutError(result.error);
+                                return;
+                              }
+                              const res = await fetch('/api/shop/apple/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({ receipt: result.receipt }),
+                              });
+                              const data = await res.json().catch(() => ({}));
+                              if (!res.ok) {
+                                setChipCheckoutError(data.error ?? 'チップの付与に失敗しました');
+                                return;
+                              }
+                              setPurchaseSuccess(true);
+                              window.dispatchEvent(new Event('gems-updated'));
+                              setTimeout(() => setPurchaseSuccess(false), 5000);
+                              fetchSubscriptionStatus();
+                            } catch {
+                              setChipCheckoutError('通信エラーが発生しました');
+                            } finally {
+                              setIapChipLoading(null);
+                            }
+                          }}
+                          className={`shop-chip-card group relative flex flex-col rounded-xl border border-[rgba(197,160,89,0.4)] p-4 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${isHighTier ? 'shop-chip-card-high' : ''}`}
+                          style={{
+                            borderWidth: '0.5px',
+                            background: isHighTier ? 'linear-gradient(180deg, rgba(20,8,5,0.98) 0%, #0d0503 100%)' : 'rgba(17,17,17,0.95)',
+                          }}
+                        >
+                          <div className="relative z-10 h-14 mb-3 flex items-center justify-center">
+                            <CasinoChipStack chips={product.chips} />
+                          </div>
+                          <span className="relative z-10 block text-base font-bold tabular-nums text-[#F0F0F0]" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
+                            {product.chips.toLocaleString()} チップ
+                          </span>
+                          <span className="relative z-10 block text-[10px] uppercase tracking-wider text-zinc-500">{product.packId}</span>
+                          <span
+                            className="relative z-10 mt-3 block w-full rounded border border-[#C5A059]/50 bg-[#111111] py-2.5 text-center text-sm font-semibold tabular-nums text-[#C5A059] transition hover:bg-[#1a1a1a]"
+                            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
+                          >
+                            {loading ? '処理中…' : product.priceString}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  disabled={iapRestoreLoading || iapProductsLoading}
+                  onClick={async () => {
+                    setChipCheckoutError(null);
+                    setIapRestoreLoading(true);
+                    try {
+                      const { verified, error: restoreErr } = await restoreApplePurchases();
+                      if (restoreErr) setChipCheckoutError(restoreErr);
+                      if (verified > 0) {
+                        setPurchaseSuccess(true);
+                        window.dispatchEvent(new Event('gems-updated'));
+                        fetchSubscriptionStatus();
+                        setTimeout(() => setPurchaseSuccess(false), 5000);
+                      }
+                    } finally {
+                      setIapRestoreLoading(false);
+                    }
+                  }}
+                  className="mt-3 w-full rounded-xl border border-zinc-600 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800/50 disabled:opacity-50"
+                >
+                  {iapRestoreLoading ? '復元中…' : '購入を復元'}
+                </button>
+              </>
+            ) : (
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {CHIP_PACKS.map((pack) => {
+                  const isHighTier = pack.chips >= 7000;
+                  return (
+                    <button
+                      key={pack.id}
+                      type="button"
+                      disabled={!!embedPackId}
+                      onClick={() => {
+                        setChipCheckoutError(null);
+                        setEmbedPackId(pack.id);
+                      }}
+                      className={`shop-chip-card group relative flex flex-col rounded-xl border border-[rgba(197,160,89,0.4)] p-4 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${isHighTier ? 'shop-chip-card-high' : ''}`}
+                      style={{
+                        borderWidth: '0.5px',
+                        background: isHighTier ? 'linear-gradient(180deg, rgba(20,8,5,0.98) 0%, #0d0503 100%)' : 'rgba(17,17,17,0.95)',
+                      }}
                     >
-                      ¥{pack.price.toLocaleString()}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                      <div className="relative z-10 h-14 mb-3 flex items-center justify-center">
+                        <CasinoChipStack chips={pack.chips} />
+                      </div>
+                      <span className="relative z-10 block text-base font-bold tabular-nums text-[#F0F0F0]" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
+                        {pack.chips.toLocaleString()} チップ
+                      </span>
+                      <span className="relative z-10 block text-[10px] uppercase tracking-wider text-zinc-500">{pack.label}</span>
+                      <span
+                        className="relative z-10 mt-3 block w-full rounded border border-[#C5A059]/50 bg-[#111111] py-2.5 text-center text-sm font-semibold tabular-nums text-[#C5A059] transition hover:bg-[#1a1a1a]"
+                        style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
+                      >
+                        ¥{pack.price.toLocaleString()}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           {/* メンバーシップカード：メタルカード・VIPはホログラム縁 */}
@@ -729,98 +842,173 @@ function ShopPageContent() {
                   {TIER_DISPLAY_NAME[subscriptionTier ?? 'free']}
                 </span>
               </div>
-              {subscriptionCancelSuccess && (
+              {!isAppStore && subscriptionCancelSuccess && (
                 <p className="mx-4 mt-2 text-sm text-emerald-400">解約手続きが完了しました。翌月末までメンバー特典をご利用いただけます。</p>
               )}
               {(subscriptionCheckoutError || subscriptionCancelError) && (
                 <p className="mx-4 mt-2 text-sm text-red-400">{subscriptionCheckoutError ?? subscriptionCancelError}</p>
               )}
+              {isAppStore && (subscriptionTier === 'pro' || subscriptionTier === 'ultra') && (
+                <div className="px-4 pt-2">
+                  <p className="text-xs text-zinc-500">解約・プラン変更はiPhoneの設定から行えます。</p>
+                  <button
+                    type="button"
+                    onClick={() => openAppleSubscriptionManagement()}
+                    className="mt-2 w-full rounded-xl border border-zinc-600 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800/50"
+                  >
+                    サブスクリプションを管理
+                  </button>
+                </div>
+              )}
               <div className="p-4 space-y-3">
-                {PLANS.filter((p) => p.id !== (subscriptionTier ?? 'free')).map((plan) => {
-                  const isDowngrade = plan.id === 'free' && (subscriptionTier === 'pro' || subscriptionTier === 'ultra');
-                  const loading = isDowngrade ? subscriptionCancelLoading : subscriptionCheckoutLoading === plan.id;
-                  const disabled = isDowngrade ? subscriptionCancelLoading : !!subscriptionCheckoutLoading;
-                  return (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      disabled={!!disabled}
-                      onClick={async () => {
-                        if (isDowngrade) {
+                {isAppStore ? (
+                  iapProductsLoading ? (
+                    <p className="text-sm text-zinc-500">読み込み中…</p>
+                  ) : (
+                    subProducts
+                      .filter((p) => p.planId !== (subscriptionTier ?? 'free'))
+                      .map((product) => {
+                        const plan = PLANS.find((pl) => pl.id === product.planId);
+                        const loading = iapSubLoading === product.productIdentifier;
+                        return (
+                          <button
+                            key={product.productIdentifier}
+                            type="button"
+                            disabled={!!iapSubLoading}
+                            onClick={async () => {
+                              setSubscriptionCheckoutError(null);
+                              setIapSubLoading(product.productIdentifier);
+                              try {
+                                const result = await purchaseAppleSubscription(product.productIdentifier);
+                                if ('error' in result) {
+                                  setSubscriptionCheckoutError(result.error);
+                                  return;
+                                }
+                                const res = await fetch('/api/shop/apple/verify', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  credentials: 'include',
+                                  body: JSON.stringify({ receipt: result.receipt }),
+                                });
+                                const data = await res.json().catch(() => ({}));
+                                if (!res.ok) {
+                                  setSubscriptionCheckoutError(data.error ?? 'サブスクの反映に失敗しました');
+                                  return;
+                                }
+                                fetchSubscriptionStatus();
+                                window.dispatchEvent(new Event('gems-updated'));
+                              } catch {
+                                setSubscriptionCheckoutError('通信エラーが発生しました');
+                              } finally {
+                                setIapSubLoading(null);
+                              }
+                            }}
+                            className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-left transition-opacity disabled:opacity-60 disabled:cursor-not-allowed ${product.planId === 'ultra' ? 'shop-card-vip shop-card-vip-edge' : 'shop-card-member'}`}
+                          >
+                            <div>
+                              <p className="font-semibold text-white">{plan?.name ?? product.planId}</p>
+                              <p className={`text-sm tabular-nums ${product.planId === 'ultra' ? 'text-[var(--gold-light)]' : 'text-[var(--gold)]'}`} style={{ fontFamily: product.planId === 'ultra' ? 'Georgia, serif' : undefined }}>{product.priceString}/月</p>
+                              {plan && (
+                                <p className="text-xs text-zinc-500">
+                                  {plan.chips != null && <>{plan.chips.toLocaleString()} チップ付与 · </>}
+                                  スタミナ {plan.stamina} · スピン {plan.spinsPerDay}回/日
+                                </p>
+                              )}
+                            </div>
+                            <span className="text-xs font-medium shrink-0 text-gold">
+                              {loading ? '処理中…' : '加入'}
+                            </span>
+                          </button>
+                        );
+                      })
+                  )
+                ) : (
+                  PLANS.filter((p) => p.id !== (subscriptionTier ?? 'free')).map((plan) => {
+                    const isDowngrade = plan.id === 'free' && (subscriptionTier === 'pro' || subscriptionTier === 'ultra');
+                    const loading = isDowngrade ? subscriptionCancelLoading : subscriptionCheckoutLoading === plan.id;
+                    const disabled = isDowngrade ? subscriptionCancelLoading : !!subscriptionCheckoutLoading;
+                    return (
+                      <button
+                        key={plan.id}
+                        type="button"
+                        disabled={!!disabled}
+                        onClick={async () => {
+                          if (isDowngrade) {
+                            setSubscriptionCheckoutError(null);
+                            setSubscriptionCancelError(null);
+                            setSubscriptionCancelLoading(true);
+                            try {
+                              const res = await fetch('/api/shop/cancel-subscription', {
+                                method: 'POST',
+                                credentials: 'include',
+                              });
+                              const json = await res.json().catch(() => ({}));
+                              if (!res.ok) {
+                                setSubscriptionCancelError(json.error ?? '解約の処理に失敗しました');
+                                return;
+                              }
+                              setSubscriptionCancelError(null);
+                              setSubscriptionCheckoutError(null);
+                              setSubscriptionCancelSuccess(true);
+                              setTimeout(() => setSubscriptionCancelSuccess(false), 5000);
+                            } catch {
+                              setSubscriptionCancelError('通信エラーが発生しました');
+                            } finally {
+                              setSubscriptionCancelLoading(false);
+                            }
+                            return;
+                          }
                           setSubscriptionCheckoutError(null);
                           setSubscriptionCancelError(null);
-                          setSubscriptionCancelLoading(true);
+                          setSubscriptionCheckoutLoading(plan.id);
                           try {
-                            const res = await fetch('/api/shop/cancel-subscription', {
+                            const res = await fetch('/api/shop/checkout-subscription', {
                               method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
                               credentials: 'include',
+                              body: JSON.stringify({ planId: plan.id }),
                             });
                             const json = await res.json().catch(() => ({}));
                             if (!res.ok) {
-                              setSubscriptionCancelError(json.error ?? '解約の処理に失敗しました');
+                              setSubscriptionCheckoutError(json.error ?? '決済の開始に失敗しました');
                               return;
                             }
-                            setSubscriptionCancelError(null);
-                            setSubscriptionCheckoutError(null);
-                            setSubscriptionCancelSuccess(true);
-                            setTimeout(() => setSubscriptionCancelSuccess(false), 5000);
+                            if (json.url) {
+                              window.location.href = json.url;
+                              return;
+                            }
+                            setSubscriptionCheckoutError('決済ページの取得に失敗しました');
                           } catch {
-                            setSubscriptionCancelError('通信エラーが発生しました');
+                            setSubscriptionCheckoutError('通信エラーが発生しました');
                           } finally {
-                            setSubscriptionCancelLoading(false);
+                            setSubscriptionCheckoutLoading(null);
                           }
-                          return;
-                        }
-                        setSubscriptionCheckoutError(null);
-                        setSubscriptionCancelError(null);
-                        setSubscriptionCheckoutLoading(plan.id);
-                        try {
-                          const res = await fetch('/api/shop/checkout-subscription', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ planId: plan.id }),
-                          });
-                          const json = await res.json().catch(() => ({}));
-                          if (!res.ok) {
-                            setSubscriptionCheckoutError(json.error ?? '決済の開始に失敗しました');
-                            return;
-                          }
-                          if (json.url) {
-                            window.location.href = json.url;
-                            return;
-                          }
-                          setSubscriptionCheckoutError('決済ページの取得に失敗しました');
-                        } catch {
-                          setSubscriptionCheckoutError('通信エラーが発生しました');
-                        } finally {
-                          setSubscriptionCheckoutLoading(null);
-                        }
-                      }}
-                      className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-left transition-opacity disabled:opacity-60 disabled:cursor-not-allowed ${isDowngrade ? 'shop-glass border border-zinc-600/50 hover:border-zinc-500' : plan.id === 'ultra' ? 'shop-card-vip shop-card-vip-edge' : 'shop-card-member'}`}
-                    >
-                      <div>
-                        <p className="font-semibold text-white">{plan.name}</p>
-                        {isDowngrade ? (
-                          <p className="text-xs text-zinc-400">翌月末で解約されます。それまでメンバー特典をご利用いただけます。</p>
-                        ) : (
-                          <>
-                            <p className={`text-sm tabular-nums ${plan.id === 'ultra' ? 'text-[var(--gold-light)]' : 'text-[var(--gold)]'}`} style={{ fontFamily: plan.id === 'ultra' ? 'Georgia, serif' : undefined }}>¥{plan.price.toLocaleString()}/月</p>
-                            <p className="text-xs text-zinc-500">
-                              {plan.chips != null && <>{plan.chips.toLocaleString()} チップ付与 · </>}
-                              スタミナ {plan.stamina} · スピン {plan.spinsPerDay}回/日
-                            </p>
-                          </>
-                        )}
-                      </div>
-                      <span className={`text-xs font-medium shrink-0 ${isDowngrade ? 'text-zinc-400' : 'text-gold'}`}>
-                        {loading ? (isDowngrade ? '処理中…' : 'リダイレクト中…') : isDowngrade ? '翌月から解約' : 'アップグレード'}
-                      </span>
-                    </button>
-                  );
-                })}
+                        }}
+                        className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-left transition-opacity disabled:opacity-60 disabled:cursor-not-allowed ${isDowngrade ? 'shop-glass border border-zinc-600/50 hover:border-zinc-500' : plan.id === 'ultra' ? 'shop-card-vip shop-card-vip-edge' : 'shop-card-member'}`}
+                      >
+                        <div>
+                          <p className="font-semibold text-white">{plan.name}</p>
+                          {isDowngrade ? (
+                            <p className="text-xs text-zinc-400">翌月末で解約されます。それまでメンバー特典をご利用いただけます。</p>
+                          ) : (
+                            <>
+                              <p className={`text-sm tabular-nums ${plan.id === 'ultra' ? 'text-[var(--gold-light)]' : 'text-[var(--gold)]'}`} style={{ fontFamily: plan.id === 'ultra' ? 'Georgia, serif' : undefined }}>¥{plan.price.toLocaleString()}/月</p>
+                              <p className="text-xs text-zinc-500">
+                                {plan.chips != null && <>{plan.chips.toLocaleString()} チップ付与 · </>}
+                                スタミナ {plan.stamina} · スピン {plan.spinsPerDay}回/日
+                              </p>
+                            </>
+                          )}
+                        </div>
+                        <span className={`text-xs font-medium shrink-0 ${isDowngrade ? 'text-zinc-400' : 'text-gold'}`}>
+                          {loading ? (isDowngrade ? '処理中…' : 'リダイレクト中…') : isDowngrade ? '翌月から解約' : 'アップグレード'}
+                        </span>
+                      </button>
+                    );
+                  })
+                )}
               </div>
-              <p className="px-4 pb-4 text-xs text-zinc-500">プラン変更はアプリ内またはサポートへ</p>
+              <p className="px-4 pb-4 text-xs text-zinc-500">{isAppStore ? '価格はApp Store（30%上乗せ）で表示されています。' : 'プラン変更はアプリ内またはサポートへ'}</p>
             </div>
           </section>
 
