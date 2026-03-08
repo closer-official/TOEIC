@@ -58,9 +58,9 @@ function LoginContent() {
             const url = typeof r?.url === 'string' ? r.url : '';
             if (url.includes('/auth/callback')) {
               try {
-                const prev = sessionStorage.getItem(LAST_HANDLED_KEY);
+                const prev = localStorage.getItem(LAST_HANDLED_KEY);
                 if (prev === url) return;
-                sessionStorage.setItem(LAST_HANDLED_KEY, url);
+                localStorage.setItem(LAST_HANDLED_KEY, url);
               } catch {
                 // ignore
               }

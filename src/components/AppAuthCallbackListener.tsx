@@ -9,9 +9,9 @@ function handleAuthUrl(url: string): void {
   if (!url.includes(AUTH_CALLBACK_PATH)) return;
   if (typeof window !== 'undefined') {
     try {
-      const prev = sessionStorage.getItem(LAST_HANDLED_KEY);
+      const prev = localStorage.getItem(LAST_HANDLED_KEY);
       if (prev === url) return;
-      sessionStorage.setItem(LAST_HANDLED_KEY, url);
+      localStorage.setItem(LAST_HANDLED_KEY, url);
     } catch {
       // ignore
     }
