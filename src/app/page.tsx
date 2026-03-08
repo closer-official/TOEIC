@@ -18,6 +18,7 @@ type SessionUser = { id: string; avatarUrl: string | null };
 export default function HomePage() {
   const router = useRouter();
   const [session, setSession] = useState<SessionUser | null | 'loading'>('loading');
+  const [showGuestRetryPrompt, setShowGuestRetryPrompt] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingLoading, setOnboardingLoading] = useState(false);
   const [profileSaveError, setProfileSaveError] = useState<string | null>(null);
@@ -72,11 +73,15 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // session が null のとき、アプリでは getSession の遅れで往復することがあるため長めに再取得。それでも null なら /login へ（自動遷移でループしないよう 1 回だけ）
+  // session が null のとき長めに再取得。アプリでは自動で /login に飛ばさず「ゲストログインをもう一度」を表示してループを防ぐ
   const hasTriedRedirect = useRef(false);
   useEffect(() => {
     if (session !== null) return;
     if (hasTriedRedirect.current) return;
+    const isApp = typeof window !== 'undefined' && (
+      process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' ||
+      (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()
+    );
     let cancelled = false;
     const run = async () => {
       for (const waitMs of [600, 1200, 2400]) {
@@ -92,7 +97,11 @@ export default function HomePage() {
       }
       if (!cancelled && !hasTriedRedirect.current) {
         hasTriedRedirect.current = true;
-        router.replace('/login');
+        if (isApp) {
+          setShowGuestRetryPrompt(true);
+        } else {
+          router.replace('/login');
+        }
       }
     };
     run();
@@ -217,6 +226,23 @@ export default function HomePage() {
   }, [mouseDown]);
 
   if (session === 'loading' || session === null) {
+    if (showGuestRetryPrompt) {
+      return (
+        <div className="flex min-h-screen items-center justify-center home-bg">
+          <div className="flex flex-col items-center gap-4 px-6 text-center">
+            <p className="text-sm text-zinc-400">セッションを読み込めませんでした。</p>
+            <p className="text-xs text-zinc-500">アプリでは反映に時間がかかることがあります。</p>
+            <button
+              type="button"
+              onClick={() => router.replace('/login')}
+              className="rounded border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-6 py-3 text-sm text-[var(--gold)]"
+            >
+              ゲストログインをもう一度
+            </button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex min-h-screen items-center justify-center home-bg">
         <div className="flex flex-col items-center gap-3">

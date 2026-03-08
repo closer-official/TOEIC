@@ -114,6 +114,7 @@ function LoginContent() {
           access_token: data.session.access_token,
           refresh_token: data.session.refresh_token,
         });
+        await new Promise((r) => setTimeout(r, 150));
         window.location.href = '/';
         return;
       }
