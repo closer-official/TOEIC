@@ -8,12 +8,13 @@ import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
 function PrivacyContent() {
   const searchParams = useSearchParams();
+  // 実機ビルドでは NEXT_PUBLIC_CAPACITOR_APP=1 がビルド時に埋め込まれるので、window に依存せず先に判定
   const isApp = useMemo(
     () =>
       searchParams.get('platform') === 'app' ||
+      process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' ||
       (typeof window !== 'undefined' &&
-        (process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' ||
-          (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.())),
+        (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()),
     [searchParams]
   );
 

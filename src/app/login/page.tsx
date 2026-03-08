@@ -55,9 +55,10 @@ function LoginContent() {
       .then(({ App }) => {
         const check = () =>
           App.getLaunchUrl().then((r) => {
-            if (r?.url?.includes('/auth/callback')) {
-              const q = r.url.indexOf('?');
-              const query = q >= 0 ? r.url.slice(q) : '';
+            const url = typeof r?.url === 'string' ? r.url : '';
+            if (url.includes('/auth/callback')) {
+              const q = url.indexOf('?');
+              const query = q >= 0 ? url.slice(q) : '';
               window.location.href = `/auth/callback${query}`;
             }
           });
@@ -209,7 +210,7 @@ function LoginContent() {
               letterSpacing: '0.18em',
             }}
           >
-            LOUNGEに潜入する
+            ゲストログイン
           </button>
         </div>
       </div>
