@@ -115,7 +115,9 @@ function LoginContent() {
           refresh_token: data.session.refresh_token,
         });
         await new Promise((r) => setTimeout(r, 150));
-        window.location.href = '/';
+        const at = encodeURIComponent(data.session.access_token);
+        const rt = encodeURIComponent(data.session.refresh_token);
+        window.location.href = `/?app_at=${at}&app_rt=${rt}`;
         return;
       }
       router.push('/');

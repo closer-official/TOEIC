@@ -31,8 +31,19 @@ function AuthCallbackContent() {
     const supabase = createClient();
     supabase.auth
       .exchangeCodeForSession(code)
-      .then(() => {
+      .then(async () => {
         setStatus('done');
+        const { data } = await supabase.auth.getSession();
+        const isApp =
+          process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' ||
+          (typeof window !== 'undefined' &&
+            (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
+        const at = data.session?.access_token;
+        const rt = data.session?.refresh_token;
+        if (isApp && at && rt) {
+          window.location.replace(`/?app_at=${encodeURIComponent(at)}&app_rt=${encodeURIComponent(rt)}`);
+          return;
+        }
         window.location.replace('/');
       })
       .catch((err) => {

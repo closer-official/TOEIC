@@ -1,5 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -12,6 +11,7 @@ export function isSupabaseConfigured(): boolean {
 
 /** 実機（Capacitor）のときのみ true。セッションを Preferences に永続化するために使用 */
 function isCapacitorApp(): boolean {
+  if (process.env.NEXT_PUBLIC_CAPACITOR_APP === '1') return true;
   if (typeof window === 'undefined') return false;
   const Cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
   return Cap?.isNativePlatform?.() === true;
@@ -39,23 +39,30 @@ function getCapacitorStorage(): { getItem: (key: string) => Promise<string | nul
 export function createClient(): SupabaseClient {
   if (!supabaseUrl || !supabaseAnonKey) {
     if (!_client) {
-      _client = createBrowserClient(
+      _client = createSupabaseClient(
         'https://placeholder.supabase.co',
-        'placeholder-key'
+        'placeholder-key',
+        { auth: { persistSession: true, autoRefreshToken: true } }
       );
     }
     return _client;
   }
   if (!_client) {
-    if (typeof window !== 'undefined' && isCapacitorApp()) {
-      _client = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    if (isCapacitorApp()) {
+      _client = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
         auth: {
           storage: getCapacitorStorage(),
           persistSession: true,
+          autoRefreshToken: true,
         },
       });
     } else {
-      _client = createBrowserClient(supabaseUrl, supabaseAnonKey);
+      _client = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+      });
     }
   }
   return _client;

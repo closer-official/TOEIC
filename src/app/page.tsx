@@ -18,6 +18,7 @@ type SessionUser = { id: string; avatarUrl: string | null };
 export default function HomePage() {
   const router = useRouter();
   const [session, setSession] = useState<SessionUser | null | 'loading'>('loading');
+  const [authReady, setAuthReady] = useState(false);
   const [showGuestRetryPrompt, setShowGuestRetryPrompt] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingLoading, setOnboardingLoading] = useState(false);
@@ -28,39 +29,84 @@ export default function HomePage() {
   const [mouseDown, setMouseDown] = useState(false);
   const touchStartY = useRef<number | null>(null);
   const mouseStartY = useRef<number | null>(null);
+  const authReadyRef = useRef(false);
 
   useEffect(() => {
     const supabase = createClient();
-    const applySession = () => {
-      supabase.auth.getSession().then(({ data }) => {
+    const applySession = async () => {
+      const { data } = await supabase.auth.getSession();
         const u = data.session?.user;
         if (!u) {
           setSession(null);
-          return;
+          return false;
         }
         const avatarUrl =
           (u.user_metadata?.avatar_url as string) ??
           (u.user_metadata?.picture as string) ??
           null;
         setSession({ id: u.id, avatarUrl });
-      });
+        return true;
     };
+    const markAuthReady = () => {
+      authReadyRef.current = true;
+      setAuthReady(true);
+    };
+    // 実機: ログイン直後に URL で渡されたトークンを最優先で取り込み、すぐ URL を掃除する
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const at = params.get('app_at');
+      const rt = params.get('app_rt');
+      if (at && rt) {
+        supabase.auth
+          .setSession({ access_token: at, refresh_token: rt })
+          .then(() => applySession())
+          .finally(() => markAuthReady())
+          .finally(() => {
+            params.delete('app_at');
+            params.delete('app_rt');
+            const next = params.toString();
+            const cleanUrl = `${window.location.pathname}${next ? `?${next}` : ''}${window.location.hash}`;
+            window.history.replaceState({}, '', cleanUrl);
+          });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+          const u = s?.user;
+          if (!u) {
+            if (!authReadyRef.current) return;
+            setSession(null);
+            return;
+          }
+          const avatarUrl =
+            (u.user_metadata?.avatar_url as string) ??
+            (u.user_metadata?.picture as string) ??
+            null;
+          setSession({ id: u.id, avatarUrl });
+        });
+        return () => subscription.unsubscribe();
+      }
+    }
     // アプリ: フルリロード後のゲストセッションを Preferences から復元してから getSession
     import('@/lib/app-session-bridge').then(({ restoreSessionFromBridge }) => {
       restoreSessionFromBridge(async (s) => {
-        await supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
-      }).then((restored) => {
+        const { error } = await supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
+        if (error) throw error;
+      }).then(async (restored) => {
         if (restored) {
-          applySession();
+          await applySession();
+          markAuthReady();
           return;
         }
-        applySession();
+        await applySession();
+        markAuthReady();
       });
-    }).catch(() => applySession());
+    }).catch(async () => {
+      await applySession();
+      markAuthReady();
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       const u = s?.user;
       if (!u) {
+        if (!authReadyRef.current) return;
         setSession(null);
         return;
       }
@@ -76,6 +122,7 @@ export default function HomePage() {
   // session が null のとき長めに再取得。アプリでは自動で /login に飛ばさず「ゲストログインをもう一度」を表示してループを防ぐ
   const hasTriedRedirect = useRef(false);
   useEffect(() => {
+    if (!authReady) return;
     if (session !== null) return;
     if (hasTriedRedirect.current) return;
     const isApp = typeof window !== 'undefined' && (
@@ -108,7 +155,7 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [session, router]);
+  }, [authReady, session, router]);
 
   useEffect(() => {
     fetch('/api/ranking/preview', { credentials: 'include' })
