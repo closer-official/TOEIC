@@ -105,9 +105,18 @@ function LoginContent() {
     setLoading(true);
     setError('');
     try {
-      const { error: err } = await supabase.auth.signInAnonymously();
+      const { data, error: err } = await supabase.auth.signInAnonymously();
       if (err) throw err;
-      // アプリではフルリロードすると WebView でセッションが読めずログイン⇔読み込みの往復になるため、同一コンテキストで router 遷移する
+      const isApp = process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' || (typeof window !== 'undefined' && (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
+      if (isApp && data?.session) {
+        const { saveSessionForReload } = await import('@/lib/app-session-bridge');
+        await saveSessionForReload({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+        window.location.href = '/';
+        return;
+      }
       router.push('/');
       router.refresh();
     } catch (e) {

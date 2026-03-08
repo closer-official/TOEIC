@@ -30,18 +30,31 @@ export default function HomePage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => {
-      const u = data.session?.user;
-      if (!u) {
-        setSession(null);
-        return;
-      }
-      const avatarUrl =
-        (u.user_metadata?.avatar_url as string) ??
-        (u.user_metadata?.picture as string) ??
-        null;
-      setSession({ id: u.id, avatarUrl });
-    });
+    const applySession = () => {
+      supabase.auth.getSession().then(({ data }) => {
+        const u = data.session?.user;
+        if (!u) {
+          setSession(null);
+          return;
+        }
+        const avatarUrl =
+          (u.user_metadata?.avatar_url as string) ??
+          (u.user_metadata?.picture as string) ??
+          null;
+        setSession({ id: u.id, avatarUrl });
+      });
+    };
+    // アプリ: フルリロード後のゲストセッションを Preferences から復元してから getSession
+    import('@/lib/app-session-bridge').then(({ restoreSessionFromBridge }) => {
+      restoreSessionFromBridge((s) => supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token })).then((restored) => {
+        if (restored) {
+          applySession();
+          return;
+        }
+        applySession();
+      });
+    }).catch(() => applySession());
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       const u = s?.user;
       if (!u) {
