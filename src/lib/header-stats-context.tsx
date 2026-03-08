@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { computeCurrentStamina, getMaxStamina, type SubscriptionTier } from '@/lib/stamina';
 
 const STORAGE_KEY = 'shun_header_stats';
 const USER_STORAGE_KEY = 'shun_header_user';
@@ -101,18 +102,60 @@ export function HeaderStatsProvider({ children }: { children: ReactNode }) {
       fetch('/api/stamina?offline=1', { credentials: 'include' }),
       fetch('/api/gems', { credentials: 'include' }),
     ]);
-    const staminaJson = staminaRes.ok ? await staminaRes.json().catch(() => null) : null;
-    const gemsJson = gemsRes.ok ? await gemsRes.json().catch(() => null) : null;
+    if (staminaRes.ok && gemsRes.ok) {
+      const staminaJson = await staminaRes.json().catch(() => null);
+      const gemsJson = await gemsRes.json().catch(() => null);
+      const next: HeaderStats = {
+        gems: Math.max(0, gemsJson?.gems ?? 0),
+        stamina: staminaJson?.stamina ?? 0,
+        maxStamina: staminaJson?.maxStamina ?? 50,
+        nextRecoveryAt: staminaJson?.nextRecoveryAt ?? null,
+        recoveryIntervalMs: staminaJson?.recoveryIntervalMs ?? null,
+        ...(staminaJson?.offlineMeta && { offlineMeta: staminaJson.offlineMeta }),
+      };
+      setStats(next);
+      saveToStorage({ ...next, offlineMeta: undefined });
+      return;
+    }
+
+    // 実機で API cookie が不安定な場合のフォールバック: Supabase クライアントから直接取得
+    const supabase = createClient();
+    const { data: s } = await supabase.auth.getSession();
+    const uid = s.session?.user?.id;
+    if (!uid) return;
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('gems, stamina_count, last_stamina_at, subscription_tier, is_subscriber, evolution_stamina_bonus')
+      .eq('user_id', uid)
+      .maybeSingle();
+    const p = profile as {
+      gems?: number;
+      stamina_count?: number;
+      last_stamina_at?: string | null;
+      subscription_tier?: string | null;
+      is_subscriber?: boolean | null;
+      evolution_stamina_bonus?: number | null;
+    } | null;
+    const tier: SubscriptionTier =
+      p?.subscription_tier === 'pro' || p?.subscription_tier === 'ultra'
+        ? p.subscription_tier
+        : (p?.is_subscriber ? 'pro' : 'free');
+    const evoBonus = Math.max(0, Number(p?.evolution_stamina_bonus ?? 0));
+    const { stamina, nextRecoveryAt } = computeCurrentStamina(
+      Math.max(0, Number(p?.stamina_count ?? 0)),
+      p?.last_stamina_at ?? null,
+      tier,
+      evoBonus
+    );
+    const maxStamina = getMaxStamina(tier) + evoBonus;
     const next: HeaderStats = {
-      gems: Math.max(0, gemsJson?.gems ?? 0),
-      stamina: staminaJson?.stamina ?? 0,
-      maxStamina: staminaJson?.maxStamina ?? 50,
-      nextRecoveryAt: staminaJson?.nextRecoveryAt ?? null,
-      recoveryIntervalMs: staminaJson?.recoveryIntervalMs ?? null,
-      ...(staminaJson?.offlineMeta && { offlineMeta: staminaJson.offlineMeta }),
+      gems: Math.max(0, Number(p?.gems ?? 0)),
+      stamina,
+      maxStamina,
+      nextRecoveryAt,
+      recoveryIntervalMs: maxStamina > 0 ? Math.floor((24 * 60 * 60 * 1000) / maxStamina) : null,
     };
     setStats(next);
-    if (staminaRes.ok) saveToStorage({ ...next, offlineMeta: undefined });
   }, []);
 
   const fetchUser = useCallback(async (uid: string, avatarUrl: string | null): Promise<HeaderUser> => {

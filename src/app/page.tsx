@@ -119,7 +119,7 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // session が null のとき長めに再取得。アプリでは自動で /login に飛ばさず「ゲストログインをもう一度」を表示してループを防ぐ
+  // session が null のとき長めに再取得。復元できない場合も自動で /login に飛ばさず、案内を表示してループを防ぐ
   const hasTriedRedirect = useRef(false);
   useEffect(() => {
     if (!authReady) return;
@@ -144,11 +144,7 @@ export default function HomePage() {
       }
       if (!cancelled && !hasTriedRedirect.current) {
         hasTriedRedirect.current = true;
-        if (isApp) {
-          setShowGuestRetryPrompt(true);
-        } else {
-          router.replace('/login');
-        }
+        setShowGuestRetryPrompt(true);
       }
     };
     run();
@@ -284,7 +280,7 @@ export default function HomePage() {
               onClick={() => router.replace('/login')}
               className="rounded border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-6 py-3 text-sm text-[var(--gold)]"
             >
-              ゲストログインをもう一度
+              ログイン画面へ（再ログイン）
             </button>
           </div>
         </div>
