@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { setApiBearerToken } from '@/lib/api-bearer';
 
 /**
  * アプリ（Capacitor）から OAuth コールバックで開かれたときに使用。
@@ -40,6 +41,7 @@ function AuthCallbackContent() {
             (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
         const at = data.session?.access_token;
         const rt = data.session?.refresh_token;
+        if (at) setApiBearerToken(at);
         if (isApp && at && rt) {
           window.location.replace(`/?app_at=${encodeURIComponent(at)}&app_rt=${encodeURIComponent(rt)}`);
           return;

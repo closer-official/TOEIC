@@ -1,40 +1,15 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 
 
 export const dynamic = 'force-static';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
-
-/** Route Handler では Cookie の set が制限される場合があるため、setAll は no-op */
-async function createSupabase() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL or anon key is missing');
-  }
-  const cookieStore = await cookies();
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(_cookiesToSet) {
-        // Route Handler 内での cookie 更新はスキップ（認証は読み取りのみ）
-      },
-    },
-  });
-}
 
 /** POST: { word, meanings, sourceQuestionId? } — Tap to Register（認証必須） */
 export async function POST(req: NextRequest) {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const supabase = await createSupabase();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
     if (authError || !user) {
       return NextResponse.json({ error: 'ログインしてください' }, { status: 401 });
     }
@@ -80,11 +55,8 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   if (process.env.BUILD_IOS === '1') return NextResponse.json({ error: 'Not available in static export' }, { status: 404 });
   try {
-    const supabase = await createSupabase();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const supabase = await createApiSupabaseClient();
+    const { user, authError } = await getApiUser(supabase);
     if (authError || !user) return NextResponse.json([]);
     const { data, error } = await supabase
       .from('user_vocabulary')

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
+import { setApiBearerToken } from '@/lib/api-bearer';
 import { OnboardingModal, type OnboardingForm } from '@/components/OnboardingModal';
 import { AppHeader } from '@/components/AppHeader';
 import { HomeSideButtons, HomeNavInline, hasSideNavItems } from '@/components/HomeSideButtons';
@@ -57,6 +58,7 @@ export default function HomePage() {
       const at = params.get('app_at');
       const rt = params.get('app_rt');
       if (at && rt) {
+        setApiBearerToken(at);
         supabase.auth
           .setSession({ access_token: at, refresh_token: rt })
           .then(() => applySession())

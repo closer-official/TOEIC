@@ -1,15 +1,10 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createApiSupabaseClient, getApiUser } from '@/lib/api-auth';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
 
-export const dynamic = 'force-static';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+export const dynamic = 'force-dynamic';
 
 const STATIC_QUESTION_SHAPE = {
   id: '',
@@ -58,32 +53,13 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const mode = searchParams.get('mode') ?? 'national';
   const limit = Math.min(50, Math.max(10, parseInt(searchParams.get('limit') ?? '20', 10)));
+  const supabase = await createApiSupabaseClient();
+  const { user, authError } = await getApiUser(supabase);
 
   // For You: 認証で user_logs を読み、間違えた問題の種類（品詞/語彙等）の類題を優先
   if (mode === 'forYou') {
-    const cookieStore = await cookies();
-    const supabaseAuth = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // ignore
-          }
-        },
-      },
-    });
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseAuth.auth.getUser();
     if (!authError && user) {
-      const { data: logs } = await supabaseAuth
+      const { data: logs } = await supabase
         .from('user_logs')
         .select('question_id, correct, category')
         .eq('user_id', user.id)
@@ -107,7 +83,7 @@ export async function GET(req: NextRequest) {
         .slice(0, 5);
       const priorityCategories = [...recentWrongCategories, ...weakCategories.filter((c) => !seenWrong.has(c))].slice(0, 8);
       if (priorityCategories.length > 0) {
-        const { data: priorityQuestions } = await supabaseAuth
+        const { data: priorityQuestions } = await supabase
           .from('questions')
           .select('*')
           .in('category', priorityCategories)
@@ -116,7 +92,7 @@ export async function GET(req: NextRequest) {
         if (priorityQuestions?.length) {
           const rest = limit - priorityQuestions.length;
           const ids = new Set(priorityQuestions.map((q) => q.id));
-          const { data: others } = await supabaseAuth
+          const { data: others } = await supabase
             .from('questions')
             .select('*')
             .not('id', 'in', `(${Array.from(ids).join(',')})`)
@@ -127,8 +103,6 @@ export async function GET(req: NextRequest) {
       }
     }
   }
-
-  const supabase = createServerSupabaseClient();
 
   // national: 全件取得してランダムに出題。直近3回の run で出題した問題はなるべく避ける
   if (mode === 'national') {
@@ -150,26 +124,6 @@ export async function GET(req: NextRequest) {
     let totalCount = pool.length;
 
     // 認証ユーザー: 直近3回の Part5 run で出題した問題 ID を取得して除外
-    const cookieStore = await cookies();
-    const supabaseAuth = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // ignore
-          }
-        },
-      },
-    });
-    const {
-      data: { user },
-    } = await supabaseAuth.auth.getUser();
     if (user?.id) {
       const { data: recentRuns } = await supabase
         .from('runs')

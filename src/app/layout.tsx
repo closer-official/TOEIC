@@ -87,7 +87,7 @@ export default function RootLayout({
         {apiOrigin ? (
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){var e=document.documentElement,o=e.getAttribute('data-api-origin')||'';if(o){var f=window.fetch;window.fetch=function(u,opts){if(typeof u==='string'&&u.startsWith('/'))u=o+u;return f.call(this,u,opts);};}})();`,
+              __html: `(function(){var e=document.documentElement,o=e.getAttribute('data-api-origin')||'';if(!o)return;var f=window.fetch;function token(){try{var explicit=localStorage.getItem('app_api_bearer_token')||'';if(explicit)return explicit;for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i)||'';if(!/^sb-.*-auth-token$/.test(k))continue;var raw=localStorage.getItem(k);if(!raw)continue;var p=JSON.parse(raw);if(p&&typeof p==='object'){if(typeof p.access_token==='string'&&p.access_token)return p.access_token;if(Array.isArray(p)&&p[0]&&typeof p[0].access_token==='string')return p[0].access_token;if(p.currentSession&&typeof p.currentSession.access_token==='string')return p.currentSession.access_token;}}}catch(_e){}return '';}window.fetch=function(u,opts){var isRel=typeof u==='string'&&u.charAt(0)==='/';var url=isRel?o+u:u;var target=typeof url==='string'?url:(url&&url.url?url.url:'');var isApi=typeof target==='string'&&target.indexOf('/api/')>=0;var finalOpts=opts?Object.assign({},opts):{};if(isApi){if(finalOpts.credentials==null)finalOpts.credentials='include';var t=token();if(t){var h=new Headers(finalOpts.headers||undefined);if(!h.get('Authorization'))h.set('Authorization','Bearer '+t);finalOpts.headers=h;}}return f.call(this,url,finalOpts);};})();`,
             }}
           />
         ) : null}

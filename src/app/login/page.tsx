@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { setApiBearerToken } from '@/lib/api-bearer';
 
 /** アプリ（Capacitor）用の OAuth リダイレクト先。Supabase ダッシュボードにも同じ URL を登録すること */
 const APP_AUTH_CALLBACK_URL = 'com.toeic-sigma.shun://auth/callback';
@@ -115,6 +116,7 @@ function LoginContent() {
     try {
       const { data, error: err } = await supabase.auth.signInAnonymously();
       if (err) throw err;
+      setApiBearerToken(data?.session?.access_token ?? null);
       const isApp = process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' || (typeof window !== 'undefined' && (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
       if (isApp && data?.session) {
         const { saveSessionForReload } = await import('@/lib/app-session-bridge');

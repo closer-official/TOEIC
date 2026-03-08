@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { setApiBearerToken } from '@/lib/api-bearer';
 
 const AUTH_CALLBACK_PATH = '/auth/callback';
 const LAST_HANDLED_KEY = 'last_auth_callback_url';
@@ -31,6 +33,18 @@ const LAUNCH_URL_RETRY_DELAYS_MS = [0, 200, 500, 1000, 2000, 3500];
  */
 export function AppAuthCallbackListener() {
   const handled = useRef(false);
+
+  // API 呼び出し用 Bearer を常に最新化（実機クロスオリジン時の API 認証対策）
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      setApiBearerToken(data.session?.access_token ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      setApiBearerToken(s?.access_token ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const isApp =
