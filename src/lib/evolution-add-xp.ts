@@ -74,7 +74,8 @@ export async function addEvolutionXp(
       .eq('user_id', userId);
   }
 
-  const newGuild = guildMember ? currentGuild : currentGuild + addGuild;
+  // プレイで獲得したギルドXPは所属の有無にかかわらず所持ギルドXPに加算
+  const newGuild = currentGuild + addGuild;
 
   if (profile == null) {
     const { error: upsertErr } = await supabase

@@ -362,7 +362,8 @@ export async function POST(req: NextRequest) {
         .eq('user_id', user.id);
     }
 
-    const newGuild = guildMember ? currentGuild : currentGuild + addGuild;
+    // プレイで獲得したギルドXPは所属の有無にかかわらず所持ギルドXPに加算（研究室・寄付表示は上で更新済み）
+    const newGuild = currentGuild + addGuild;
 
     if (profile == null) {
       const { error: upsertErr } = await supabase

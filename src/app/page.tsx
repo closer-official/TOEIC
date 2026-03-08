@@ -46,7 +46,9 @@ export default function HomePage() {
     };
     // アプリ: フルリロード後のゲストセッションを Preferences から復元してから getSession
     import('@/lib/app-session-bridge').then(({ restoreSessionFromBridge }) => {
-      restoreSessionFromBridge((s) => supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token })).then((restored) => {
+      restoreSessionFromBridge(async (s) => {
+        await supabase.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
+      }).then((restored) => {
         if (restored) {
           applySession();
           return;
