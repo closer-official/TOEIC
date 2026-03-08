@@ -3,9 +3,19 @@
 import { useEffect, useRef } from 'react';
 
 const AUTH_CALLBACK_PATH = '/auth/callback';
+const LAST_HANDLED_KEY = 'last_auth_callback_url';
 
 function handleAuthUrl(url: string): void {
   if (!url.includes(AUTH_CALLBACK_PATH)) return;
+  if (typeof window !== 'undefined') {
+    try {
+      const prev = sessionStorage.getItem(LAST_HANDLED_KEY);
+      if (prev === url) return;
+      sessionStorage.setItem(LAST_HANDLED_KEY, url);
+    } catch {
+      // ignore
+    }
+  }
   const q = url.indexOf('?');
   const query = q >= 0 ? url.slice(q) : '';
   window.location.href = `${AUTH_CALLBACK_PATH}${query}`;

@@ -7,6 +7,7 @@ import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 /** アプリ（Capacitor）用の OAuth リダイレクト先。Supabase ダッシュボードにも同じ URL を登録すること */
 const APP_AUTH_CALLBACK_URL = 'com.toeic-sigma.shun://auth/callback';
+const LAST_HANDLED_KEY = 'last_auth_callback_url';
 
 function getAuthRedirectUrl(): string {
   // 実機ビルドではビルド時に NEXT_PUBLIC_CAPACITOR_APP=1 が入るので、runtime の Capacitor に依存しない
@@ -56,6 +57,13 @@ function LoginContent() {
           App.getLaunchUrl().then((r) => {
             const url = typeof r?.url === 'string' ? r.url : '';
             if (url.includes('/auth/callback')) {
+              try {
+                const prev = sessionStorage.getItem(LAST_HANDLED_KEY);
+                if (prev === url) return;
+                sessionStorage.setItem(LAST_HANDLED_KEY, url);
+              } catch {
+                // ignore
+              }
               const q = url.indexOf('?');
               const query = q >= 0 ? url.slice(q) : '';
               window.location.href = `/auth/callback${query}`;
