@@ -59,11 +59,20 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // session が null のとき即 /login にすると、ゲスト・OAuth 直後の一瞬の未読で戻されてチカチカするため、短い遅延＋1回再取得してからリダイレクト
   useEffect(() => {
-    if (session === null) {
+    if (session !== null) return;
+    const t = setTimeout(async () => {
+      const { data } = await createClient().auth.getSession();
+      if (data.session?.user) {
+        const u = data.session.user;
+        const avatarUrl = (u.user_metadata?.avatar_url as string) ?? (u.user_metadata?.picture as string) ?? null;
+        setSession({ id: u.id, avatarUrl });
+        return;
+      }
       router.replace('/login');
-      return;
-    }
+    }, 500);
+    return () => clearTimeout(t);
   }, [session, router]);
 
   useEffect(() => {

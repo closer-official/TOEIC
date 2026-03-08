@@ -107,6 +107,12 @@ function LoginContent() {
     try {
       const { error: err } = await supabase.auth.signInAnonymously();
       if (err) throw err;
+      // アプリでは router だけだとホームで getSession() がまだ null のままになり /login に戻されることがあるため、フルリロードで確実にセッションを読ませる
+      const isApp = process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' || (typeof window !== 'undefined' && (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
+      if (isApp) {
+        window.location.href = '/';
+        return;
+      }
       router.push('/');
       router.refresh();
     } catch (e) {
