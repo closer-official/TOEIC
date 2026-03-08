@@ -60,7 +60,7 @@ export function OfflineDownloadScreen() {
             />
           </div>
         </div>
-        <p className="text-center text-sm text-zinc-400">初回のためスキップできません</p>
+        <p className="text-center text-sm text-zinc-400">初回プレイのためスキップできません</p>
         {downloadProgress <= 0 && (
           <button
             type="button"

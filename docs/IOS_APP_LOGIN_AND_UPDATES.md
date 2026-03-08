@@ -1,5 +1,61 @@
 # 実機ビルド（iOS アプリ）: ログインのアプリ内完結と自動更新について
 
+## コードを実機に反映させる手順（毎回これだけ）
+
+変更を **Git → Mac → 実機** に反映するときは、次の順番で行います。
+
+### Windows（Cursor）側
+
+1. 変更をコミットして push する  
+   ```powershell
+   cd C:\Users\tduka\closer
+   git status
+   git add .
+   git commit -m "説明を短く書く（例: 初回ダウンロードをゲーム時へ変更）"
+   git push
+   ```
+2. `git push` が成功するまでエラーを解消する（コンフリクトや未コミットがあれば対応）。
+
+### Mac 側
+
+1. **pull で最新コードを取る**  
+   ```bash
+   cd /path/to/closer   # 例: cd ~/TOEIC や cd /Users/あなたの名前/closer
+   git pull
+   ```
+   - `Info.plist` などの変更で pull できないときは、先に  
+     `git stash push -m "mac" -- ios/App/App/Info.plist`  
+     で退避してから `git pull` する。
+
+2. **依存と lock を揃える（初回 or エラー時）**  
+   ```bash
+   npm install
+   ```
+
+3. **iOS 用にビルドする（必ず build:ios）**  
+   ```bash
+   npm run build:ios
+   ```
+   - ここが失敗すると実機の表示は変わらない。  
+   - `npm ci` や lock のエラーが出たら、先に `npm install` を実行してから再度 `npm run build:ios`。
+
+4. **iOS プロジェクトに反映する**  
+   ```bash
+   npx cap sync ios
+   ```
+
+5. **Xcode で実機にインストールする**  
+   ```bash
+   npx cap open ios
+   ```
+   - Xcode が開いたら: 実機を選んで **Product → Run**（▶）  
+   - まだ古い表示のとき: **Product → Clean Build Folder** を実行してから再度 Run。  
+   - 実機にアプリが残っている場合は、**実機上でアプリを削除**してからもう一度 Run すると確実。
+
+**重要**: `npm run build` ではなく **`npm run build:ios`** を必ず使う。`build` だけだと実機用の設定が入らず、見た目が変わらない。
+
+---
+
 ## 0. 作業の流れ（ウェブ版 vs App Store）
 
 ### ウェブ版（Windows / Cursor で完結）
@@ -56,6 +112,36 @@
 - **ビルド成果物（`out/`）は Git に含めず、Mac で毎回 `npm run build:ios` を実行**します。  
   そうすると、常に「今のコード」でアプリが組み上がります。
 - Xcode のアーカイブ・審査提出は Mac でしかできないため、**「コードは Windows、アプリのビルド・提出は Mac」**という分担になります。
+
+#### 実機に反映されないときの確認（「ラウンジに潜入」のまま等）
+
+1. **Windows で push できているか**  
+   - `git status` で変更が残っていないか  
+   - `git log -1 --oneline` で直近のコミットにその変更が含まれているか  
+   - 必要なら `git add src/app/login/page.tsx` → `git commit -m "ゲストログインに文言変更"` → `git push`
+
+2. **Mac で pull できているか**  
+   ```bash
+   cd /path/to/closer
+   git pull
+   grep -n "ゲストログイン" src/app/login/page.tsx
+   ```  
+   - 「ゲストログイン」の行が表示されればソースは最新。  
+   - 「LOUNGEに潜入」が出る場合は pull できていないか別ブランチになっている。
+
+3. **必ず `npm run build:ios` を使う**  
+   - `npm run build` だけだと Web 用のビルドになり、実機用の設定が入らない。  
+   - 毎回 `npm run build:ios` を実行してから `npx cap sync ios` する。
+
+4. **ビルド後の out/ を確認（任意）**  
+   ```bash
+   grep -r "ゲストログイン" out/
+   ```  
+   - 何かヒットすれば、その out/ が実機用の内容として使われる。
+
+5. **実機で古いアプリが動いていないか**  
+   - Xcode で **Product → Clean Build Folder** のあと、実機を選んで **Run** し直す。  
+   - 実機に以前インストールしたアプリを手動で削除してから、再度 Run すると確実。
 
 ---
 

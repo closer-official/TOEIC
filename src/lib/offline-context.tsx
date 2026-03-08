@@ -31,6 +31,10 @@ type OfflineContextValue = {
   downloadPhase: OfflineDownloadPhase;
   /** 初回はスキップ不可 */
   canSkipDownload: boolean;
+  /** 初回ダウンロードが未実施で、ゲームプレイ時に表示する状態 */
+  needsFirstDownload: boolean;
+  /** 初回ダウンロード画面を表示（ゲーム初回プレイ時に呼ぶ） */
+  showFirstDownload: () => void;
   /** ダウンロード進捗 0..1 */
   downloadProgress: number;
   downloadLabel: string;
@@ -59,6 +63,7 @@ const OfflineContext = createContext<OfflineContextValue | null>(null);
 export function OfflineProvider({ children }: { children: ReactNode }) {
   const [downloadPhase, setDownloadPhase] = useState<OfflineDownloadPhase>('checking');
   const [canSkipDownload, setCanSkipDownload] = useState(false);
+  const [needsFirstDownload, setNeedsFirstDownload] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadLabel, setDownloadLabel] = useState('');
   const [pendingRunsCount, setPendingRunsCount] = useState(0);
@@ -137,6 +142,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
 
       await setDownloadState({ firstDownloadDone: true, vocabVersion: version, part5Version });
       setDownloadProgress(1);
+      setNeedsFirstDownload(false);
       setDownloadPhase('ready');
       onComplete?.();
     } catch (e) {
@@ -149,15 +155,21 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     setDownloadPhase('ready');
   }, []);
 
+  const showFirstDownload = useCallback(() => {
+    setDownloadPhase('first');
+    setCanSkipDownload(false);
+    setDownloadLabel('初回プレイのため、問題データをダウンロードします。');
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const state = await getDownloadState();
       if (cancelled) return;
       if (!state?.firstDownloadDone) {
-        setDownloadPhase('first');
-        setCanSkipDownload(false);
-        setDownloadLabel('初回起動のため、問題データをダウンロードします。');
+        setNeedsFirstDownload(true);
+        setDownloadPhase('ready');
+        setDownloadLabel('');
         return;
       }
       try {
@@ -251,6 +263,8 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     () => ({
       downloadPhase,
       canSkipDownload,
+      needsFirstDownload,
+      showFirstDownload,
       downloadProgress,
       downloadLabel,
       runDownload,
@@ -266,6 +280,8 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     [
       downloadPhase,
       canSkipDownload,
+      needsFirstDownload,
+      showFirstDownload,
       downloadProgress,
       downloadLabel,
       runDownload,
@@ -288,6 +304,8 @@ export function useOffline(): OfflineContextValue {
     return {
       downloadPhase: 'ready',
       canSkipDownload: false,
+      needsFirstDownload: false,
+      showFirstDownload: () => {},
       downloadProgress: 0,
       downloadLabel: '',
       runDownload: async () => {},

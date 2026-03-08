@@ -220,7 +220,7 @@ function supabaseToGameQuestion(q: {
 function GameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isOffline, effectiveOfflineStamina } = useOffline();
+  const { isOffline, effectiveOfflineStamina, needsFirstDownload, showFirstDownload, downloadPhase } = useOffline();
   const modeFromUrl = typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('mode') as GameMode) : null;
   const mode: GameMode = (searchParams.get('mode') as GameMode) ?? modeFromUrl ?? 'part5-national';
   const isTournamentMode = mode === 'part5-tournament' || mode === 'vocab-tournament';
@@ -795,6 +795,11 @@ function GameContent() {
   }, [rank, gameOver, isBossQuestion, perfectBonusActive, maxGameDurationMs]);
 
   const loadQueue = useCallback(async (staminaAmount: number = 5) => {
+    if (needsFirstDownload) {
+      showFirstDownload();
+      setLoading(false);
+      return;
+    }
     staminaConsumeRef.current = staminaAmount;
     const isVocab = mode.startsWith('vocab');
     const isForYou = mode.endsWith('forYou');
@@ -1100,7 +1105,7 @@ function GameContent() {
     setIsSupabaseQueue(false);
     setQueue([]);
     setLoading(false);
-  }, [mode, isOffline, effectiveOfflineStamina]);
+  }, [mode, isOffline, effectiveOfflineStamina, needsFirstDownload, showFirstDownload]);
 
   useEffect(() => {
     createClient()
@@ -1168,7 +1173,7 @@ function GameContent() {
       }
     };
     run();
-  }, [loadQueue, isTournamentMode, isOffline, effectiveOfflineStamina]);
+  }, [loadQueue, isTournamentMode, isOffline, effectiveOfflineStamina, downloadPhase]);
 
   // ゲームオーバー時: XP加算（オンライン時のみ。オフライン時は同期時に適用）
   useEffect(() => {
