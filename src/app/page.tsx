@@ -57,12 +57,14 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // session が null のとき、アプリでは永続化の遅れで getSession が一瞬 null になり得るため、複数回待って再取得してから /login へ
+  // session が null のとき、アプリでは getSession の遅れで往復することがあるため長めに再取得。それでも null なら /login へ（自動遷移でループしないよう 1 回だけ）
+  const hasTriedRedirect = useRef(false);
   useEffect(() => {
     if (session !== null) return;
+    if (hasTriedRedirect.current) return;
     let cancelled = false;
     const run = async () => {
-      for (const waitMs of [400, 400, 600]) {
+      for (const waitMs of [600, 1200, 2400]) {
         await new Promise((r) => setTimeout(r, waitMs));
         if (cancelled) return;
         const { data } = await createClient().auth.getSession();
@@ -73,7 +75,10 @@ export default function HomePage() {
           return;
         }
       }
-      if (!cancelled) router.replace('/login');
+      if (!cancelled && !hasTriedRedirect.current) {
+        hasTriedRedirect.current = true;
+        router.replace('/login');
+      }
     };
     run();
     return () => {

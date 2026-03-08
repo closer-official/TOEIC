@@ -107,13 +107,7 @@ function LoginContent() {
     try {
       const { error: err } = await supabase.auth.signInAnonymously();
       if (err) throw err;
-      // アプリではストレージ反映の遅れがあることがあるため少し待ってからフルリロード
-      const isApp = process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' || (typeof window !== 'undefined' && (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
-      if (isApp) {
-        await new Promise((r) => setTimeout(r, 300));
-        window.location.href = '/';
-        return;
-      }
+      // アプリではフルリロードすると WebView でセッションが読めずログイン⇔読み込みの往復になるため、同一コンテキストで router 遷移する
       router.push('/');
       router.refresh();
     } catch (e) {
