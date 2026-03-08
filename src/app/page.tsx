@@ -10,8 +10,6 @@ import { AppHeader } from '@/components/AppHeader';
 import { HomeSideButtons, HomeNavInline, hasSideNavItems } from '@/components/HomeSideButtons';
 import { BottomNav } from '@/components/BottomNav';
 import { IconPart5, IconVocab, IconEvent } from '@/components/ModeIcons';
-import { LoadingWithPercent } from '@/components/LoadingWithPercent';
-
 const SWIPE_THRESHOLD = 50;
 const TOTAL_PAGES = 3;
 
@@ -59,20 +57,28 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // session が null のとき即 /login にすると、ゲスト・OAuth 直後の一瞬の未読で戻されてチカチカするため、短い遅延＋1回再取得してからリダイレクト
+  // session が null のとき、アプリでは永続化の遅れで getSession が一瞬 null になり得るため、複数回待って再取得してから /login へ
   useEffect(() => {
     if (session !== null) return;
-    const t = setTimeout(async () => {
-      const { data } = await createClient().auth.getSession();
-      if (data.session?.user) {
-        const u = data.session.user;
-        const avatarUrl = (u.user_metadata?.avatar_url as string) ?? (u.user_metadata?.picture as string) ?? null;
-        setSession({ id: u.id, avatarUrl });
-        return;
+    let cancelled = false;
+    const run = async () => {
+      for (const waitMs of [400, 400, 600]) {
+        await new Promise((r) => setTimeout(r, waitMs));
+        if (cancelled) return;
+        const { data } = await createClient().auth.getSession();
+        if (data.session?.user) {
+          const u = data.session.user;
+          const avatarUrl = (u.user_metadata?.avatar_url as string) ?? (u.user_metadata?.picture as string) ?? null;
+          setSession({ id: u.id, avatarUrl });
+          return;
+        }
       }
-      router.replace('/login');
-    }, 500);
-    return () => clearTimeout(t);
+      if (!cancelled) router.replace('/login');
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, [session, router]);
 
   useEffect(() => {
@@ -195,7 +201,7 @@ export default function HomePage() {
       <div className="flex min-h-screen items-center justify-center home-bg">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--gold)]/70 border-t-transparent" aria-hidden />
-          <LoadingWithPercent className="text-zinc-300" />
+          <span className="text-sm text-zinc-400">読み込み中…</span>
         </div>
       </div>
     );

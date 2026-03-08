@@ -1,7 +1,6 @@
 'use client';
 
 import { useOffline } from '@/lib/offline-context';
-import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
 export function OfflineDownloadScreen() {
   const {
@@ -19,7 +18,7 @@ export function OfflineDownloadScreen() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-zinc-950">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" aria-hidden />
-        <LoadingWithPercent className="text-white" />
+        <span className="text-white">読み込み中…</span>
       </div>
     );
   }
