@@ -4,7 +4,6 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
-import { LoadingWithPercent } from '@/components/LoadingWithPercent';
 
 /** アプリ（Capacitor）用の OAuth リダイレクト先。Supabase ダッシュボードにも同じ URL を登録すること */
 const APP_AUTH_CALLBACK_URL = 'com.toeic-sigma.shun://auth/callback';
@@ -234,8 +233,8 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-black">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#C5A059]/50 border-t-transparent" />
-          <LoadingWithPercent className="text-zinc-400" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#C5A059]/50 border-t-transparent" aria-hidden />
+          <span className="text-sm text-zinc-500">読み込み中…</span>
         </div>
       }
     >

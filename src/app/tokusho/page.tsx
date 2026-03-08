@@ -11,7 +11,14 @@ const APP_STORE_URL = 'App Store の当該アプリの商品ページ';
 
 function TokushoContent() {
   const searchParams = useSearchParams();
-  const isApp = useMemo(() => searchParams.get('platform') === 'app', [searchParams]);
+  const isApp = useMemo(
+    () =>
+      searchParams.get('platform') === 'app' ||
+      process.env.NEXT_PUBLIC_CAPACITOR_APP === '1' ||
+      (typeof window !== 'undefined' &&
+        (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()),
+    [searchParams]
+  );
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-zinc-950">

@@ -61,7 +61,8 @@ type OfflineContextValue = {
 const OfflineContext = createContext<OfflineContextValue | null>(null);
 
 export function OfflineProvider({ children }: { children: ReactNode }) {
-  const [downloadPhase, setDownloadPhase] = useState<OfflineDownloadPhase>('checking');
+  // 初期は idle にし、effect で結果をセット。'checking' から始めると「読み込み中0%」が一瞬出てログイン画面と入れ替わりチカチカする
+  const [downloadPhase, setDownloadPhase] = useState<OfflineDownloadPhase>('idle');
   const [canSkipDownload, setCanSkipDownload] = useState(false);
   const [needsFirstDownload, setNeedsFirstDownload] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
