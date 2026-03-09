@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createApiSupabaseClient } from '@/lib/api-auth';
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 /** GET: 単語+Part5 合計得点ランキング。?limit=50 で件数指定。runs_best_per_user ビューで「ユーザーごとのベスト1件」を取得するため、ベスト更新が必ず反映される。 */
 export async function GET(req: NextRequest) {
