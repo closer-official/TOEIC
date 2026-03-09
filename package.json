@@ -11,6 +11,7 @@
     "build": "next build",
     "build:ios": "node scripts/prepare-ios-build.js",
     "cap:sync": "npx cap sync ios",
+    "mac:open": "npm run build:ios && npx cap sync ios && npx cap open ios",
     "start": "next start",
     "deploy": "vercel --prod --force",
     "lint": "eslint",
